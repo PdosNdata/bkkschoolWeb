@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowRight, Newspaper } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NewsSection = () => {
   const news = [
@@ -113,10 +114,19 @@ const NewsSection = () => {
                     <Calendar className="w-4 h-4 mr-1" />
                     {item.date}
                   </div>
-                  <Button variant="ghost" size="sm" className="p-0 h-auto hover:text-primary">
-                    <span className="mr-1">อ่านต่อ</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  {item.title === "เปิดรับสมัครนักเรียนปีการศึกษา 2568" ? (
+                    <Link to="/admission">
+                      <Button variant="ghost" size="sm" className="p-0 h-auto hover:text-primary">
+                        <span className="mr-1">อ่านต่อ</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="ghost" size="sm" className="p-0 h-auto hover:text-primary">
+                      <span className="mr-1">อ่านต่อ</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
