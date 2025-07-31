@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import AuthModal from "./AuthModal";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const menuItems = [
     { name: "หน้าแรก", href: "#home" },
@@ -44,8 +46,12 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button variant="default" size="sm" asChild>
-              <Link to="/dashboard">เข้าสู่ระบบ</Link>
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => setIsAuthModalOpen(true)}
+            >
+              เข้าสู่ระบบ
             </Button>
           </div>
 
@@ -72,13 +78,23 @@ const Header = () => {
                   {item.name}
                 </a>
               ))}
-              <Button variant="default" size="sm" className="w-fit" asChild>
-                <Link to="/dashboard">เข้าสู่ระบบ</Link>
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="w-fit"
+                onClick={() => setIsAuthModalOpen(true)}
+              >
+                เข้าสู่ระบบ
               </Button>
             </nav>
           </div>
         )}
       </div>
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </header>
   );
 };
