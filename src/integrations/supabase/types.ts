@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admission_applications: {
+        Row: {
+          address: string
+          birth_date: string
+          created_at: string
+          gpa: string | null
+          grade: string
+          id: string
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          previous_school: string
+          special_needs: string | null
+          student_id: string
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          birth_date: string
+          created_at?: string
+          gpa?: string | null
+          grade: string
+          id?: string
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          previous_school: string
+          special_needs?: string | null
+          student_id: string
+          student_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          birth_date?: string
+          created_at?: string
+          gpa?: string | null
+          grade?: string
+          id?: string
+          parent_email?: string
+          parent_name?: string
+          parent_phone?: string
+          previous_school?: string
+          special_needs?: string | null
+          student_id?: string
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
