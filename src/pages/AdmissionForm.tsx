@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   studentName: z.string().min(2, "กรุณาป้อนชื่อ-นามสกุลนักเรียน"),
@@ -65,9 +66,26 @@ const AdmissionForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
-    // Simulate form submission
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { error } = await supabase
+        .from('admission_applications')
+        .insert({
+          student_name: values.studentName,
+          student_id: values.studentId,
+          birth_date: values.birthDate,
+          grade: values.grade,
+          parent_name: values.parentName,
+          parent_phone: values.parentPhone,
+          parent_email: values.parentEmail,
+          address: values.address,
+          previous_school: values.previousSchool,
+          gpa: values.gpa || null,
+          special_needs: values.specialNeeds || null,
+        });
+
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "ส่งใบสมัครสำเร็จ!",
@@ -76,6 +94,7 @@ const AdmissionForm = () => {
       
       form.reset();
     } catch (error) {
+      console.error('Error submitting application:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "กรุณาลองใหม่อีกครั้ง",
