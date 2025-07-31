@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,8 +44,8 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button variant="default" size="sm">
-              สมัครเรียน
+            <Button variant="default" size="sm" asChild>
+              <Link to="/dashboard">เข้าสู่ระบบ</Link>
             </Button>
           </div>
 
@@ -71,8 +72,8 @@ const Header = () => {
                   {item.name}
                 </a>
               ))}
-              <Button variant="default" size="sm" className="w-fit">
-                สมัครเรียน
+              <Button variant="default" size="sm" className="w-fit" asChild>
+                <Link to="/dashboard">เข้าสู่ระบบ</Link>
               </Button>
             </nav>
           </div>
