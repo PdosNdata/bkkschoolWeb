@@ -9,6 +9,7 @@ import { Calendar, Users, FileText, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NewsForm from "@/components/NewsForm";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -90,6 +91,9 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* News Management */}
+        <NewsForm />
 
         {/* Activity Registration Form */}
         <Card>

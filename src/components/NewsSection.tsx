@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowRight, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import NewsForm from "./NewsForm";
-
 interface NewsItem {
   id: string;
   title: string;
@@ -89,8 +87,6 @@ const NewsSection = () => {
             ของโรงเรียนบ้านค้อดอนแคนได้ที่นี่
           </p>
         </div>
-
-        <NewsForm onNewsAdded={fetchNews} />
 
         {loading ? (
           <div className="text-center py-8">
