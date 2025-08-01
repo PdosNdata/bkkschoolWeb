@@ -20,7 +20,9 @@ const Index = () => {
       <div className="bg-muted/30">
         <NewsSection />
       </div>
-      <ContactSection />
+      <div className="bg-pink-50/70">
+        <ContactSection />
+      </div>
       <Footer />
     </div>
   );
