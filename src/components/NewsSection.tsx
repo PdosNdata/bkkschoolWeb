@@ -1,65 +1,76 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ArrowRight, Newspaper } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import NewsForm from "./NewsForm";
+
+interface NewsItem {
+  id: string;
+  title: string;
+  content: string;
+  author_name: string;
+  category: string;
+  published_date: string;
+  created_at: string;
+}
 
 const NewsSection = () => {
-  const news = [
-    {
-      title: "เปิดรับสมัครนักเรียนปีการศึกษา 2568",
-      summary: "โรงเรียนบ้านค้อดอนแคนเปิดรับสมัครนักเรียนใหม่สำหรับปีการศึกษา 2568 ทุกระดับชั้น",
-      date: "15 ม.ค. 2568",
-      category: "ประกาศ",
-      urgent: true
-    },
-    {
-      title: "กิจกรรมวันภาษาไทยแห่งชาติ",
-      summary: "จัดงานวันภาษาไทยแห่งชาติ ประจำปี 2567 เพื่อเชิดชูและอนุรักษ์ภาษาไทย",
-      date: "28 ก.ค. 2567",
-      category: "กิจกรรม",
-      urgent: false
-    },
-    {
-      title: "ผลการแข่งขันโครงงานวิทยาศาสตร์",
-      summary: "นักเรียนได้รับรางวัลชนะเลิศการแข่งขันโครงงานวิทยาศาสตร์ระดับจังหวัด",
-      date: "20 ก.ค. 2567",
-      category: "รางวัล",
-      urgent: false
-    },
-    {
-      title: "โครงการพัฒนาห้องเรียนดิจิทัล",
-      summary: "เริ่มดำเนินโครงการปรับปรุงห้องเรียนให้ทันสมัย พร้อมเทคโนโลยีการเรียนรู้",
-      date: "10 ก.ค. 2567",
-      category: "พัฒนา",
-      urgent: false
-    },
-    {
-      title: "การฝึกอบรมครูด้านเทคโนโลยี",
-      summary: "จัดอบรมครูและบุคลากรเพื่อพัฒนาทักษะการใช้เทคโนโลยีในการจัดการเรียนรู้",
-      date: "5 ก.ค. 2567",
-      category: "อบรม",
-      urgent: false
-    },
-    {
-      title: "กิจกรรมปลูกป่าเฉลิมพระเกียรติ",
-      summary: "นักเรียนและครูร่วมกิจกรรมปลูกป่าเพื่อสิ่งแวดล้อมที่ยั่งยืน",
-      date: "1 ก.ค. 2567",
-      category: "สิ่งแวดล้อม",
-      urgent: false
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('published_date', { ascending: false })
+        .limit(6);
+
+      if (error) {
+        throw error;
+      }
+
+      setNews(data || []);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      "ประกาศ": "bg-red-100 text-red-800",
-      "กิจกรรม": "bg-blue-100 text-blue-800",
-      "รางวัล": "bg-yellow-100 text-yellow-800",
-      "พัฒนา": "bg-green-100 text-green-800",
-      "อบรม": "bg-purple-100 text-purple-800",
-      "สิ่งแวดล้อม": "bg-emerald-100 text-emerald-800"
+      "general": "bg-gray-100 text-gray-800",
+      "academic": "bg-blue-100 text-blue-800",
+      "activity": "bg-green-100 text-green-800",
+      "announcement": "bg-red-100 text-red-800",
     };
     return colors[category] || "bg-gray-100 text-gray-800";
+  };
+
+  const getCategoryName = (category: string) => {
+    const names: { [key: string]: string } = {
+      "general": "ทั่วไป",
+      "academic": "วิชาการ", 
+      "activity": "กิจกรรม",
+      "announcement": "ประกาศ",
+    };
+    return names[category] || category;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -79,59 +90,55 @@ const NewsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {news.map((item, index) => (
-            <Card 
-              key={index} 
-              className={`bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group ${
-                item.urgent ? 'ring-2 ring-red-200' : ''
-              }`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge 
-                    className={`${getCategoryColor(item.category)} border-0`}
-                  >
-                    {item.category}
-                  </Badge>
-                  {item.urgent && (
-                    <Badge variant="destructive" className="text-xs">
-                      ด่วน!
+        <NewsForm onNewsAdded={fetchNews} />
+
+        {loading ? (
+          <div className="text-center py-8">
+            <p>กำลังโหลดข่าวสาร...</p>
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center py-8">
+            <p>ยังไม่มีข่าวสาร</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {news.map((item) => (
+              <Card 
+                key={item.id} 
+                className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge 
+                      className={`${getCategoryColor(item.category)} border-0`}
+                    >
+                      {getCategoryName(item.category)}
                     </Badge>
-                  )}
-                </div>
-                
-                <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
-                  {item.title}
-                </h3>
-                
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
-                  {item.summary}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-muted-foreground text-sm">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    {item.date}
                   </div>
-                  {item.title === "เปิดรับสมัครนักเรียนปีการศึกษา 2568" ? (
-                    <Link to="/admission">
-                      <Button variant="ghost" size="sm" className="p-0 h-auto hover:text-primary">
-                        <span className="mr-1">อ่านต่อ</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button variant="ghost" size="sm" className="p-0 h-auto hover:text-primary">
-                      <span className="mr-1">อ่านต่อ</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  
+                  <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                    {item.content}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <User className="w-4 h-4 mr-1" />
+                      <span>{item.author_name}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      <span>{formatDate(item.published_date)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Newsletter Section */}
         <div className="bg-gradient-card rounded-2xl p-8 md:p-12 text-center border shadow-elegant">
