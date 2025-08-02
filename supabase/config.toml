@@ -1,16 +1,14 @@
 project_id = "dhufwdxxfbahovnmjgrc"
-
 # Google Authentication Setup Instructions
 # First, get your access token from https://supabase.com/dashboard/account/tokens
- export SUPABASE_ACCESS_TOKEN="sbp_159f16dadfd96c0233047afbaea1e49ea8b25ff7"
+ export SUPABASE_ACCESS_TOKEN="sbp_v0_8798e1188a8b6c1f4fdacc6a8771e9a4edb18ae9"
  export PROJECT_REF="dhufwdxxfbahovnmjgrc"
 
 # Update auth config to enable Google provider
  curl -X PATCH "https://api.supabase.com/v1/projects/dhufwdxxfbahovnmjgrc/config/auth" \
-   -H "Authorization: Bearer sbp_159f16dadfd96c0233047afbaea1e49ea8b25ff7" \
+   -H "Authorization: Bearer sbp_v0_8798e1188a8b6c1f4fdacc6a8771e9a4edb18ae9" \
    -H "Content-Type: application/json" \
    -d '{
      "external_google_enabled": true,
      "external_google_client_id": "574733623679-0hnsbup06o8fcfooh0sum150hvsgutri.apps.googleusercontent.com",
      "external_google_secret": "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"
-   }'
