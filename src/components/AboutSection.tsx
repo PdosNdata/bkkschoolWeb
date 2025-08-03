@@ -57,39 +57,39 @@ const AboutSection = () => {
 
         {/* Values */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center rounded-full">
+          <Card className="bg-gradient-vision border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">วิสัยทัศน์</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-white mb-3">วิสัยทัศน์</h3>
+              <p className="text-white/90">
                 เป็นโรงเรียนที่มีมาตรฐานการศึกษาสูง 
                 สร้างนักเรียนให้มีความรู้และคุณธรรม
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-mission border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">พันธกิจ</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-white mb-3">พันธกิจ</h3>
+              <p className="text-white/90">
                 พัฒนาการเรียนรู้ด้วยหลักสูตรที่ทันสมัย 
                 ปลูกฝังคุณธรรมและจริยธรรม
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-values border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">ค่านิยม</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-white mb-3">ค่านิยม</h3>
+              <p className="text-white/90">
                 ความซื่อสัตย์ ความรับผิดชอบ 
                 การมีจิตสาธารณะ และการใฝ่เรียนรู้
               </p>

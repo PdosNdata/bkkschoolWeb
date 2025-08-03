@@ -79,6 +79,9 @@ export default {
         'gradient-reading': 'var(--gradient-reading)',
         'gradient-social': 'var(--gradient-social)',
         'gradient-tech': 'var(--gradient-tech)',
+        'gradient-vision': 'var(--gradient-vision)',
+        'gradient-mission': 'var(--gradient-mission)',
+        'gradient-values': 'var(--gradient-values)',
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
