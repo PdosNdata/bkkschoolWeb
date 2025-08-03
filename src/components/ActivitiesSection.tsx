@@ -18,49 +18,57 @@ const ActivitiesSection = () => {
       icon: Palette,
       title: "ศิลปะและงานฝีมือ",
       description: "พัฒนาความคิดสร้างสรรค์ผ่านกิจกรรมศิลปะและงานฝีมือหลากหลาย",
-      category: "ศิลปะ"
+      category: "ศิลปะ",
+      gradient: "bg-gradient-arts"
     },
     {
       icon: Music,
       title: "ดนตรีและการแสดง",
       description: "ฝึกฝนทักษะดนตรี การร้องเพลง และการแสดงเพื่อความมั่นใจ",
-      category: "ดนตรี"
+      category: "ดนตรี",
+      gradient: "bg-gradient-music"
     },
     {
       icon: Trophy,
       title: "กีฬาและนันทนาการ",
       description: "เสริมสร้างร่างกายแข็งแรงและจิตใจที่เข้มแข็ง",
-      category: "กีฬา"
+      category: "กีฬา",
+      gradient: "bg-gradient-sports"
     },
     {
       icon: Microscope,
       title: "วิทยาศาสตร์ประยุกต์",
       description: "ทดลองและค้นคว้าเพื่อความเข้าใจในธรรมชาติ",
-      category: "วิทยาศาสตร์"
+      category: "วิทยาศาสตร์",
+      gradient: "bg-gradient-science"
     },
     {
       icon: Calculator,
       title: "คณิตศาสตร์สนุก",
       description: "เรียนรู้คณิตศาสตร์ผ่านการเล่นและกิจกรรมที่น่าสนใจ",
-      category: "คณิตศาสตร์"
+      category: "คณิตศาสตร์",
+      gradient: "bg-gradient-math"
     },
     {
       icon: BookOpen,
       title: "ห้องสมุดและการอ่าน",
       description: "ส่งเสริมนิสัยรักการอ่านและการเรียนรู้ด้วยตนเอง",
-      category: "ภาษา"
+      category: "ภาษา",
+      gradient: "bg-gradient-reading"
     },
     {
       icon: Users,
       title: "กิจกรรมสร้างสรรค์สังคม",
       description: "เรียนรู้การทำงานเป็นทีมและการใช้ชีวิตในสังคม",
-      category: "สังคม"
+      category: "สังคม",
+      gradient: "bg-gradient-social"
     },
     {
       icon: Gamepad2,
       title: "เทคโนโลยีเพื่อการศึกษา",
       description: "ใช้เทคโนโลยีสมัยใหม่เป็นเครื่องมือในการเรียนรู้",
-      category: "เทคโนโลยี"
+      category: "เทคโนโลยี",
+      gradient: "bg-gradient-tech"
     }
   ];
 
@@ -90,7 +98,7 @@ const ActivitiesSection = () => {
                 className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group"
               >
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className={`w-16 h-16 ${activity.gradient} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <IconComponent className="w-8 h-8 text-white" />
                   </div>
                   <Badge variant="outline" className="mb-3 text-xs">

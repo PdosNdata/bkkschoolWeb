@@ -41,6 +41,16 @@ All colors MUST be HSL.
     --gradient-hero: linear-gradient(135deg, hsl(261 50% 25%), hsl(261 70% 45%), hsl(290 60% 55%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(261 10% 98%));
     
+    /* Activity gradients */
+    --gradient-arts: linear-gradient(135deg, hsl(280 100% 70%), hsl(315 100% 72%));
+    --gradient-music: linear-gradient(135deg, hsl(200 100% 60%), hsl(220 100% 65%));
+    --gradient-sports: linear-gradient(135deg, hsl(120 60% 50%), hsl(140 70% 55%));
+    --gradient-science: linear-gradient(135deg, hsl(45 90% 60%), hsl(60 95% 65%));
+    --gradient-math: linear-gradient(135deg, hsl(15 90% 60%), hsl(25 95% 65%));
+    --gradient-reading: linear-gradient(135deg, hsl(260 100% 65%), hsl(280 100% 70%));
+    --gradient-social: linear-gradient(135deg, hsl(330 80% 65%), hsl(350 85% 70%));
+    --gradient-tech: linear-gradient(135deg, hsl(180 70% 50%), hsl(200 80% 55%));
+    
     --shadow-elegant: 0 10px 30px -10px hsl(261 50% 25% / 0.2);
     --shadow-glow: 0 0 40px hsl(261 70% 45% / 0.3);
     

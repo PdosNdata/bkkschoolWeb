@@ -68,9 +68,17 @@ export default {
 				}
 			},
 			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)',
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-hero': 'var(--gradient-hero)',
+        'gradient-card': 'var(--gradient-card)',
+        'gradient-arts': 'var(--gradient-arts)',
+        'gradient-music': 'var(--gradient-music)',
+        'gradient-sports': 'var(--gradient-sports)',
+        'gradient-science': 'var(--gradient-science)',
+        'gradient-math': 'var(--gradient-math)',
+        'gradient-reading': 'var(--gradient-reading)',
+        'gradient-social': 'var(--gradient-social)',
+        'gradient-tech': 'var(--gradient-tech)',
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
