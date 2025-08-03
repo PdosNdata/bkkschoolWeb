@@ -1,10 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Target, Heart, Star } from "lucide-react";
-
 const AboutSection = () => {
-  return (
-    <section id="history" className="py-20 bg-background">
+  return <section id="history" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
@@ -60,7 +58,7 @@ const AboutSection = () => {
         {/* Values */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="bg-gradient-card border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center">
+            <CardContent className="p-6 text-center rounded-full">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Target className="w-8 h-8 text-white" />
               </div>
@@ -99,8 +97,6 @@ const AboutSection = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default AboutSection;
