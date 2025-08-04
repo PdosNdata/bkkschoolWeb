@@ -2,26 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
-
 const HeroSection = () => {
-  return (
-    <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
+  return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20" style={{
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-      }}></div>
+      backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
+    }}></div>
       
       <div className="container mx-auto px-4 py-20 relative">
         <div className="text-center mb-12">
-          <Badge variant="secondary" className="mb-4 bg-white/20 text-white border-white/30">
-            <BookOpen className="w-4 h-4 mr-2" />
-            เหนือชั้นโอกาสสู่วัน 7
-          </Badge>
+          
           
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             โรงเรียนบ้านค้อดอนแคน
             <br />
-            <span className="text-white/90 text-3xl md:text-4xl">แหล่งเรียนรู้สู่อนาคต</span>
+            <span className="text-white/90 text-3xl md:text-4xl">โรงเรียนโครงการด้วยรักและห่วงใย</span>
           </h1>
           
           <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
@@ -29,14 +24,7 @@ const HeroSection = () => {
             พร้อมก้าวสู่โลกอนาคต
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-3">
-              เรียนรู้เพิ่มเติม
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3 bg-white/10 border-white/30 text-white hover:bg-white hover:text-primary">
-              ติดต่อเรา
-            </Button>
-          </div>
+          
         </div>
 
         {/* Feature Cards */}
@@ -82,8 +70,6 @@ const HeroSection = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
