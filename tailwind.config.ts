@@ -82,6 +82,7 @@ export default {
         'gradient-vision': 'var(--gradient-vision)',
         'gradient-mission': 'var(--gradient-mission)',
         'gradient-values': 'var(--gradient-values)',
+        'gradient-purple-soft': 'var(--gradient-purple-soft)',
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
