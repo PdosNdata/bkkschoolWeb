@@ -56,8 +56,8 @@ All colors MUST be HSL.
     --gradient-mission: linear-gradient(135deg, hsl(320 90% 70%), hsl(340 95% 75%));
     --gradient-values: linear-gradient(135deg, hsl(45 100% 70%), hsl(60 100% 75%));
     
-    /* Purple soft gradient for image slider */
-    --gradient-purple-soft: linear-gradient(135deg, hsl(270 50% 92%), hsl(260 40% 85%));
+    /* White-purple soft gradient for image slider */
+    --gradient-purple-soft: linear-gradient(135deg, hsl(0 0% 100%), hsl(270 50% 92%), hsl(260 40% 85%));
     
     --shadow-elegant: 0 10px 30px -10px hsl(261 50% 25% / 0.2);
     --shadow-glow: 0 0 40px hsl(261 70% 45% / 0.3);

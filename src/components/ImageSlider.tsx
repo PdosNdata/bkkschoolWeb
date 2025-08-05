@@ -9,24 +9,31 @@ const ImageSlider = () => {
   const slides = [
     {
       id: 1,
-      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=600&fit=crop",
       title: "การศึกษาที่ทันสมัย",
       description: "พัฒนาการเรียนรู้ด้วยเทคโนโลยีล้ำสมัย",
       link: "#education"
     },
     {
       id: 2,
-      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&h=600&fit=crop",
       title: "กิจกรรมนักเรียน",
       description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
       link: "#activities"
     },
     {
       id: 3,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop",
       title: "สิ่งแวดล้อมการเรียนรู้",
       description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
       link: "#environment"
+    },
+    {
+      id: 4,
+      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=600&fit=crop",
+      title: "ห้องสมุดและแหล่งเรียนรู้",
+      description: "แหล่งความรู้ที่ครบครันและทันสมัย",
+      link: "#library"
     }
   ];
 
@@ -71,7 +78,7 @@ const ImageSlider = () => {
                     <img
                       src={slide.image}
                       alt={slide.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                     />
                     
                     {/* Overlay */}
