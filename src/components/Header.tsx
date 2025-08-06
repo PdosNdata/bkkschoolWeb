@@ -27,7 +27,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            
+            <img 
+              src="https://i.postimg.cc/y8Y4TXJY/1.png" 
+              alt="โลโก้โรงเรียน" 
+              className="w-auto h-8 scale-50"
+            />
             <div className="flex flex-col">
               <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
               <span className="text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
