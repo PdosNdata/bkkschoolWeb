@@ -6,10 +6,12 @@ import ActivitiesSection from "@/components/ActivitiesSection";
 import NewsSection from "@/components/NewsSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import ImagePopup from "@/components/ImagePopup";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <ImagePopup />
       <Header />
       <ImageSlider />
       <HeroSection />
