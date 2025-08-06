@@ -20,7 +20,7 @@ const ImagePopup = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh] p-0 border-none bg-transparent shadow-none">
+      <DialogContent className="max-w-[1200px] w-[1200px] h-[800px] p-0 border-none bg-transparent shadow-none">
         <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-white via-purple-50 to-purple-100">
           {/* Close button */}
           <button
@@ -35,7 +35,7 @@ const ImagePopup = () => {
             <img
               src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=800&fit=crop"
               alt="โรงเรียนบ้านค้อดอนแคน"
-              className="w-full h-auto max-h-[80vh] object-cover"
+              className="w-[1200px] h-[800px] object-cover"
             />
             
             {/* Overlay content */}
