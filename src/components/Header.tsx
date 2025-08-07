@@ -30,7 +30,7 @@ const Header = () => {
             <img 
               src="https://i.postimg.cc/y8Y4TXJY/1.png" 
               alt="โลโก้โรงเรียน" 
-              className="w-auto h-8 scale-50"
+              className="w-auto h-8 scale-[0.6]"
             />
             <div className="flex flex-col">
               <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
