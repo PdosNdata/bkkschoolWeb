@@ -159,7 +159,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {systemCards.map((system, index) => {
             const IconComponent = system.icon;
-            return <Card key={index} className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`}>
+            return <Card key={index} className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`} onClick={() => window.location.href = system.href}>
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="p-3 rounded-lg bg-white shadow-sm">
@@ -185,74 +185,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* News Management */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">จัดการข่าวสาร</h2>
-          <NewsForm />
-        </div>
-
-        {/* Activity Registration Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5" />
-              บันทึกกิจกรรมภายใน
-            </CardTitle>
-            <CardDescription>
-              เพิ่มกิจกรรมใหม่เข้าสู่ระบบ
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleActivitySubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">ชื่อกิจกรรม</Label>
-                  <Input id="title" value={activityForm.title} onChange={e => handleInputChange("title", e.target.value)} placeholder="ป้อนชื่อกิจกรรม" required />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category">หมวดหมู่</Label>
-                  <Select value={activityForm.category} onValueChange={value => handleInputChange("category", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกหมวดหมู่" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="academic">วิชาการ</SelectItem>
-                      <SelectItem value="sports">กีฬา</SelectItem>
-                      <SelectItem value="cultural">วัฒนธรรม</SelectItem>
-                      <SelectItem value="volunteer">อาสาสมัคร</SelectItem>
-                      <SelectItem value="art">ศิลปะ</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date">วันที่จัดกิจกรรม</Label>
-                  <Input id="date" type="date" value={activityForm.date} onChange={e => handleInputChange("date", e.target.value)} required />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="maxParticipants">จำนวนผู้เข้าร่วมสูงสุด</Label>
-                  <Input id="maxParticipants" type="number" value={activityForm.maxParticipants} onChange={e => handleInputChange("maxParticipants", e.target.value)} placeholder="จำนวนคน" min="1" />
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="location">สถานที่</Label>
-                  <Input id="location" value={activityForm.location} onChange={e => handleInputChange("location", e.target.value)} placeholder="ป้อนสถานที่จัดกิจกรรม" required />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">รายละเอียดกิจกรรม</Label>
-                <Textarea id="description" value={activityForm.description} onChange={e => handleInputChange("description", e.target.value)} placeholder="อธิบายรายละเอียดของกิจกรรม" rows={4} required />
-              </div>
-
-              <Button type="submit" className="w-full">
-                บันทึกกิจกรรม
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
       </main>
 
       <Footer />
