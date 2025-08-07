@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface AuthModalProps {
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +51,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           description: "ยินดีต้อนรับเข้าสู่ระบบ",
         });
         onClose();
+        navigate('/dashboard');
       } else {
         if (formData.password !== formData.confirmPassword) {
           toast({
