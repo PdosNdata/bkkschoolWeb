@@ -40,9 +40,15 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {menuItems.map(item => <a key={item.name} href={item.href} className="text-foreground hover:text-primary transition-colors duration-300 font-medium">
+            {menuItems.map(item => 
+              <a 
+                key={item.name} 
+                href={item.href} 
+                className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
+              >
                 {item.name}
-              </a>)}
+              </a>
+            )}
           </nav>
 
           {/* CTA Button */}
@@ -61,9 +67,16 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
-              {menuItems.map(item => <a key={item.name} href={item.href} className="text-foreground hover:text-primary transition-colors duration-300 font-medium py-2" onClick={() => setIsMenuOpen(false)}>
+              {menuItems.map(item => 
+                <a 
+                  key={item.name} 
+                  href={item.href} 
+                  className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium py-2 px-3 rounded-md" 
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   {item.name}
-                </a>)}
+                </a>
+              )}
               <Button variant="default" size="sm" className="w-fit" onClick={() => setIsAuthModalOpen(true)}>
                 เข้าสู่ระบบ
               </Button>
