@@ -5,14 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Megaphone } from "lucide-react";
+import { Plus, Megaphone, ArrowLeft, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NewsForm from "@/components/NewsForm";
 
 const PublicRelations = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activityForm, setActivityForm] = useState({
     title: "",
     description: "",
@@ -51,6 +53,26 @@ const PublicRelations = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Navigation Buttons */}
+        <div className="flex gap-4 mb-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            กลับระบบจัดการโรงเรียน
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            กลับหน้าแรก
+          </Button>
+        </div>
+
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Megaphone className="h-10 w-10 text-pink-600" />
