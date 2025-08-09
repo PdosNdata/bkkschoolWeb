@@ -179,7 +179,7 @@ const AuthModal = ({
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         {/* Decorative header with wave */}
         <div className="relative">
-          <div className="h-28 bg-gradient-to-b from-primary to-primary/70" />
+          
           <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
             <path d="M0,64L48,69.3C96,75,192,85,288,106.7C384,128,480,160,576,149.3C672,139,768,85,864,69.3C960,53,1056,75,1152,80C1248,85,1344,75,1392,69.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" fill="hsl(var(--background))" />
           </svg>
