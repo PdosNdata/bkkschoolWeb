@@ -89,9 +89,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-primary-foreground/60 text-sm">
-            © 2024 โรงเรียนบ้านค้อดอนแคน สงวนลิขสิทธิ์
-          </p>
+          <p className="text-primary-foreground/60 text-sm">© 2025 โรงเรียนบ้านค้อดอนแคน สงวนลิขสิทธิ์</p>
         </div>
       </div>
     </footer>;
