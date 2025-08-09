@@ -10,7 +10,6 @@ import AdmissionForm from "./pages/AdmissionForm";
 import Dashboard from "./pages/Dashboard";
 import PublicRelations from "./pages/PublicRelations";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -85,7 +84,6 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admission" element={<AdmissionForm />} />
-            <Route path="/auth" element={<Auth />} />
             <Route
               path="/dashboard"
               element={
