@@ -122,7 +122,7 @@ const AuthModal = ({
     resetForm();
   };
   return <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-cyan-100">
+      <DialogContent className="sm:max-w-md bg-gray-200">
         <DialogHeader>
           <DialogTitle className="text-center">
             {isLogin ? "เข้าสู่ระบบ" : "สมัครสมาชิก"}
