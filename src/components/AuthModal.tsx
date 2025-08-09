@@ -62,7 +62,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           return;
         }
 
-        const redirectUrl = `${window.location.origin}/dashboard`;
+        const redirectUrl = `${window.location.origin}/`;
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -93,7 +93,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

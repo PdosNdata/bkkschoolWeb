@@ -50,6 +50,21 @@ const App = () => {
       }
     });
 
+    // Exchange OAuth code for session (PKCE) if present
+    const url = new URL(window.location.href);
+    const hasCode = url.searchParams.get("code");
+    const hasError = url.searchParams.get("error");
+    if (hasCode && !hasError) {
+      supabase.auth.exchangeCodeForSession(window.location.href)
+        .then(() => {
+          // Clean query params after successful exchange
+          window.history.replaceState(null, "", window.location.pathname);
+        })
+        .catch((err) => {
+          console.error("OAuth code exchange failed", err);
+        });
+    }
+
     // Initial cleanup of hash if present
     if (window.location.hash.includes("access_token")) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
