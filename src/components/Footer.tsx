@@ -60,12 +60,12 @@ const Footer = () => {
                 <span className="text-primary-foreground/80 text-sm">93 หมู่ที่ 3 ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี 41130</span>
               </li>
               <li className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80 text-sm">043-123-4567</span>
+                
+                
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 flex-shrink-0" />
-                <span className="text-primary-foreground/80 text-sm">info@bankhodonkhaen.ac.th</span>
+                <span className="text-primary-foreground/80 text-sm">41030208@bankhodonkhaen.ac.th</span>
               </li>
             </ul>
           </div>
