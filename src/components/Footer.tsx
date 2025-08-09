@@ -1,8 +1,6 @@
 import { MapPin, Phone, Mail, Facebook, MessageCircle } from "lucide-react";
-
 const Footer = () => {
-  return (
-    <footer className="bg-primary text-primary-foreground">
+  return <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* School Info */}
@@ -59,9 +57,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
-                <span className="text-primary-foreground/80 text-sm">
-                  หมู่ที่ 5 ตำบลค้อดอนแคน อำเภอเมือง จังหวัดขอนแก่น 40000
-                </span>
+                <span className="text-primary-foreground/80 text-sm">93 หมู่ที่ 3 ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี 41130</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 flex-shrink-0" />
@@ -78,16 +74,10 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-lg mb-4">ติดตามเรา</h4>
             <div className="flex space-x-3">
-              <a 
-                href="#" 
-                className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-              >
+              <a href="#" className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a 
-                href="#" 
-                className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-              >
+              <a href="#" className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
                 <MessageCircle className="w-5 h-5" />
               </a>
             </div>
@@ -104,8 +94,6 @@ const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
