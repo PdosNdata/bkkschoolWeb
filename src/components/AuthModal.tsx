@@ -102,7 +102,9 @@ const AuthModal = ({
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl
@@ -118,12 +120,13 @@ const AuthModal = ({
       setIsLoading(false);
     }
   };
-
   const handleFacebookAuth = async () => {
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
           redirectTo: redirectUrl
@@ -139,12 +142,13 @@ const AuthModal = ({
       setIsLoading(false);
     }
   };
-
   const handleAppleAuth = async () => {
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
           redirectTo: redirectUrl
@@ -202,9 +206,7 @@ const AuthModal = ({
             <Button type="button" variant="outline" size="icon" className="rounded-xl shadow-sm" onClick={handleFacebookAuth} disabled={isLoading} aria-label="Sign in with Facebook">
               <Facebook className="h-5 w-5" />
             </Button>
-            <Button type="button" variant="outline" size="icon" className="rounded-xl shadow-sm" onClick={handleAppleAuth} disabled={isLoading} aria-label="Sign in with Apple">
-              <Apple className="h-5 w-5" />
-            </Button>
+            
           </div>
 
           <form onSubmit={handleEmailAuth} className="space-y-4">
