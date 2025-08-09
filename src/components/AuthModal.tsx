@@ -47,10 +47,13 @@ const AuthModal = ({
           password: formData.password
         });
         if (error) throw error;
-        Swal.fire({
+        await Swal.fire({
           icon: 'success',
           title: 'เข้าสู่ระบบสำเร็จ!',
-          text: 'ยินดีต้อนรับเข้าสู่ระบบ'
+          text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
         });
         onClose();
         navigate('/dashboard');
@@ -82,10 +85,13 @@ const AuthModal = ({
       }
     } catch (error: any) {
       if (isLogin) {
-        Swal.fire({
+        await Swal.fire({
           icon: 'error',
           title: 'เข้าสู่ระบบไม่สำเร็จ',
-          text: error.message || 'กรุณาลองใหม่อีกครั้ง'
+          text: error.message || 'กรุณาลองใหม่อีกครั้ง',
+          showConfirmButton: false,
+          timer: 1800,
+          timerProgressBar: true
         });
       } else {
         toast({
