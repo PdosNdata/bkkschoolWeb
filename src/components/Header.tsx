@@ -14,6 +14,14 @@ const Header = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const menuItems = [
+    { name: "หน้าแรก", href: "#home" },
+    { name: "ประวัติโรงเรียน", href: "#history" },
+    { name: "กิจกรรมภายใน", href: "#activities" },
+    { name: "ข่าวสาร", href: "#news" },
+    { name: "ติดต่อเรา", href: "#contact" },
+  ];
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const uid = session?.user?.id || null;
@@ -112,6 +120,20 @@ const Header = () => {
               <span className="text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
           </Link>
+
+          {!userName && (
+            <nav className="hidden md:flex space-x-8">
+              {menuItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
+                >
+                  {item.name}
+                </a>
+              ))}
+            </nav>
+          )}
 
           {/* Right side: user menu or login button */}
           <div className="flex items-center">
