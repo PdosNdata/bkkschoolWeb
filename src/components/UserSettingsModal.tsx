@@ -17,7 +17,8 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   useEffect(() => {
     if (!isOpen) return;
 
@@ -61,6 +62,15 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
       const { error: upsertError } = await supabase.from('profiles').upsert(payload);
       if (upsertError) throw upsertError;
 
+      // Update password if provided
+      if (newPassword.trim().length > 0) {
+        if (newPassword !== confirmPassword) {
+          throw new Error('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
+        }
+        const { error: pwdError } = await supabase.auth.updateUser({ password: newPassword });
+        if (pwdError) throw pwdError;
+      }
+
       await Swal.fire({
         icon: 'success',
         title: 'บันทึกข้อมูลสำเร็จ',
@@ -68,6 +78,9 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
         timer: 1500,
         timerProgressBar: true
       });
+      // Reset sensitive fields
+      setNewPassword("");
+      setConfirmPassword("");
       onClose();
     } catch (error: any) {
       await Swal.fire({
@@ -110,6 +123,29 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
               placeholder="กรอกชื่อของคุณ"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+
+          {/* Password change */}
+          <div className="space-y-2">
+            <Label htmlFor="newPassword">รหัสผ่านใหม่</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              placeholder="กรอกรหัสผ่านใหม่"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">ยืนยันรหัสผ่านใหม่</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="ยืนยันรหัสผ่านใหม่"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
 
