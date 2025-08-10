@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 
@@ -19,6 +20,7 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"teacher" | "student" | "guardian" | "">("");
   useEffect(() => {
     if (!isOpen) return;
 
@@ -33,6 +35,13 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
 
       setDisplayName(data?.display_name ?? "");
       setAvatarUrl(data?.avatar_url ?? null);
+
+      const { data: roleData } = await (supabase as any)
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setRole(roleData?.role ?? "");
     };
 
     loadProfile();
@@ -61,6 +70,15 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
       const payload = { id: user.id, display_name: displayName, avatar_url: uploadedUrl };
       const { error: upsertError } = await supabase.from('profiles').upsert(payload);
       if (upsertError) throw upsertError;
+
+      // Save user role/status
+      if (!role) {
+        throw new Error('กรุณาเลือกสถานะผู้ใช้');
+      }
+      const { error: roleUpsertError } = await (supabase as any)
+        .from('user_roles')
+        .upsert({ user_id: user.id, role });
+      if (roleUpsertError) throw roleUpsertError;
 
       // Update password if provided
       if (newPassword.trim().length > 0) {
@@ -124,6 +142,20 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="userStatus">สถานะผู้ใช้</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as "teacher" | "student" | "guardian")}>
+              <SelectTrigger id="userStatus">
+                <SelectValue placeholder="เลือกสถานะ (ครู/นักเรียน/ผู้ปกครอง)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="teacher">ครู</SelectItem>
+                <SelectItem value="student">นักเรียน</SelectItem>
+                <SelectItem value="guardian">ผู้ปกครอง</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Password change */}
