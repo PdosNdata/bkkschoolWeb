@@ -33,11 +33,14 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 const App = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (window.location.hash.includes("access_token")) {
-        window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      }
-
       if (event === "SIGNED_IN") {
+        // Clean token fragment after Supabase sets the session
+        if (window.location.hash && window.location.hash.includes("access_token")) {
+          setTimeout(() => {
+            window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          }, 0);
+        }
+
         if (!window.location.pathname.startsWith("/dashboard")) {
           window.location.assign("/dashboard");
         }
@@ -65,10 +68,6 @@ const App = () => {
         });
     }
 
-    // Initial cleanup of hash if present
-    if (window.location.hash.includes("access_token")) {
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
-    }
 
     return () => {
       subscription.unsubscribe();
