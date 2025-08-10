@@ -67,18 +67,21 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
         uploadedUrl = publicData.publicUrl;
       }
 
-      const payload = { id: user.id, display_name: displayName, avatar_url: uploadedUrl };
-      const { error: upsertError } = await supabase.from('profiles').upsert(payload);
-      if (upsertError) throw upsertError;
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ display_name: displayName, avatar_url: uploadedUrl })
+        .eq('id', user.id);
+      if (updateError) throw updateError;
 
       // Save user role/status
       if (!role) {
         throw new Error('กรุณาเลือกสถานะผู้ใช้');
       }
-      const { error: roleUpsertError } = await (supabase as any)
+      const { error: roleUpdateError } = await (supabase as any)
         .from('user_roles')
-        .upsert({ user_id: user.id, role });
-      if (roleUpsertError) throw roleUpsertError;
+        .update({ role })
+        .eq('user_id', user.id);
+      if (roleUpdateError) throw roleUpdateError;
 
       // Update password if provided
       if (newPassword.trim().length > 0) {
