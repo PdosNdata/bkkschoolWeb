@@ -89,7 +89,7 @@ const AboutSection = () => {
                 <Star className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">ค่านิยม</h3>
-              <p className="text-white/90">
+              <p className="text-stone-950">
                 ความซื่อสัตย์ ความรับผิดชอบ 
                 การมีจิตสาธารณะ และการใฝ่เรียนรู้
               </p>
