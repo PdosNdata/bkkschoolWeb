@@ -17,13 +17,32 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        window.location.assign("/");
-      } else {
+    // Listen for auth changes to avoid redirecting away while tokens are being processed
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
         setChecking(false);
       }
     });
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setChecking(false);
+      } else {
+        const url = new URL(window.location.href);
+        const hasCode = !!url.searchParams.get("code");
+        const hash = window.location.hash || "";
+        const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
+        // If there is no ongoing auth flow, send user home
+        if (!hasCode && !hasAuthInHash) {
+          window.location.assign("/");
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (checking) return null;
