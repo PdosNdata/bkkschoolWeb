@@ -162,7 +162,7 @@ const Dashboard = () => {
             return <Card key={index} className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`} onClick={() => window.location.href = system.href}>
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
-                      <div className="p-3 rounded-lg bg-white shadow-sm">
+                      <div className="p-3 rounded-lg shadow-sm bg-violet-200">
                         <IconComponent className={`h-8 w-8 ${system.iconColor}`} />
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
