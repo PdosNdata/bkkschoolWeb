@@ -125,8 +125,8 @@ const Dashboard = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">เพิ่มขึ้น 2.1% จากเดือนที่แล้ว</p>
+              <div className="text-2xl font-bold">268</div>
+              
             </CardContent>
           </Card>
 
