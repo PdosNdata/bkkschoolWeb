@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthModal from "./AuthModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,8 @@ const Header = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   const menuItems = [
     { name: "หน้าแรก", href: "#home" },
     { name: "ประวัติโรงเรียน", href: "#history" },
@@ -121,7 +122,7 @@ const Header = () => {
             </div>
           </Link>
 
-          {!userName && (
+          {(isHome || !userName) && (
             <nav className="hidden md:flex space-x-8">
               {menuItems.map((item) => (
                 <a
