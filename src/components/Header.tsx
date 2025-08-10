@@ -6,44 +6,50 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 import UserSettingsModal from "./UserSettingsModal";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User as UserIcon } from "lucide-react";
 const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
-  const menuItems = [
-    { name: "หน้าแรก", href: "#home" },
-    { name: "ประวัติโรงเรียน", href: "#history" },
-    { name: "กิจกรรมภายใน", href: "#activities" },
-    { name: "ข่าวสาร", href: "#news" },
-    { name: "ติดต่อเรา", href: "#contact" },
-  ];
+const menuItems = [
+  { name: "หน้าแรก", href: "#home" },
+  { name: "ประวัติโรงเรียน", href: "#history" },
+  { name: "กิจกรรมภายใน", href: "#activities" },
+  { name: "ข่าวสาร", href: "#news" },
+  { name: "ติดต่อเรา", href: "#contact" },
+];
+
+const fetchProfile = async (uid: string, emailFallback?: string | null) => {
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('display_name, avatar_url')
+      .eq('id', uid)
+      .maybeSingle();
+    const name = data?.display_name?.trim();
+    setUserName(name && name.length > 0 ? name : (emailFallback?.split('@')[0] ?? 'ผู้ใช้'));
+    setAvatarUrl(data?.avatar_url ?? null);
+  } catch {
+    setUserName(emailFallback?.split('@')[0] ?? 'ผู้ใช้');
+    setAvatarUrl(null);
+  }
+};
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const uid = session?.user?.id || null;
       setUserId(uid);
       if (uid) {
-        // Load profile display name
-        (async () => {
-          try {
-            const { data } = await supabase
-              .from('profiles')
-              .select('display_name')
-              .eq('id', uid)
-              .maybeSingle();
-            const name = data?.display_name?.trim();
-            setUserName(name && name.length > 0 ? name : (session?.user?.email?.split('@')[0] ?? 'ผู้ใช้'));
-          } catch {
-            setUserName(session?.user?.email?.split('@')[0] ?? 'ผู้ใช้');
-          }
-        })();
+        fetchProfile(uid, session?.user?.email ?? null);
       } else {
         setUserName(null);
+        setAvatarUrl(null);
       }
     });
 
@@ -52,24 +58,23 @@ const Header = () => {
       const uid = session?.user?.id || null;
       setUserId(uid);
       if (uid) {
-        (async () => {
-          try {
-            const { data } = await supabase
-              .from('profiles')
-              .select('display_name')
-              .eq('id', uid)
-              .maybeSingle();
-            const name = data?.display_name?.trim();
-            setUserName(name && name.length > 0 ? name : (session?.user?.email?.split('@')[0] ?? 'ผู้ใช้'));
-          } catch {
-            setUserName(session?.user?.email?.split('@')[0] ?? 'ผู้ใช้');
-          }
-        })();
+        fetchProfile(uid, session?.user?.email ?? null);
+      } else {
+        setUserName(null);
+        setAvatarUrl(null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!isSettingsOpen && userId) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        fetchProfile(userId, session?.user?.email ?? null);
+      });
+    }
+  }, [isSettingsOpen, userId]);
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -141,8 +146,14 @@ const Header = () => {
             {userName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="font-medium">
-                    {userName}
+                  <Button variant="ghost" className="font-medium flex items-center gap-2">
+                    <span>{userName}</span>
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={avatarUrl ?? undefined} alt={`โปรไฟล์ของ ${userName ?? ''}`} loading="lazy" />
+                      <AvatarFallback>
+                        <UserIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
