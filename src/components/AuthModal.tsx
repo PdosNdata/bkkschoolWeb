@@ -192,8 +192,8 @@ const AuthModal = ({
         </div>
 
         <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="text-2xl font-bold text-primary text-left">Login</DialogTitle>
-          <DialogDescription className="text-left">
+          <DialogTitle className="text-2xl font-bold text-primary text-center">Login</DialogTitle>
+          <DialogDescription className="text-center">
             {isLogin ? "เข้าสู่ระบบเพื่อจัดการข้อมูลโรงเรียน" : "สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ"}
           </DialogDescription>
         </DialogHeader>
