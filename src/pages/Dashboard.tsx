@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/Header";
+import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import NewsForm from "@/components/NewsForm";
 const Dashboard = () => {
@@ -109,7 +109,21 @@ const Dashboard = () => {
     }));
   };
   return <div className="min-h-screen bg-background">
-      <Header />
+      <header className="sticky top-0 z-40 bg-background border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center h-16">
+            <Link to="/" className="flex items-center gap-2" aria-label="ไปหน้าแรก โรงเรียนบ้านค้อดอนแคน">
+              <img
+                src="https://i.postimg.cc/y8Y4TXJY/1.png"
+                alt="โลโก้โรงเรียนบ้านค้อดอนแคน"
+                className="h-8 w-auto"
+                loading="lazy"
+              />
+              <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
+            </Link>
+          </div>
+        </div>
+      </header>
       
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
