@@ -34,7 +34,7 @@ const Dashboard = () => {
     title: "ระบบงานพัสดุ",
     description: "จัดการพัสดุ วัสดุ อุปกรณ์การศึกษา",
     icon: Package,
-    color: "bg-green-50 border-green-200",
+    color: "bg-green-50 border-green-300",
     iconColor: "text-green-600",
     href: "/supplies"
   }, {
