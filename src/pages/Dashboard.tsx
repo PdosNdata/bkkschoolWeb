@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsForm from "@/components/NewsForm";
-const Dashboard = () => {
+const dashboard = () => {
   const {
     toast
   } = useToast();
@@ -191,4 +191,4 @@ const Dashboard = () => {
       <Footer />
     </div>;
 };
-export default Dashboard;
+export default dashboard;
