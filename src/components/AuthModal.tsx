@@ -56,7 +56,7 @@ const AuthModal = ({
           timerProgressBar: true
         });
         onClose();
-        window.location.assign('https://www.bankhodonkhan.ac.th/dashboard');
+        navigate('/dashboard');
       } else {
         if (formData.password !== formData.confirmPassword) {
           toast({
