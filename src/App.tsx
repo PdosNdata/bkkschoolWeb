@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
         // If there is no ongoing auth flow, send user home
         if (!hasCode && !hasAuthInHash) {
-          window.location.assign("/");
+          window.location.assign("https://www.bankhodonkhan.ac.th/");
         }
       }
     });
@@ -61,13 +61,13 @@ const App = () => {
         }
 
         if (!window.location.pathname.startsWith("/dashboard")) {
-          window.location.assign("/dashboard");
+          window.location.assign("https://www.bankhodonkhan.ac.th/dashboard");
         }
       }
 
       if (event === "SIGNED_OUT") {
         if (window.location.pathname !== "/") {
-          window.location.assign("/");
+          window.location.assign("https://www.bankhodonkhan.ac.th/");
         }
       }
     });
