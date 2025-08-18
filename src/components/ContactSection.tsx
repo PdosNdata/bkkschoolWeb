@@ -75,8 +75,8 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-2">อีเมล</h4>
-                    <p className="text-muted-foreground">info@bankhodonkhaen.ac.th</p>
-                    <p className="text-muted-foreground">admin@bankhodonkhaen.ac.th</p>
+                    <p className="text-muted-foreground">41030208@udonthani3.ac.th</p>
+                    <p className="text-muted-foreground">chaiyapat@udonthani3.ac.th</p>
                   </div>
                 </div>
               </CardContent>
