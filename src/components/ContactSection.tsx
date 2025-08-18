@@ -44,8 +44,8 @@ const ContactSection = () => {
                     <h4 className="font-semibold text-foreground mb-2">ที่อยู่</h4>
                     <p className="text-muted-foreground leading-relaxed">
                       โรงเรียนบ้านค้อดอนแคน<br />
-                      หมู่ที่ 5 ตำบลค้อดอนแคน<br />
-                      อำเภอเมือง จังหวัดขอนแก่น 40000
+                      93 หมู่ที่ 3 ตำบลค้อใหญ่<br />
+                      อำเภอกู่แก้ว จังหวัดอุดรธานี 41130
                     </p>
                   </div>
                 </div>
