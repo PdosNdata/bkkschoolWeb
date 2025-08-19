@@ -70,7 +70,7 @@ const AuthModal = ({
           });
           return;
         }
-        const redirectUrl = `https://www.bankhodonkhan.ac.th/`;
+        const redirectUrl = `${window.location.origin}/`;
         const {
           error
         } = await supabase.auth.signUp({
@@ -139,7 +139,7 @@ const AuthModal = ({
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      const redirectUrl = `https://www.bankhodonkhan.ac.th/dashboard`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
       const {
         error
       } = await supabase.auth.signInWithOAuth({
@@ -161,7 +161,7 @@ const AuthModal = ({
   const handleFacebookAuth = async () => {
     setIsLoading(true);
     try {
-      const redirectUrl = `https://www.bankhodonkhan.ac.th/`;
+      const redirectUrl = `${window.location.origin}/`;
       const {
         error
       } = await supabase.auth.signInWithOAuth({
@@ -183,7 +183,7 @@ const AuthModal = ({
   const handleAppleAuth = async () => {
     setIsLoading(true);
     try {
-      const redirectUrl = `https://www.bankhodonkhan.ac.th/`;
+      const redirectUrl = `${window.location.origin}/`;
       const {
         error
       } = await supabase.auth.signInWithOAuth({
