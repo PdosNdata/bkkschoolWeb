@@ -77,7 +77,35 @@ const AuthModal = ({
             emailRedirectTo: redirectUrl
           }
         });
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            await Swal.fire({
+              icon: 'error',
+              title: 'อีเมลนี้ถูกใช้งานแล้ว',
+              text: 'กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ',
+              showConfirmButton: false,
+              timer: 15000,
+              timerProgressBar: true
+            });
+            return;
+          }
+          
+          if (error.message.includes('Password') || error.message.includes('password')) {
+            await Swal.fire({
+              icon: 'error',
+              title: 'รหัสผ่านไม่ตรงตามข้อกำหนด',
+              text: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
+              showConfirmButton: false,
+              timer: 15000,
+              timerProgressBar: true
+            });
+            return;
+          }
+          
+          throw error;
+        }
+        
         toast({
           title: "สมัครสมาชิกสำเร็จ!",
           description: "กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"
