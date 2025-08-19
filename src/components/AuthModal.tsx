@@ -84,9 +84,8 @@ const AuthModal = ({
               icon: 'error',
               title: 'อีเมลนี้ถูกใช้งานแล้ว',
               text: 'กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ',
-              showConfirmButton: false,
-              timer: 15000,
-              timerProgressBar: true
+              showConfirmButton: true,
+              confirmButtonText: 'ตกลง'
             });
             return;
           }
@@ -96,9 +95,8 @@ const AuthModal = ({
               icon: 'error',
               title: 'รหัสผ่านไม่ตรงตามข้อกำหนด',
               text: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
-              showConfirmButton: false,
-              timer: 15000,
-              timerProgressBar: true
+              showConfirmButton: true,
+              confirmButtonText: 'ตกลง'
             });
             return;
           }
