@@ -134,7 +134,7 @@ const AuthModal = ({
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     try {
-      const redirectUrl = `https://www.bankhodonkhan.ac.th/`;
+      const redirectUrl = `https://www.bankhodonkhan.ac.th/dashboard`;
       const {
         error
       } = await supabase.auth.signInWithOAuth({
