@@ -37,49 +37,56 @@ const Dashboard = () => {
     color: "bg-green-50 border-green-300",
     iconColor: "text-green-600",
     href: "/supplies"
-  }, {
-    title: "ระบบกิจการนักเรียน",
-    description: "จัดการข้อมูลนักเรียน กิจกรรม และพฤติกรรม",
-    icon: GraduationCap,
-    color: "bg-purple-50 border-purple-200",
-    iconColor: "text-purple-600",
-    href: "/student-affairs"
-  }, {
-    title: "ระบบงานวิชาการ",
-    description: "จัดการหลักสูตร การสอน และประเมินผล",
-    icon: FileText,
-    color: "bg-orange-50 border-orange-200",
-    iconColor: "text-orange-600",
-    href: "/academic"
-  }, {
-    title: "ธนาคารขยะ",
-    description: "โครงการรีไซเคิล การจัดการขยะ",
-    icon: Recycle,
-    color: "bg-emerald-50 border-emerald-200",
-    iconColor: "text-emerald-600",
-    href: "/waste-bank"
-  }, {
+   },
+    // {
+  //   title: "ระบบกิจการนักเรียน",
+  //   description: "จัดการข้อมูลนักเรียน กิจกรรม และพฤติกรรม",
+  //   icon: GraduationCap,
+  //   color: "bg-purple-50 border-purple-200",
+  //   iconColor: "text-purple-600",
+  //   href: "/student-affairs"
+  // }, 
+  //   {
+  //   title: "ระบบงานวิชาการ",
+  //   description: "จัดการหลักสูตร การสอน และประเมินผล",
+  //   icon: FileText,
+  //   color: "bg-orange-50 border-orange-200",
+  //   iconColor: "text-orange-600",
+  //   href: "/academic"
+  // }, {
+  //   title: "ธนาคารขยะ",
+  //   description: "โครงการรีไซเคิล การจัดการขยะ",
+  //   icon: Recycle,
+  //   color: "bg-emerald-50 border-emerald-200",
+  //   iconColor: "text-emerald-600",
+  //   href: "/waste-bank"
+  // },
+      {
     title: "ประชาสัมพันธ์",
     description: "จัดการข่าวสาร ประกาศ และกิจกรรม",
     icon: Megaphone,
     color: "bg-pink-50 border-pink-200",
     iconColor: "text-pink-600",
     href: "/public-relations"
-  }, {
-    title: "ระบบบุคลากร",
-    description: "จัดการข้อมูลครู และเจ้าหน้าที่",
-    icon: UsersRound,
-    color: "bg-cyan-50 border-cyan-200",
-    iconColor: "text-cyan-600",
-    href: "/personnel"
-  }, {
-    title: "งานอาคารสถานที่",
-    description: "จัดการอาคาร สิ่งก่อสร้าง และสภาพแวดล้อม",
-    icon: Building,
-    color: "bg-yellow-50 border-yellow-200",
-    iconColor: "text-yellow-600",
-    href: "/facilities"
-  }, {
+  }, 
+  //   {
+  //   title: "ระบบบุคลากร",
+  //   description: "จัดการข้อมูลครู และเจ้าหน้าที่",
+  //   icon: UsersRound,
+  //   color: "bg-cyan-50 border-cyan-200",
+  //   iconColor: "text-cyan-600",
+  //   href: "/personnel"
+  // }, 
+  //   {
+  //   title: "งานอาคารสถานที่",
+  //   description: "จัดการอาคาร สิ่งก่อสร้าง และสภาพแวดล้อม",
+  //   icon: Building,
+  //   color: "bg-yellow-50 border-yellow-200",
+  //   iconColor: "text-yellow-600",
+  //   href: "/facilities"
+  // },
+    
+    {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",
     icon: Settings,
