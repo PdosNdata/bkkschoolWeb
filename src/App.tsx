@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
@@ -13,8 +13,71 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        // Clean token fragment after Supabase sets the session
+        if (window.location.hash && window.location.hash.includes("access_token")) {
+          setTimeout(() => {
+            window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          }, 0);
+        }
+
+        // Check session and redirect to dashboard if not already there
+        if (!location.pathname.startsWith("/dashboard")) {
+          navigate("/dashboard", { replace: true });
+        }
+      }
+
+      if (event === "SIGNED_OUT") {
+        if (location.pathname !== "/") {
+          navigate("/", { replace: true });
+        }
+      }
+    });
+
+    // Exchange OAuth code for session (PKCE) if present
+    const url = new URL(window.location.href);
+    const hasCode = url.searchParams.get("code");
+    const hasError = url.searchParams.get("error");
+    if (hasCode && !hasError) {
+      supabase.auth.exchangeCodeForSession(window.location.href)
+        .then(({ data: { session } }) => {
+          // Clean query params after successful exchange
+          window.history.replaceState(null, "", window.location.pathname);
+          
+          // If session exists after code exchange, redirect to dashboard
+          if (session && !location.pathname.startsWith("/dashboard")) {
+            navigate("/dashboard", { replace: true });
+          }
+        })
+        .catch((err) => {
+          console.error("OAuth code exchange failed", err);
+        });
+    }
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && location.pathname === "/") {
+        navigate("/dashboard", { replace: true });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, location.pathname]);
+
+  return <>{children}</>;
+};
+
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const [checking, setChecking] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Listen for auth changes to avoid redirecting away while tokens are being processed
@@ -35,7 +98,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
         // If there is no ongoing auth flow, send user home
         if (!hasCode && !hasAuthInHash) {
-          window.location.assign("/");
+          navigate("/", { replace: true });
         }
       }
     });
@@ -43,77 +106,36 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (checking) return null;
   return children;
 };
 
 const App = () => {
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        // Clean token fragment after Supabase sets the session
-        if (window.location.hash && window.location.hash.includes("access_token")) {
-          setTimeout(() => {
-            window.history.replaceState(null, "", window.location.pathname + window.location.search);
-          }, 0);
-        }
-
-        if (!window.location.pathname.startsWith("/dashboard")) {
-          window.location.assign("/dashboard");
-        }
-      }
-
-      if (event === "SIGNED_OUT") {
-        if (window.location.pathname !== "/") {
-          window.location.assign("/");
-        }
-      }
-    });
-
-    // Exchange OAuth code for session (PKCE) if present
-    const url = new URL(window.location.href);
-    const hasCode = url.searchParams.get("code");
-    const hasError = url.searchParams.get("error");
-    if (hasCode && !hasError) {
-      supabase.auth.exchangeCodeForSession(window.location.href)
-        .then(() => {
-          // Clean query params after successful exchange
-          window.history.replaceState(null, "", window.location.pathname);
-        })
-        .catch((err) => {
-          console.error("OAuth code exchange failed", err);
-        });
-    }
-
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admission" element={<AdmissionForm />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/public-relations" element={<PublicRelations />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/admission" element={<AdmissionForm />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/public-relations" element={<PublicRelations />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
