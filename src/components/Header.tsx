@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthModal from "./AuthModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 import UserSettingsModal from "./UserSettingsModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon } from "lucide-react";
+import { User as UserIcon, Menu } from "lucide-react";
 const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -123,22 +125,54 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
             />
             <div className="flex flex-col">
               <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
-              <span className="text-xs text-muted-foreground">BanKhoDonKhaen School</span>
+              <span className="text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
           </Link>
 
           {(isHome || !userName) && (
-            <nav className="hidden md:flex space-x-8">
-              {menuItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </nav>
+            <>
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex space-x-8">
+                {menuItems.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
+                  >
+                    {item.name}
+                  </a>
+                ))}
+              </nav>
+
+              {/* Mobile Hamburger Menu */}
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="md:hidden"
+                    onClick={() => setIsMobileMenuOpen(true)}
+                  >
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">เมนู</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <nav className="flex flex-col space-y-4 mt-8">
+                    {menuItems.map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-4 py-3 rounded-md text-left"
+                      >
+                        {item.name}
+                      </a>
+                    ))}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </>
           )}
 
           {/* Right side: user menu or login button */}
