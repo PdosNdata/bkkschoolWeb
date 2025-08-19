@@ -60,10 +60,13 @@ const AuthModal = ({
         window.location.assign('/dashboard');
       } else {
         if (formData.password !== formData.confirmPassword) {
-          toast({
-            title: "รหัสผ่านไม่ตรงกัน",
-            description: "กรุณาตรวจสอบรหัสผ่านอีกครั้ง",
-            variant: "destructive"
+          await Swal.fire({
+            icon: 'error',
+            title: 'รหัสผ่านไม่ตรงกัน',
+            text: 'กรุณาตรวจสอบรหัสผ่านอีกครั้ง',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
           });
           return;
         }
@@ -84,8 +87,9 @@ const AuthModal = ({
               icon: 'error',
               title: 'อีเมลนี้ถูกใช้งานแล้ว',
               text: 'กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ',
-              showConfirmButton: true,
-              confirmButtonText: 'ตกลง'
+              showConfirmButton: false,
+              timer: 5000,
+              timerProgressBar: true
             });
             return;
           }
@@ -95,8 +99,9 @@ const AuthModal = ({
               icon: 'error',
               title: 'รหัสผ่านไม่ตรงตามข้อกำหนด',
               text: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
-              showConfirmButton: true,
-              confirmButtonText: 'ตกลง'
+              showConfirmButton: false,
+              timer: 5000,
+              timerProgressBar: true
             });
             return;
           }
