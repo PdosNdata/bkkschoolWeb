@@ -24,12 +24,12 @@ const Dashboard = () => {
     location: ""
   });
   const systemCards = [{
-    title: "ระบบห้องสมุด",
-    description: "จัดการหนังสือ การยืม-คืน และทรัพยากรการเรียนรู้",
+    title: "ระบบตรวจการมาเรียน",
+    description: "การมาและกลับของนักเรียน",
     icon: BookOpen,
     color: "bg-blue-50 border-blue-200",
     iconColor: "text-blue-600",
-    href: "/library"
+    href: "/studentall"
   }, {
     title: "ระบบงานพัสดุ",
     description: "จัดการพัสดุ วัสดุ อุปกรณ์การศึกษา",
