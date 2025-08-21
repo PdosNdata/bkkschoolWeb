@@ -10,6 +10,7 @@ import AdmissionForm from "./pages/AdmissionForm";
 import Dashboard from "./pages/Dashboard";
 import PublicRelations from "./pages/PublicRelations";
 import NewsFormPage from "./pages/NewsFormPage";
+import ActivitiesForm from "./components/ActivitiesForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -138,6 +139,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <NewsFormPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/activities-form" 
+                element={
+                  <ProtectedRoute>
+                    <ActivitiesForm />
                   </ProtectedRoute>
                 } 
               />
