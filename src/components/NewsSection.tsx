@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowRight, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import NewsDetailModal from "./NewsDetailModal";
+
 interface NewsItem {
   id: string;
   title: string;
@@ -13,11 +15,14 @@ interface NewsItem {
   category: string;
   published_date: string;
   created_at: string;
+  cover_image?: string;
 }
 
 const NewsSection = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchNews = async () => {
     try {
@@ -37,6 +42,16 @@ const NewsSection = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openNewsDetail = (newsItem: NewsItem) => {
+    setSelectedNews(newsItem);
+    setIsModalOpen(true);
+  };
+
+  const closeNewsDetail = () => {
+    setSelectedNews(null);
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -101,34 +116,60 @@ const NewsSection = () => {
             {news.map((item) => (
               <Card 
                 key={item.id} 
-                className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group"
+                className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer"
+                onClick={() => openNewsDetail(item)}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge 
-                      className={`${getCategoryColor(item.category)} border-0`}
+                <CardContent className="p-0">
+                  {item.cover_image && (
+                    <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                      <img
+                        src={item.cover_image}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge 
+                        className={`${getCategoryColor(item.category)} border-0`}
+                      >
+                        {getCategoryName(item.category)}
+                      </Badge>
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                      {item.content}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        <span>{item.author_name}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        <span>{formatDate(item.published_date)}</span>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openNewsDetail(item);
+                      }}
                     >
-                      {getCategoryName(item.category)}
-                    </Badge>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
-                    {item.title}
-                  </h3>
-                  
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
-                    {item.content}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      <span>{item.author_name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      <span>{formatDate(item.published_date)}</span>
-                    </div>
+                      อ่านต่อ
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -157,6 +198,12 @@ const NewsSection = () => {
             </div>
           </div>
         </div>
+
+        <NewsDetailModal
+          news={selectedNews}
+          isOpen={isModalOpen}
+          onClose={closeNewsDetail}
+        />
       </div>
     </section>
   );
