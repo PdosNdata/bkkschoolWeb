@@ -167,7 +167,8 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {systemCards.map((system, index) => {
             const IconComponent = system.icon;
-            return <Card key={index} className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`} onClick={() => window.location.href = system.href}>
+            return <Link key={index} to={system.href}>
+              <Card className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`}>
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="p-3 rounded-lg shadow-sm bg-violet-200">
@@ -188,7 +189,8 @@ const Dashboard = () => {
                       {system.description}
                     </CardDescription>
                   </CardContent>
-                </Card>;
+                </Card>
+              </Link>;
           })}
           </div>
         </div>

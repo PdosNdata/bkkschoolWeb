@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import AdmissionForm from "./pages/AdmissionForm";
 import Dashboard from "./pages/Dashboard";
 import PublicRelations from "./pages/PublicRelations";
+import NewsFormPage from "./pages/NewsFormPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -132,6 +133,14 @@ const App = () => {
                 }
               />
               <Route path="/public-relations" element={<PublicRelations />} />
+              <Route 
+                path="/NewsForm" 
+                element={
+                  <ProtectedRoute>
+                    <NewsFormPage />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
