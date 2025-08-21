@@ -87,7 +87,7 @@ const NewsSection = () => {
   };
 
   return (
-    <section id="news" className="py-20 bg-background">
+    <section id="news" className="py-20 bg-gradient-news-bg">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">

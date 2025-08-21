@@ -83,6 +83,7 @@ export default {
         'gradient-mission': 'var(--gradient-mission)',
         'gradient-values': 'var(--gradient-values)',
         'gradient-purple-soft': 'var(--gradient-purple-soft)',
+        'gradient-news-bg': 'var(--gradient-news-bg)',
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',

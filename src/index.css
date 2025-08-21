@@ -59,6 +59,9 @@ All colors MUST be HSL.
     /* White-purple soft gradient for image slider */
     --gradient-purple-soft: linear-gradient(135deg, hsl(0 0% 100%), hsl(270 50% 92%), hsl(260 40% 85%));
     
+    /* News section purple gradient background */
+    --gradient-news-bg: linear-gradient(135deg, hsl(280 60% 88%), hsl(0 0% 100%));
+    
     --shadow-elegant: 0 10px 30px -10px hsl(261 50% 25% / 0.2);
     --shadow-glow: 0 0 40px hsl(261 70% 45% / 0.3);
     

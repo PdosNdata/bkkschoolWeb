@@ -80,11 +80,12 @@ const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
 
         <div className="space-y-6">
           {news.cover_image && (
-            <div className="w-full">
+            <div className="w-full flex justify-center">
               <img
                 src={news.cover_image}
                 alt={news.title}
-                className="w-full h-auto max-h-96 object-cover rounded-lg shadow-lg"
+                className="max-w-full h-auto rounded-lg shadow-lg"
+                style={{ maxHeight: 'none' }}
               />
             </div>
           )}
