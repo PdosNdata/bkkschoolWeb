@@ -90,7 +90,7 @@ const ActivitiesForm = () => {
         title: 'บันทึกสำเร็จ!',
         text: 'กิจกรรมได้ถูกบันทึกเรียบร้อยแล้ว',
         icon: 'success',
-        timer: 5000,
+        timer: 1800,
         timerProgressBar: true,
         showConfirmButton: false
       });
@@ -109,6 +109,7 @@ const ActivitiesForm = () => {
         title: 'เกิดข้อผิดพลาด!',
         text: 'ไม่สามารถบันทึกกิจกรรมได้',
         icon: 'error',
+        timer: 1800,
         confirmButtonText: 'ตกลง'
       });
     }
