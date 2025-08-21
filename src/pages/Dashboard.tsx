@@ -67,7 +67,7 @@ const Dashboard = () => {
     icon: Megaphone,
     color: "bg-pink-50 border-pink-200",
     iconColor: "text-pink-600",
-    href: "/public-relations"
+    href: "/NewsForm"
   }, 
   //   {
   //   title: "ระบบบุคลากร",
