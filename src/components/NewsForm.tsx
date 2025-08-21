@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface NewsFormData {
   title: string;
@@ -136,9 +137,13 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
         throw error;
       }
 
-      toast({
-        title: "สำเร็จ",
-        description: "เพิ่มข่าวสารใหม่แล้ว",
+      Swal.fire({
+        title: "สำเร็จ!",
+        text: "เพิ่มข่าวสารใหม่แล้ว",
+        icon: "success",
+        timer: 5000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
 
       // Reset form
@@ -167,7 +172,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
   };
 
   return (
-    <Card className="mb-8">
+    <Card className="mb-8 bg-gradient-to-br from-purple-100 to-white dark:from-purple-900/20 dark:to-background">
       <CardHeader>
         <CardTitle>เพิ่มข่าวสารและประกาศใหม่</CardTitle>
       </CardHeader>
