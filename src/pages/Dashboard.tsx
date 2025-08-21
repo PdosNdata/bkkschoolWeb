@@ -38,14 +38,14 @@ const Dashboard = () => {
     iconColor: "text-green-600",
     href: "/supplies"
    },
-    // {
-  //   title: "ระบบกิจการนักเรียน",
-  //   description: "จัดการข้อมูลนักเรียน กิจกรรม และพฤติกรรม",
-  //   icon: GraduationCap,
-  //   color: "bg-purple-50 border-purple-200",
-  //   iconColor: "text-purple-600",
-  //   href: "/student-affairs"
-  // }, 
+    {
+    title: "กิจกรรมต่าง ๆ ภายใน",
+    description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
+    icon: GraduationCap,
+    color: "bg-purple-50 border-purple-200",
+    iconColor: "text-purple-600",
+    href: "/ActivitiesForm"
+  }, 
   //   {
   //   title: "ระบบงานวิชาการ",
   //   description: "จัดการหลักสูตร การสอน และประเมินผล",
