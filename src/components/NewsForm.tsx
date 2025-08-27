@@ -46,6 +46,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<NewsFormData>({
     title: "",
     content: "",
@@ -154,7 +155,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     setUploading(true);
     
     try {
-      let coverImageUrl = "";
+      let coverImageUrl = formData.cover_image || "";
       
       // Upload image if selected
       if (coverImage) {
@@ -164,50 +165,76 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
         }
       }
 
-      const { error } = await supabase
-        .from('news')
-        .insert([{
-          ...formData,
-          cover_image: coverImageUrl || null
-        }]);
+      if (editingId) {
+        // Update existing news
+        const { error } = await supabase
+          .from('news')
+          .update({
+            ...formData,
+            cover_image: coverImageUrl || null
+          })
+          .eq('id', editingId);
 
-      if (error) {
-        throw error;
+        if (error) throw error;
+
+        Swal.fire({
+          title: "สำเร็จ!",
+          text: "แก้ไขข่าวสารเรียบร้อยแล้ว",
+          icon: "success",
+          timer: 5000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
+      } else {
+        // Insert new news
+        const { error } = await supabase
+          .from('news')
+          .insert([{
+            ...formData,
+            cover_image: coverImageUrl || null
+          }]);
+
+        if (error) throw error;
+
+        Swal.fire({
+          title: "สำเร็จ!",
+          text: "เพิ่มข่าวสารใหม่แล้ว",
+          icon: "success",
+          timer: 5000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
       }
 
-      Swal.fire({
-        title: "สำเร็จ!",
-        text: "เพิ่มข่าวสารใหม่แล้ว",
-        icon: "success",
-        timer: 5000,
-        timerProgressBar: true,
-        showConfirmButton: false
-      });
-
       // Reset form
-      setFormData({
-        title: "",
-        content: "",
-        author_name: formData.author_name, // Keep the current user's name
-        category: "general",
-        published_date: new Date().toISOString().split('T')[0],
-      });
-      setCoverImage(null);
-      setImagePreview("");
-
+      resetForm();
+      
       // Call callback to refresh news list
       onNewsAdded?.();
       fetchAllNews(); // Refresh the news list
     } catch (error) {
-      console.error('Error adding news:', error);
+      console.error('Error saving news:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเพิ่มข่าวสารได้",
+        description: editingId ? "ไม่สามารถแก้ไขข่าวสารได้" : "ไม่สามารถเพิ่มข่าวสารได้",
         variant: "destructive",
       });
     } finally {
       setUploading(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      content: "",
+      author_name: formData.author_name, // Keep the current user's name
+      category: "general",
+      published_date: new Date().toISOString().split('T')[0],
+    });
+    setCoverImage(null);
+    setImagePreview("");
+    setEditingId(null);
   };
 
   const getCategoryColor = (category: string) => {
@@ -239,10 +266,27 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
   };
 
   const handleEdit = (newsItem: NewsItem) => {
-    // TODO: Implement edit functionality
+    setEditingId(newsItem.id);
+    setFormData({
+      title: newsItem.title,
+      content: newsItem.content,
+      author_name: newsItem.author_name,
+      category: newsItem.category,
+      published_date: newsItem.published_date,
+      cover_image: newsItem.cover_image
+    });
+    
+    // Set image preview if news has cover image
+    if (newsItem.cover_image) {
+      setImagePreview(newsItem.cover_image);
+    }
+
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     toast({
-      title: "ฟีเจอร์แก้ไข",
-      description: "ฟีเจอร์แก้ไขจะเพิ่มในเร็วๆ นี้",
+      title: "โหลดข้อมูลแล้ว",
+      description: "สามารถแก้ไขข้อมูลในฟอร์มด้านบนได้เลย",
     });
   };
 
@@ -289,7 +333,19 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     <div className="space-y-8">
       <Card className="mb-8 bg-gradient-to-br from-purple-100 to-white dark:from-purple-900/20 dark:to-background">
         <CardHeader>
-          <CardTitle>เพิ่มข่าวสารและประกาศใหม่</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>{editingId ? "แก้ไขข่าวสาร" : "เพิ่มข่าวสารและประกาศใหม่"}</CardTitle>
+            {editingId && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={resetForm}
+                className="text-sm"
+              >
+                ยกเลิกการแก้ไข
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -409,7 +465,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                 size="sm"
                 disabled={uploading}
               >
-                {uploading ? "กำลังบันทึก..." : "บันทึก"}
+                {uploading ? "กำลังบันทึก..." : editingId ? "อัพเดต" : "บันทึก"}
               </Button>
             </div>
           </form>
