@@ -1,12 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, X, Edit, Trash2, Eye } from "lucide-react";
+import { Calendar, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import Swal from "sweetalert2";
 
 interface NewsItem {
   id: string;
@@ -27,53 +25,6 @@ interface NewsDetailModalProps {
 
 const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
   const { toast } = useToast();
-
-  const handleEdit = (newsItem: NewsItem) => {
-    // TODO: Implement edit functionality
-    toast({
-      title: "ฟีเจอร์แก้ไข",
-      description: "ฟีเจอร์แก้ไขจะเพิ่มในเร็วๆ นี้",
-    });
-  };
-
-  const handleDelete = async (newsId: string) => {
-    const result = await Swal.fire({
-      title: 'คุณแน่ใจหรือไม่?',
-      text: "คุณต้องการลบข่าวนี้หรือไม่?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'ใช่, ลบเลย!',
-      cancelButtonText: 'ยกเลิก'
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      const { error } = await supabase
-        .from('news')
-        .delete()
-        .eq('id', newsId);
-
-      if (error) throw error;
-
-      await Swal.fire(
-        'ลบสำเร็จ!',
-        'ข่าวสารถูกลบเรียบร้อยแล้ว',
-        'success'
-      );
-
-      onClose(); // Close modal after successful deletion
-    } catch (error) {
-      console.error('Error deleting news:', error);
-      await Swal.fire(
-        'เกิดข้อผิดพลาด!',
-        'ไม่สามารถลบข่าวสารได้',
-        'error'
-      );
-    }
-  };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
@@ -110,7 +61,7 @@ const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
           <>
             <DialogHeader className="space-y-4">
               <div className="flex items-center justify-between">
-                <DialogTitle className="text-2xl font-bold">
+                <DialogTitle className="text-2xl font-bold text-left">
                   {news.title}
                 </DialogTitle>
                 <Button variant="ghost" size="sm" onClick={onClose}>
@@ -126,7 +77,7 @@ const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
                   <img
                     src={news.cover_image}
                     alt={news.title}
-                    className="w-full h-64 md:h-80 object-cover rounded-lg shadow-md"
+                    className="w-full max-w-none object-cover rounded-lg shadow-md"
                   />
                 </div>
               )}
@@ -151,26 +102,6 @@ const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
                 <div className="text-base leading-relaxed whitespace-pre-wrap">
                   {news.content}
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() => handleEdit(news)}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  แก้ไข
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(news.id)}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  ลบ
-                </Button>
               </div>
             </div>
           </>
