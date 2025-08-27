@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Swal from "sweetalert2";
 
 interface Activity {
   id: string;
@@ -64,7 +65,18 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
   };
 
   const handleDelete = async (activityId: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบกิจกรรมนี้?')) return;
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่?',
+      text: "คุณต้องการลบกิจกรรมนี้หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ใช่, ลบเลย!',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const { error } = await supabase
@@ -74,19 +86,20 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
 
       if (error) throw error;
 
-      toast({
-        title: "สำเร็จ",
-        description: "ลบกิจกรรมเรียบร้อยแล้ว",
-      });
+      await Swal.fire(
+        'ลบสำเร็จ!',
+        'กิจกรรมถูกลบเรียบร้อยแล้ว',
+        'success'
+      );
 
       fetchAllActivities(); // Refresh the list
     } catch (error) {
       console.error('Error deleting activity:', error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถลบกิจกรรมได้",
-        variant: "destructive",
-      });
+      await Swal.fire(
+        'เกิดข้อผิดพลาด!',
+        'ไม่สามารถลบกิจกรรมได้',
+        'error'
+      );
     }
   };
 
