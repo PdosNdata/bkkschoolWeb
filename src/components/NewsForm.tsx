@@ -350,13 +350,14 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-1 md:col-span-2">
                 <Label htmlFor="title">หัวข้อข่าว</Label>
-                <Input
+                <Textarea
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="กรอกหัวข้อข่าว"
+                  rows={3}
                   required
                 />
               </div>
