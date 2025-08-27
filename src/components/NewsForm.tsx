@@ -247,7 +247,18 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
   };
 
   const handleDelete = async (newsId: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบข่าวนี้?')) return;
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจหรือไม่?',
+      text: "คุณต้องการลบข่าวนี้หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ใช่, ลบเลย!',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const { error } = await supabase
@@ -257,19 +268,20 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
 
       if (error) throw error;
 
-      toast({
-        title: "สำเร็จ",
-        description: "ลบข่าวสารเรียบร้อยแล้ว",
-      });
+      await Swal.fire(
+        'ลบสำเร็จ!',
+        'ข่าวสารถูกลบเรียบร้อยแล้ว',
+        'success'
+      );
 
       fetchAllNews(); // Refresh the list
     } catch (error) {
       console.error('Error deleting news:', error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถลบข่าวสารได้",
-        variant: "destructive",
-      });
+      await Swal.fire(
+        'เกิดข้อผิดพลาด!',
+        'ไม่สามารถลบข่าวสารได้',
+        'error'
+      );
     }
   };
 

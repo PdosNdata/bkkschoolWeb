@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, X, Edit, Trash2 } from "lucide-react";
+import { Calendar, User, X, Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState, useEffect } from "react";
@@ -26,6 +26,8 @@ interface ActivitiesDetailModalProps {
 const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailModalProps) => {
   const [activitiesList, setActivitiesList] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [showDetailView, setShowDetailView] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -103,6 +105,16 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
     }
   };
 
+  const handleViewDetail = (activityItem: Activity) => {
+    setSelectedActivity(activityItem);
+    setShowDetailView(true);
+  };
+
+  const handleCloseDetailView = () => {
+    setShowDetailView(false);
+    setSelectedActivity(null);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -112,94 +124,182 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold">
-              รายการกิจกรรมล่าสุด
-            </DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {loading ? (
-            <div className="text-center py-8">
-              <p>กำลังโหลดข้อมูล...</p>
+    <>
+      <Dialog open={isOpen && !showDetailView} onOpenChange={onClose}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-2xl font-bold">
+                รายการกิจกรรมล่าสุด
+              </DialogTitle>
+              <Button variant="ghost" size="sm" onClick={onClose}>
+                <X className="w-4 h-4" />
+              </Button>
             </div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[300px]">หัวข้อ</TableHead>
-                    <TableHead className="w-[400px]">รายละเอียด</TableHead>
-                    <TableHead className="w-[150px]">ผู้เขียน</TableHead>
-                    <TableHead className="w-[150px]">วันที่</TableHead>
-                    <TableHead className="w-[100px]">หมวดหมู่</TableHead>
-                    <TableHead className="w-[120px] text-center">การจัดการ</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {activitiesList.length === 0 ? (
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {loading ? (
+              <div className="text-center py-8">
+                <p>กำลังโหลดข้อมูล...</p>
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        ไม่มีกิจกรรม
-                      </TableCell>
+                      <TableHead className="w-[250px]">หัวข้อ</TableHead>
+                      <TableHead className="w-[350px]">รายละเอียด</TableHead>
+                      <TableHead className="w-[120px]">ผู้เขียน</TableHead>
+                      <TableHead className="w-[120px]">วันที่</TableHead>
+                      <TableHead className="w-[80px]">หมวดหมู่</TableHead>
+                      <TableHead className="w-[140px] text-center">การจัดการ</TableHead>
                     </TableRow>
-                  ) : (
-                    activitiesList.map((activityItem) => (
-                      <TableRow key={activityItem.id}>
-                        <TableCell className="font-medium">
-                          <div className="line-clamp-2" title={activityItem.title}>
-                            {activityItem.title}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="line-clamp-3 text-sm text-muted-foreground" title={activityItem.content}>
-                            {activityItem.content}
-                          </div>
-                        </TableCell>
-                        <TableCell>{activityItem.author_name}</TableCell>
-                        <TableCell>{formatDate(activityItem.created_at)}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="text-xs">
-                            กิจกรรม
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(activityItem)}
-                              className="h-8 w-8 p-0"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(activityItem.id)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {activitiesList.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          ไม่มีกิจกรรม
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : (
+                      activitiesList.map((activityItem) => (
+                        <TableRow key={activityItem.id}>
+                          <TableCell className="font-medium">
+                            <div className="line-clamp-2" title={activityItem.title}>
+                              {activityItem.title}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="line-clamp-3 text-sm text-muted-foreground" title={activityItem.content}>
+                              {activityItem.content}
+                            </div>
+                          </TableCell>
+                          <TableCell>{activityItem.author_name}</TableCell>
+                          <TableCell>{formatDate(activityItem.created_at)}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="text-xs">
+                              กิจกรรม
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewDetail(activityItem)}
+                                className="h-8 w-8 p-0"
+                                title="ดูรายละเอียด"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(activityItem)}
+                                className="h-8 w-8 p-0"
+                                title="แก้ไข"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(activityItem.id)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                title="ลบ"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Activity Detail View Dialog */}
+      <Dialog open={showDetailView} onOpenChange={handleCloseDetailView}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedActivity && (
+            <>
+              <DialogHeader className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-2xl font-bold">
+                    {selectedActivity.title}
+                  </DialogTitle>
+                  <Button variant="ghost" size="sm" onClick={handleCloseDetailView}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Cover Image */}
+                {selectedActivity.cover_image && (
+                  <div className="w-full">
+                    <img
+                      src={selectedActivity.cover_image}
+                      alt={selectedActivity.title}
+                      className="w-full h-64 md:h-80 object-cover rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+
+                {/* Meta Information */}
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span>ผู้เขียน: {selectedActivity.author_name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>วันที่: {formatDate(selectedActivity.created_at)}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    กิจกรรม
+                  </Badge>
+                </div>
+
+                {/* Content */}
+                <div className="prose max-w-none">
+                  <div className="text-base leading-relaxed whitespace-pre-wrap">
+                    {selectedActivity.content}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleEdit(selectedActivity)}
+                    className="flex items-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    แก้ไข
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(selectedActivity.id)}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    ลบ
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
