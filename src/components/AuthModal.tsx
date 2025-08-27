@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +28,8 @@ const AuthModal = ({
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    userType: "student"
   });
   const [rememberMe, setRememberMe] = useState(false);
   const handleInputChange = (field: string, value: string) => {
@@ -72,6 +74,7 @@ const AuthModal = ({
         }
         const redirectUrl = `${window.location.origin}/`;
         const {
+          data,
           error
         } = await supabase.auth.signUp({
           email: formData.email,
@@ -107,6 +110,20 @@ const AuthModal = ({
           }
           
           throw error;
+        }
+        
+        // Insert user role if signup was successful
+        if (data.user) {
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: data.user.id,
+              role: formData.userType as 'teacher' | 'student' | 'guardian'
+            });
+          
+          if (roleError) {
+            console.error('Error inserting user role:', roleError);
+          }
         }
         
         toast({
@@ -206,7 +223,8 @@ const AuthModal = ({
     setFormData({
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      userType: "student"
     });
   };
   const toggleMode = () => {
@@ -273,21 +291,45 @@ const AuthModal = ({
             </div>
 
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-700">ยืนยันรหัสผ่าน</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input 
-                    id="confirmPassword" 
-                    type="password" 
-                    placeholder="ยืนยันรหัสผ่าน" 
-                    value={formData.confirmPassword} 
-                    onChange={e => handleInputChange("confirmPassword", e.target.value)} 
-                    className="pl-10 h-12 border-gray-200 rounded-lg focus:border-purple-500" 
-                    required 
-                  />
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-gray-700">ยืนยันรหัสผ่าน</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input 
+                      id="confirmPassword" 
+                      type="password" 
+                      placeholder="ยืนยันรหัสผ่าน" 
+                      value={formData.confirmPassword} 
+                      onChange={e => handleInputChange("confirmPassword", e.target.value)} 
+                      className="pl-10 h-12 border-gray-200 rounded-lg focus:border-purple-500" 
+                      required 
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="space-y-3">
+                  <Label className="text-gray-700">ประเภทผู้ใช้</Label>
+                  <RadioGroup 
+                    value={formData.userType} 
+                    onValueChange={(value) => handleInputChange("userType", value)}
+                    className="grid grid-cols-1 gap-3"
+                  >
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="teacher" id="teacher" />
+                      <Label htmlFor="teacher" className="flex-1 cursor-pointer">ครู</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="student" id="student" />
+                      <Label htmlFor="student" className="flex-1 cursor-pointer">นักเรียน</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="guardian" id="guardian" />
+                      <Label htmlFor="guardian" className="flex-1 cursor-pointer">ผู้ปกครอง</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </>
             )}
 
             {isLogin && (
