@@ -331,7 +331,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
 
   const generateShareLinks = (newsItem: NewsItem) => {
     const baseUrl = window.location.origin;
-    const newsUrl = `${baseUrl}#news`;
+    const newsUrl = `${baseUrl}/#news-detail-${newsItem.id}`;
     const title = newsItem.title;
     const content = newsItem.content.substring(0, 100) + (newsItem.content.length > 100 ? '...' : '');
     const shareText = `${title}\n\n${content}\n\nอ่านเพิ่มเติม: ${newsUrl}`;
