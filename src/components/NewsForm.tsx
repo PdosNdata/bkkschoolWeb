@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Edit, Trash2, Share2 } from "lucide-react";
+import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link } from "lucide-react";
 import Swal from "sweetalert2";
 
 interface NewsFormData {
@@ -371,6 +371,27 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     });
   };
 
+  const generateNewsUrl = (newsId?: string) => {
+    const baseUrl = window.location.origin;
+    return newsId ? `${baseUrl}/#news-${newsId}` : `${baseUrl}/#news`;
+  };
+
+  const handleCopyLink = (newsId?: string) => {
+    const newsUrl = generateNewsUrl(newsId);
+    navigator.clipboard.writeText(newsUrl).then(() => {
+      toast({
+        title: "คัดลอกลิงค์สำเร็จ",
+        description: "ลิงค์ข่าวสารถูกคัดลอกไปยังคลิปบอร์ดแล้ว",
+      });
+    }).catch(() => {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถคัดลอกลิงค์ได้",
+        variant: "destructive",
+      });
+    });
+  };
+
   return (
     <div className="space-y-8">
       <Card className="mb-8 bg-gradient-to-br from-purple-100 to-white dark:from-purple-900/20 dark:to-background">
@@ -503,6 +524,18 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                 <ArrowLeft className="h-4 w-4" />
                 ย้อนกลับ
               </Button>
+              {editingId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopyLink(editingId)}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  คัดลอกลิงค์
+                </Button>
+              )}
               <Button 
                 type="submit" 
                 size="sm"
@@ -584,6 +617,15 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                               title="ลบ"
                             >
                               <Trash2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyLink(newsItem.id)}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-gray-700"
+                              title="คัดลอกลิงค์"
+                            >
+                              <Copy className="w-4 h-4" />
                             </Button>
                             
                             {/* Share buttons */}
