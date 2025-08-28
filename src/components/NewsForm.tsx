@@ -373,7 +373,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
 
   const generateNewsUrl = (newsId?: string) => {
     const baseUrl = window.location.origin;
-    return newsId ? `${baseUrl}/#news-${newsId}` : `${baseUrl}/#news`;
+    return newsId ? `${baseUrl}/#news-detail-${newsId}` : `${baseUrl}/#news`;
   };
 
   const handleCopyLink = (newsId?: string) => {

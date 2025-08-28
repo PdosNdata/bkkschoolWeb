@@ -58,6 +58,30 @@ const NewsSection = () => {
     fetchNews();
   }, []);
 
+  // Handle URL fragment for opening specific news
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#news-detail-')) {
+        const newsId = hash.replace('#news-detail-', '');
+        const newsItem = news.find(item => item.id === newsId);
+        if (newsItem) {
+          openNewsDetail(newsItem);
+        }
+      }
+    };
+
+    // Check on component mount
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, [news]);
+
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
       "general": "bg-gray-100 text-gray-800",
