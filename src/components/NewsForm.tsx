@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Upload, Edit, Trash2, Share2 } from "lucide-react";
 import Swal from "sweetalert2";
 
 interface NewsFormData {
@@ -329,6 +329,48 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     }
   };
 
+  const generateShareLinks = (newsItem: NewsItem) => {
+    const baseUrl = window.location.origin;
+    const newsUrl = `${baseUrl}#news`;
+    const title = newsItem.title;
+    const content = newsItem.content.substring(0, 100) + (newsItem.content.length > 100 ? '...' : '');
+    const shareText = `${title}\n\n${content}\n\nอ่านเพิ่มเติม: ${newsUrl}`;
+    
+    return {
+      line: `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(newsUrl)}&text=${encodeURIComponent(shareText)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(newsUrl)}&quote=${encodeURIComponent(shareText)}`,
+      messenger: `https://www.facebook.com/dialog/send?link=${encodeURIComponent(newsUrl)}&app_id=YOUR_APP_ID&redirect_uri=${encodeURIComponent(newsUrl)}`
+    };
+  };
+
+  const handleShare = (newsItem: NewsItem, platform: 'line' | 'facebook' | 'messenger') => {
+    const links = generateShareLinks(newsItem);
+    const shareUrl = links[platform];
+    
+    if (platform === 'messenger') {
+      // For Messenger, we'll use a simpler approach
+      const messageText = `${newsItem.title}\n\n${newsItem.content.substring(0, 100)}${newsItem.content.length > 100 ? '...' : ''}\n\nอ่านเพิ่มเติม: ${window.location.origin}#news`;
+      const messengerUrl = `fb-messenger://share/?link=${encodeURIComponent(window.location.origin + '#news')}&app_id=140586622674265`;
+      
+      // Try to open messenger app, fallback to web
+      const tempLink = document.createElement('a');
+      tempLink.href = messengerUrl;
+      tempLink.click();
+      
+      // Fallback for web
+      setTimeout(() => {
+        window.open(`https://www.messenger.com/new`, '_blank');
+      }, 1000);
+    } else {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+    
+    toast({
+      title: "แชร์สำเร็จ",
+      description: `เปิดหน้าต่างแชร์ไปยัง ${platform === 'line' ? 'LINE' : platform === 'facebook' ? 'Facebook' : 'Messenger'} แล้ว`,
+    });
+  };
+
   return (
     <div className="space-y-8">
       <Card className="mb-8 bg-gradient-to-br from-purple-100 to-white dark:from-purple-900/20 dark:to-background">
@@ -493,7 +535,7 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                     <TableHead className="w-[150px]">ผู้เขียน</TableHead>
                     <TableHead className="w-[150px]">วันที่</TableHead>
                     <TableHead className="w-[100px]">หมวดหมู่</TableHead>
-                    <TableHead className="w-[120px] text-center">การจัดการ</TableHead>
+                    <TableHead className="w-[200px] text-center">การจัดการ</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -524,12 +566,13 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1 flex-wrap">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEdit(newsItem)}
                               className="h-8 w-8 p-0"
+                              title="แก้ไข"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -538,9 +581,47 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                               size="sm"
                               onClick={() => handleDelete(newsItem.id)}
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              title="ลบ"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
+                            
+                            {/* Share buttons */}
+                            <div className="flex items-center gap-1 ml-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleShare(newsItem, 'line')}
+                                className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
+                                title="แชร์ไปยัง LINE"
+                              >
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738S0 4.935 0 10.304c0 4.839 4.327 8.894 10.172 9.614.396.085.934.258 1.07.593.123.302.081.78.04 1.104l-.172 1.028c-.052.31-.244 1.212 1.061.661 1.304-.55 7.049-4.148 9.618-7.096 1.775-1.749 2.211-3.523 2.211-5.968z"/>
+                                </svg>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleShare(newsItem, 'facebook')}
+                                className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700"
+                                title="แชร์ไปยัง Facebook"
+                              >
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleShare(newsItem, 'messenger')}
+                                className="h-6 w-6 p-0 text-blue-500 hover:text-blue-600"
+                                title="แชร์ไปยัง Messenger"
+                              >
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.497 1.745 6.616 4.472 8.652V24l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.26 5.889-3.26-6.56 6.963z"/>
+                                </svg>
+                              </Button>
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>
