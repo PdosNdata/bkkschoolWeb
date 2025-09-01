@@ -48,9 +48,19 @@ const Dashboard = () => {
     icon: GraduationCap,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
+    href: "/StudentForm",
+    roles: ["student", "teacher", "admin"]
+  }, 
+    {
+    title: "กิจกรรมภายในโรงเรียน",
+    description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
+    icon: GraduationCap,
+    color: "bg-purple-50 border-purple-200",
+    iconColor: "text-purple-600",
     href: "/ActivitiesForm",
     roles: ["student", "teacher", "admin"]
-  }, {
+  },
+    {
     title: "ประชาสัมพันธ์",
     description: "จัดการข่าวสาร ประกาศ และกิจกรรม",
     icon: Megaphone,
