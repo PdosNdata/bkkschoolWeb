@@ -57,7 +57,7 @@ const Dashboard = () => {
     icon: GraduationCap,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
-    href: "/ActivitiesForm",
+    href: "/activities-form",
     roles: ["student", "teacher", "admin"]
   },
     {
