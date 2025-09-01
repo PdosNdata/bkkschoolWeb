@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsForm from "@/components/NewsForm";
-import ActivitiesForm from "@/components/ActivitiesForm";
+
 import { supabase } from "@/integrations/supabase/client";
 const Dashboard = () => {
   const {
