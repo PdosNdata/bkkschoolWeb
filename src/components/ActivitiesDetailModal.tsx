@@ -167,27 +167,11 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
               <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button
                   variant="outline"
-                  onClick={() => handleEdit(activity)}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  แก้ไข
-                </Button>
-                <Button
-                  variant="outline"
                   onClick={() => handleShare(activity, 'facebook')}
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
                 >
                   <Share2 className="w-4 h-4" />
                   แชร์ Facebook
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(activity.id)}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  ลบ
                 </Button>
               </div>
             </div>
