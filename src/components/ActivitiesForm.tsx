@@ -530,8 +530,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleShare(activity, 'line')}
-                            className="h-8 px-2 text-green-600"
+                            onClick={() => handleShare(activity, 'facebook')}
+                            className="h-8 px-2 text-blue-600"
                           >
                             <Share2 className="h-3 w-3" />
                           </Button>

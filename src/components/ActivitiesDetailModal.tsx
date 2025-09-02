@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, X, Edit, Trash2, Eye } from "lucide-react";
+import { Calendar, User, X, Edit, Trash2, Eye, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState, useEffect } from "react";
@@ -59,11 +59,8 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
   };
 
   const handleEdit = (activityItem: Activity) => {
-    // TODO: Implement edit functionality
-    toast({
-      title: "ฟีเจอร์แก้ไข",
-      description: "ฟีเจอร์แก้ไขจะเพิ่มในเร็วๆ นี้",
-    });
+    // Navigate to activities form page with edit mode
+    window.location.href = `/activities-form?edit=${activityItem.id}`;
   };
 
   const handleDelete = async (activityId: string) => {
@@ -120,6 +117,29 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
       year: 'numeric',
       month: 'long',
       day: 'numeric'
+    });
+  };
+
+  const handleShare = (activityItem: Activity, platform: 'facebook' | 'line') => {
+    const baseUrl = window.location.origin;
+    const activityUrl = `${baseUrl}/#activity-detail-${activityItem.id}`;
+    const title = activityItem.title;
+    const content = activityItem.content.substring(0, 100) + (activityItem.content.length > 100 ? '...' : '');
+    const shareText = `${title}\n\n${content}\n\nอ่านเพิ่มเติม: ${activityUrl}`;
+    
+    let shareUrl = '';
+    
+    if (platform === 'facebook') {
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}&quote=${encodeURIComponent(shareText)}`;
+    } else {
+      shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(activityUrl)}&text=${encodeURIComponent(shareText)}`;
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+    
+    toast({
+      title: "แชร์สำเร็จ",
+      description: `เปิดหน้าต่างแชร์ไปยัง ${platform === 'facebook' ? 'Facebook' : 'LINE'} แล้ว`,
     });
   };
 
@@ -206,6 +226,15 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                onClick={() => handleShare(activityItem, 'facebook')}
+                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700"
+                                title="แชร์ไปยัง Facebook"
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleDelete(activityItem.id)}
                                 className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                                 title="ลบ"
@@ -248,7 +277,7 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
                     <img
                       src={selectedActivity.cover_image}
                       alt={selectedActivity.title}
-                      className="w-full h-64 md:h-80 object-cover rounded-lg shadow-md"
+                      className="w-full h-auto max-h-96 object-contain rounded-lg shadow-md bg-gray-50"
                     />
                   </div>
                 )}
@@ -284,6 +313,14 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
                   >
                     <Edit className="w-4 h-4" />
                     แก้ไข
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleShare(selectedActivity, 'facebook')}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    แชร์ Facebook
                   </Button>
                   <Button
                     variant="destructive"
