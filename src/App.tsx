@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import PublicRelations from "./pages/PublicRelations";
 import NewsFormPage from "./pages/NewsFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
+import AllActivitiesPage from "./pages/AllActivitiesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -150,6 +151,7 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/activities" element={<AllActivitiesPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
