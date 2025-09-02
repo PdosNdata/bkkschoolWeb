@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, X, Edit, Trash2, Eye, Share2 } from "lucide-react";
+import { Calendar, User, X, Share2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -113,6 +113,24 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
     });
   };
 
+  const handleCopyLink = (activityItem: Activity) => {
+    const baseUrl = window.location.origin;
+    const activityUrl = `${baseUrl}/#activity-detail-${activityItem.id}`;
+    
+    navigator.clipboard.writeText(activityUrl).then(() => {
+      toast({
+        title: "คัดลอกลิงค์สำเร็จ",
+        description: "ลิงค์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว",
+      });
+    }).catch(() => {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถคัดลอกลิงค์ได้",
+        variant: "destructive"
+      });
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -165,6 +183,14 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
 
               {/* Action Buttons */}
               <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => handleCopyLink(activity)}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  คัดลอกลิงค์
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => handleShare(activity, 'facebook')}
