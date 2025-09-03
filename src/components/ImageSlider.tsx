@@ -7,7 +7,7 @@ const ImageSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    
+   
     {
       id: 1,
       image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&h=600&fit=crop",
@@ -24,7 +24,7 @@ const ImageSlider = () => {
     },
     {
       id: 3,
-      image: "https://raw.githubusercontent.com/PdosNdata/myimages/a0c0d76537450f70ae4e54b518b51b576d2f9f90/piclibrary.jpg",
+      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=600&fit=crop",
       title: "ห้องสมุดและแหล่งเรียนรู้",
       description: "แหล่งความรู้ที่ครบครันและทันสมัย",
       link: "#library"
