@@ -28,10 +28,6 @@ const ImagePopup = () => {
             {/* Overlay content */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
               <div className="p-8 text-white">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  ยินดีต้อนรับสู่โรงเรียนบ้านค้อดอนแคน
-                </h2>
-                <p className="text-lg md:text-xl mb-6 max-w-2xl">สถานศึกษาที่มุ่งเน้นการพัฒนาศักยภาพนักเรียนอย่างรอบด้าน ด้วยการศึกษาที่มีคุณภาพดีเยี่ยม</p>
                 <button onClick={handleClose} className="bg-gradient-purple-soft text-purple-900 px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
                   เข้าสู่เว็บไซต์
                 </button>
