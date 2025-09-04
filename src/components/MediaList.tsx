@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Calendar, User, MoreVertical, Edit2, Trash2, Share2, Copy, ExternalLink } from "lucide-react";
+import { Calendar, User, MoreVertical, Edit2, Trash2, Share2, Copy, ExternalLink, Facebook } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +36,7 @@ interface MediaResource {
   thumbnail_url: string | null;
   created_at: string;
   updated_at: string;
+  user_id?: string;
 }
 
 interface MediaListProps {
@@ -122,11 +123,12 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
     if (!currentUser) return false;
     
     // Admin can edit/delete everything
-    if (userRole === 'teacher') return true;
+    if (userRole === 'admin') return true;
     
-    // Users can only edit their own content based on author name
-    // This is a simplified check - in a real app you'd want to store user_id in media_resources
-    return false; // For now, only teachers can edit/delete
+    // Media owner can edit/delete their own content
+    if (media.user_id && media.user_id === currentUser.id) return true;
+    
+    return false;
   };
 
   const handleDelete = async (id: string) => {
@@ -170,6 +172,11 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleShareFacebook = (media: MediaResource) => {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(media.media_url)}&quote=${encodeURIComponent(`${media.title} - ${media.description}`)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
   };
 
   if (loading) {
@@ -229,6 +236,10 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
                   <DropdownMenuItem onClick={() => handleCopyLink(media.media_url)}>
                     <Copy className="w-4 h-4 mr-2" />
                     คัดลอกลิงค์
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShareFacebook(media)}>
+                    <Facebook className="w-4 h-4 mr-2" />
+                    แชร์ Facebook
                   </DropdownMenuItem>
                   {canEditDelete(media) && (
                     <>
