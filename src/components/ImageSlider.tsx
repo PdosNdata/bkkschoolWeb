@@ -10,7 +10,7 @@ const ImageSlider = () => {
    
     {
       id: 1,
-      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&h=600&fit=crop",
+      image: "https://raw.githubusercontent.com/PdosNdata/myimages/8e8fe16c7cac72fb58f9c5f878234d21227aec33/duriyang.png",
       title: "กิจกรรมนักเรียน",
       description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
       link: "#activities"
