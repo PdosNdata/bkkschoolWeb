@@ -51,7 +51,7 @@ const Dashboard = () => {
     roles: ["student", "teacher", "admin"]
   }, 
     {
-    title: "กิจกรรมภายในโรงเรียน",
+    title: "กิจกรรมภายใน",
     description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
     icon: GraduationCap,
     color: "bg-purple-50 border-purple-200",
