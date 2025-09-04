@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsForm from "@/components/NewsForm";
@@ -16,7 +16,9 @@ const Dashboard = () => {
   const {
     toast
   } = useToast();
+  const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const [activityForm, setActivityForm] = useState({
     title: "",
     description: "",
@@ -94,22 +96,45 @@ const Dashboard = () => {
     const fetchUserRole = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id)
-            .single();
-          
-          setUserRole(roleData?.role || "");
+        if (!user) {
+          navigate('/');
+          return;
         }
+
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        
+        const role = roleData?.role || "";
+        setUserRole(role);
+
+        // Check if user has teacher or admin role
+        if (role !== "teacher" && role !== "admin") {
+          toast({
+            title: "ไม่มีสิทธิ์เข้าใช้งาน",
+            description: "คุณไม่มีสิทธิ์เข้าใช้งานระบบจัดการโรงเรียน",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
+        }
+
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching user role:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถตรวจสอบสิทธิ์การใช้งานได้",
+          variant: "destructive"
+        });
+        navigate('/');
       }
     };
 
     fetchUserRole();
-  }, []);
+  }, [navigate, toast]);
   const handleActivitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Submit to Supabase when activities table is ready
@@ -132,6 +157,17 @@ const Dashboard = () => {
       [field]: value
     }));
   };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">กำลังตรวจสอบสิทธิ์การใช้งาน...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <div className="min-h-screen bg-background">
       <Header />
       
