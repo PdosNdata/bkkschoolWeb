@@ -24,6 +24,7 @@ const menuItems = [
   { name: "ประวัติโรงเรียน", href: "#history" },
   { name: "กิจกรรมภายใน", href: "#activities" },
   { name: "ข่าวสาร", href: "#news" },
+  { name: "คลังสื่อออนไลน์", href: "#media" },
   { name: "ติดต่อเรา", href: "#contact" },
 ];
 
