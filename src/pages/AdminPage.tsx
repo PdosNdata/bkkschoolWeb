@@ -21,10 +21,19 @@ interface UserRole {
   pending_approval: boolean;
 }
 
+interface UserFormRow {
+  id: number;
+  email: string;
+  roles: string[];
+  action: 'approve' | 'delete' | '';
+}
+
 const AdminPage = () => {
   const { toast } = useToast();
-  const [userEmail, setUserEmail] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [userRows, setUserRows] = useState<UserFormRow[]>([
+    { id: 1, email: "", roles: [], action: '' },
+    { id: 2, email: "", roles: [], action: '' }
+  ]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,20 +69,32 @@ const AdminPage = () => {
     }
   };
 
-  const handleRoleChange = (role: string, checked: boolean) => {
-    setSelectedRoles(prev => 
-      checked 
-        ? [...prev, role]
-        : prev.filter(r => r !== role)
-    );
+  const updateUserRow = (rowId: number, field: keyof UserFormRow, value: any) => {
+    setUserRows(prev => prev.map(row => 
+      row.id === rowId ? { ...row, [field]: value } : row
+    ));
+  };
+
+  const handleRoleChange = (rowId: number, role: string, checked: boolean) => {
+    setUserRows(prev => prev.map(row => {
+      if (row.id === rowId) {
+        const newRoles = checked 
+          ? [...row.roles, role]
+          : row.roles.filter(r => r !== role);
+        return { ...row, roles: newRoles };
+      }
+      return row;
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userEmail || selectedRoles.length === 0) {
+    
+    const validRows = userRows.filter(row => row.email && row.roles.length > 0);
+    if (validRows.length === 0) {
       toast({
         title: "ข้อมูลไม่ครบ",
-        description: "กรุณากรอกอีเมลและเลือกสิทธิ์อย่างน้อย 1 ตัว",
+        description: "กรุณากรอกอีเมลและเลือกสิทธิ์อย่างน้อย 1 แถว",
         variant: "destructive"
       });
       return;
@@ -82,31 +103,26 @@ const AdminPage = () => {
     setIsSubmitting(true);
 
     try {
-      // For demo purposes, we'll create a mock user since admin.listUsers isn't available
-      // In a real application, you would use the admin API to find users
-      
-      // Generate a mock user ID based on email
-      const mockUserId = `user_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
-      
-      // Delete existing roles for this user email
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', mockUserId);
+      for (const row of validRows) {
+        if (row.action === 'approve') {
+          // Generate a mock user ID based on email
+          const mockUserId = `user_${row.email.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+          
+          // Insert new roles
+          const roleInserts = row.roles.map(role => ({
+            user_id: mockUserId,
+            role: role as "teacher" | "student" | "guardian" | "admin",
+            approved: true,
+            pending_approval: false
+          }));
 
-      // Insert new roles
-      const roleInserts = selectedRoles.map(role => ({
-        user_id: mockUserId,
-        role: role as "teacher" | "student" | "guardian" | "admin",
-        approved: true,
-        pending_approval: false
-      }));
+          const { error: insertError } = await supabase
+            .from('user_roles')
+            .insert(roleInserts);
 
-      const { error: insertError } = await supabase
-        .from('user_roles')
-        .insert(roleInserts);
-
-      if (insertError) throw insertError;
+          if (insertError) throw insertError;
+        }
+      }
 
       toast({
         title: "บันทึกสำเร็จ",
@@ -114,8 +130,10 @@ const AdminPage = () => {
       });
 
       // Reset form
-      setUserEmail("");
-      setSelectedRoles([]);
+      setUserRows([
+        { id: 1, email: "", roles: [], action: '' },
+        { id: 2, email: "", roles: [], action: '' }
+      ]);
       
       // Refresh the list
       fetchUserRoles();
@@ -239,55 +257,65 @@ const AdminPage = () => {
             
             {/* Form Body */}
             <div className="bg-gray-100 rounded-b-lg p-6 border border-gray-300">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Email Input Row */}
-                <div className="flex items-center gap-4">
-                  <Label htmlFor="email" className="text-sm font-medium whitespace-nowrap">
-                    email ผู้ใช้งาน
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder=""
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                    required
-                    className="flex-1 bg-white border border-gray-400"
-                  />
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Header Row */}
+                <div className="flex items-center gap-4 text-sm font-medium text-gray-700 pb-2">
+                  <div className="w-48">email ผู้ใช้งาน</div>
+                  <div className="w-16 text-center">ครู</div>
+                  <div className="w-20 text-center">นักเรียน</div>
+                  <div className="w-24 text-center">ผู้ปกครอง</div>
+                  <div className="w-16 text-center">อนุมัติ</div>
+                  <div className="w-12 text-center">ลบ</div>
                 </div>
 
-                {/* Roles Row */}
-                <div className="flex items-center gap-4 flex-wrap">
-                  {availableRoles.map((role) => (
-                    <div key={role.value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={role.value}
-                        checked={selectedRoles.includes(role.value)}
-                        onCheckedChange={(checked) => 
-                          handleRoleChange(role.value, checked === true)
-                        }
-                        className="border-gray-400"
-                      />
-                      <Label htmlFor={role.value} className="text-sm font-medium">
-                        {role.label}
-                      </Label>
-                    </div>
-                  ))}
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-4 ml-8">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full border-2 border-gray-400 bg-white flex items-center justify-center">
-                        <div className="w-3 h-3 rounded-full bg-gray-600"></div>
+                {/* User Rows */}
+                {userRows.map((row, index) => (
+                  <div key={row.id} className="flex items-center gap-4 py-2">
+                    {/* Email Input */}
+                    <Input
+                      type="email"
+                      placeholder=""
+                      value={row.email}
+                      onChange={(e) => updateUserRow(row.id, 'email', e.target.value)}
+                      className="w-48 bg-white border border-gray-400 h-8"
+                    />
+                    
+                    {/* Role Checkboxes */}
+                    {availableRoles.map((role) => (
+                      <div key={role.value} className="flex justify-center" style={{width: role.value === 'teacher' ? '64px' : role.value === 'student' ? '80px' : '96px'}}>
+                        <Checkbox
+                          checked={row.roles.includes(role.value)}
+                          onCheckedChange={(checked) => 
+                            handleRoleChange(row.id, role.value, checked === true)
+                          }
+                          className="border-gray-400"
+                        />
                       </div>
-                      <span className="text-sm font-medium">อนุมัติ</span>
+                    ))}
+                    
+                    {/* Action Radio Buttons */}
+                    <div className="flex justify-center w-16">
+                      <input
+                        type="radio"
+                        name={`action-${row.id}`}
+                        value="approve"
+                        checked={row.action === 'approve'}
+                        onChange={() => updateUserRow(row.id, 'action', 'approve')}
+                        className="w-4 h-4"
+                      />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full border-2 border-gray-400 bg-white"></div>
-                      <span className="text-sm font-medium">ลบ</span>
+                    <div className="flex justify-center w-12">
+                      <input
+                        type="radio"
+                        name={`action-${row.id}`}
+                        value="delete"
+                        checked={row.action === 'delete'}
+                        onChange={() => updateUserRow(row.id, 'action', 'delete')}
+                        className="w-4 h-4"
+                      />
                     </div>
                   </div>
-                </div>
+                ))}
 
                 <Button 
                   type="submit" 
