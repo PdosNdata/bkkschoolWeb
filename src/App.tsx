@@ -13,6 +13,7 @@ import NewsFormPage from "./pages/NewsFormPage";
 import MediaFormPage from "./pages/MediaFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -158,6 +159,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <MediaFormPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <AdminPage />
                   </ProtectedRoute>
                 } 
               />
