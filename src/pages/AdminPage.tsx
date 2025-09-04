@@ -259,8 +259,8 @@ const AdminPage = () => {
             <div className="bg-gray-100 rounded-b-lg p-6 border border-gray-300">
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Header Row */}
-                <div className="flex items-center gap-4 text-sm font-medium text-gray-700 pb-2">
-                  <div className="w-48">email ผู้ใช้งาน</div>
+                <div className="flex items-center gap-6 text-sm font-medium text-gray-700 pb-2">
+                  <div className="w-80">email ผู้ใช้งาน</div>
                   <div className="w-16 text-center">ครู</div>
                   <div className="w-20 text-center">นักเรียน</div>
                   <div className="w-24 text-center">ผู้ปกครอง</div>
@@ -270,14 +270,14 @@ const AdminPage = () => {
 
                 {/* User Rows */}
                 {userRows.map((row, index) => (
-                  <div key={row.id} className="flex items-center gap-4 py-2">
+                  <div key={row.id} className="flex items-center gap-6 py-3">
                     {/* Email Input */}
                     <Input
                       type="email"
                       placeholder=""
                       value={row.email}
                       onChange={(e) => updateUserRow(row.id, 'email', e.target.value)}
-                      className="w-48 bg-white border border-gray-400 h-8"
+                      className="w-80 bg-white border border-gray-400 h-10"
                     />
                     
                     {/* Role Checkboxes */}
@@ -288,7 +288,7 @@ const AdminPage = () => {
                           onCheckedChange={(checked) => 
                             handleRoleChange(row.id, role.value, checked === true)
                           }
-                          className="border-gray-400"
+                          className="border-gray-400 w-5 h-5"
                         />
                       </div>
                     ))}
@@ -301,7 +301,7 @@ const AdminPage = () => {
                         value="approve"
                         checked={row.action === 'approve'}
                         onChange={() => updateUserRow(row.id, 'action', 'approve')}
-                        className="w-4 h-4"
+                        className="w-5 h-5"
                       />
                     </div>
                     <div className="flex justify-center w-12">
@@ -311,7 +311,7 @@ const AdminPage = () => {
                         value="delete"
                         checked={row.action === 'delete'}
                         onChange={() => updateUserRow(row.id, 'action', 'delete')}
-                        className="w-4 h-4"
+                        className="w-5 h-5"
                       />
                     </div>
                   </div>
