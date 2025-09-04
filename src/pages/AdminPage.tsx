@@ -231,60 +231,74 @@ const AdminPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Form Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                กำหนดสิทธิ์ผู้ใช้ใหม่
-              </CardTitle>
-              <CardDescription>
-                กรอกอีเมลผู้ใช้และเลือกสิทธิ์ที่ต้องการกำหนด
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="w-full max-w-2xl mx-auto lg:mx-0">
+            {/* Pink Header */}
+            <div className="bg-rose-300 rounded-t-lg px-6 py-4 text-center">
+              <h2 className="text-lg font-semibold text-gray-800">กำหนดสิทธิ์ผู้ใช้ใหม่</h2>
+            </div>
+            
+            {/* Form Body */}
+            <div className="bg-gray-100 rounded-b-lg p-6 border border-gray-300">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email">อีเมลผู้ใช้</Label>
+                {/* Email Input Row */}
+                <div className="flex items-center gap-4">
+                  <Label htmlFor="email" className="text-sm font-medium whitespace-nowrap">
+                    email ผู้ใช้งาน
+                  </Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="กรอกอีเมลผู้ใช้"
+                    placeholder=""
                     value={userEmail}
                     onChange={(e) => setUserEmail(e.target.value)}
                     required
+                    className="flex-1 bg-white border border-gray-400"
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <Label>กำหนดสิทธิ์</Label>
-                  <div className="space-y-3">
-                    {availableRoles.map((role) => (
-                      <div key={role.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={role.value}
-                          checked={selectedRoles.includes(role.value)}
-                          onCheckedChange={(checked) => 
-                            handleRoleChange(role.value, checked === true)
-                          }
-                        />
-                        <Label htmlFor={role.value} className="text-sm font-normal">
-                          {role.label}
-                        </Label>
+                {/* Roles Row */}
+                <div className="flex items-center gap-4 flex-wrap">
+                  {availableRoles.map((role) => (
+                    <div key={role.value} className="flex items-center gap-2">
+                      <Checkbox
+                        id={role.value}
+                        checked={selectedRoles.includes(role.value)}
+                        onCheckedChange={(checked) => 
+                          handleRoleChange(role.value, checked === true)
+                        }
+                        className="border-gray-400"
+                      />
+                      <Label htmlFor={role.value} className="text-sm font-medium">
+                        {role.label}
+                      </Label>
+                    </div>
+                  ))}
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-4 ml-8">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-400 bg-white flex items-center justify-center">
+                        <div className="w-3 h-3 rounded-full bg-gray-600"></div>
                       </div>
-                    ))}
+                      <span className="text-sm font-medium">อนุมัติ</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-400 bg-white"></div>
+                      <span className="text-sm font-medium">ลบ</span>
+                    </div>
                   </div>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full" 
+                  className="w-full mt-6 bg-primary hover:bg-primary/90" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "กำลังบันทึก..." : "บันทึกสิทธิ์"}
                 </Button>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Users List Section */}
           <Card>
