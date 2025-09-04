@@ -119,14 +119,20 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
     checkCurrentUser();
   }, [refreshTrigger]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Current user:', currentUser);
+    console.log('User role:', userRole);
+  }, [currentUser, userRole]);
+
   const canEditDelete = (media: MediaResource) => {
     if (!currentUser) return false;
     
     // Admin can edit/delete everything
     if (userRole === 'admin') return true;
     
-    // Media owner can edit/delete their own content
-    if (media.user_id && media.user_id === currentUser.id) return true;
+    // Teachers can edit/delete everything (temporary until user_id is properly implemented)
+    if (userRole === 'teacher') return true;
     
     return false;
   };
