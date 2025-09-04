@@ -110,11 +110,11 @@ const Dashboard = () => {
         const role = roleData?.role || "";
         setUserRole(role);
 
-        // Check if user has teacher or admin role
-        if (role !== "teacher" && role !== "admin") {
+        // Check if user has admin role only
+        if (role !== "admin") {
           toast({
             title: "ไม่มีสิทธิ์เข้าใช้งาน",
-            description: "คุณไม่มีสิทธิ์เข้าใช้งานระบบจัดการโรงเรียน",
+            description: "คุณไม่มีสิทธิ์เข้าใช้งานระบบจัดการโรงเรียน เฉพาะผู้ดูแลระบบเท่านั้น",
             variant: "destructive"
           });
           navigate('/');
