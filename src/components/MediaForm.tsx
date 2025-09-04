@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,12 +8,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const MediaForm = () => {
+interface MediaResource {
+  id: string;
+  title: string;
+  author_name: string;
+  published_date: string;
+  description: string;
+  media_url: string;
+  media_type: string;
+  thumbnail_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MediaFormProps {
+  editingMedia?: MediaResource | null;
+  onSuccess?: () => void;
+}
+
+const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
   const [title, setTitle] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [publishedDate, setPublishedDate] = useState<Date>();
@@ -23,6 +41,28 @@ const MediaForm = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editingMedia) {
+      setTitle(editingMedia.title);
+      setAuthorName(editingMedia.author_name);
+      setPublishedDate(new Date(editingMedia.published_date));
+      setDescription(editingMedia.description);
+      setMediaUrl(editingMedia.media_url);
+      setMediaType(editingMedia.media_type);
+      setThumbnailUrl(editingMedia.thumbnail_url || "");
+    } else {
+      // Reset form for new media
+      setTitle("");
+      setAuthorName("");
+      setPublishedDate(undefined);
+      setDescription("");
+      setMediaUrl("");
+      setMediaType("");
+      setThumbnailUrl("");
+    }
+  }, [editingMedia]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,26 +79,39 @@ const MediaForm = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('media_resources')
-        .insert({
-          title,
-          author_name: authorName,
-          published_date: publishedDate ? format(publishedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
-          description,
-          media_url: mediaUrl,
-          media_type: mediaType,
-          thumbnail_url: thumbnailUrl || null,
-        });
+      const mediaData = {
+        title,
+        author_name: authorName,
+        published_date: publishedDate ? format(publishedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        description,
+        media_url: mediaUrl,
+        media_type: mediaType,
+        thumbnail_url: thumbnailUrl || null,
+      };
+
+      let error;
+      
+      if (editingMedia) {
+        // Update existing media
+        ({ error } = await supabase
+          .from('media_resources')
+          .update(mediaData)
+          .eq('id', editingMedia.id));
+      } else {
+        // Insert new media
+        ({ error } = await supabase
+          .from('media_resources')
+          .insert(mediaData));
+      }
 
       if (error) throw error;
 
       toast({
-        title: "เพิ่มข้อมูลสำเร็จ",
-        description: "เพิ่มข้อมูลสื่อออนไลน์เรียบร้อยแล้ว",
+        title: editingMedia ? "แก้ไขข้อมูลสำเร็จ" : "เพิ่มข้อมูลสำเร็จ",
+        description: editingMedia ? "แก้ไขข้อมูลสื่อออนไลน์เรียบร้อยแล้ว" : "เพิ่มข้อมูลสื่อออนไลน์เรียบร้อยแล้ว",
       });
 
-      // Reset form
+      // Reset form and callback
       setTitle("");
       setAuthorName("");
       setPublishedDate(undefined);
@@ -66,6 +119,8 @@ const MediaForm = () => {
       setMediaUrl("");
       setMediaType("");
       setThumbnailUrl("");
+      
+      onSuccess?.();
 
     } catch (error) {
       console.error('Error adding media resource:', error);
@@ -83,8 +138,8 @@ const MediaForm = () => {
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Plus className="w-5 h-5" />
-          เพิ่มข้อมูลคลังสื่อออนไลน์
+          {editingMedia ? <Edit className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+          {editingMedia ? 'แก้ไขข้อมูลคลังสื่อออนไลน์' : 'เพิ่มข้อมูลคลังสื่อออนไลน์'}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -200,7 +255,7 @@ const MediaForm = () => {
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+            {isSubmitting ? "กำลังบันทึก..." : (editingMedia ? "อัปเดตข้อมูล" : "บันทึกข้อมูล")}
           </Button>
         </form>
       </CardContent>
