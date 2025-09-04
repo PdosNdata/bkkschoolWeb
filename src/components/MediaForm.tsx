@@ -42,6 +42,20 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  // Get current user name for author field
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && !editingMedia) {
+        // Only set author name for new media, not when editing
+        const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'ผู้ใช้งาน';
+        setAuthorName(displayName);
+      }
+    };
+    
+    getCurrentUser();
+  }, [editingMedia]);
+
   // Populate form when editing
   useEffect(() => {
     if (editingMedia) {
