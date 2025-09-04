@@ -126,9 +126,12 @@ const AuthModal = ({
           }
         }
         
-        toast({
-          title: "สมัครสมาชิกสำเร็จ!",
-          description: "กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"
+        await Swal.fire({
+          icon: 'success',
+          title: 'สมัครสมาชิกสำเร็จ!',
+          text: 'กรุณารอให้ผู้ดูแลระบบอนุมัติการเข้าใช้งานก่อนเข้าสู่ระบบ',
+          showConfirmButton: true,
+          confirmButtonText: 'รับทราบ'
         });
         onClose();
       }

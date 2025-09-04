@@ -196,22 +196,28 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          approved: boolean
           created_at: string
           id: string
+          pending_approval: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          approved?: boolean
           created_at?: string
           id?: string
+          pending_approval?: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          approved?: boolean
           created_at?: string
           id?: string
+          pending_approval?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string

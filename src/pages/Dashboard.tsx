@@ -101,25 +101,49 @@ const Dashboard = () => {
           return;
         }
 
-        const { data: roleData } = await supabase
+        const { data: roles, error: rolesError } = await supabase
           .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-        
-        const role = roleData?.role || "";
-        setUserRole(role);
+          .select('role, approved')
+          .eq('user_id', user.id);
 
-        // Check if user has admin role only
-        if (role !== "admin") {
+        if (rolesError) {
+          console.error('Error fetching user roles:', rolesError);
+          return;
+        }
+
+        if (!roles || roles.length === 0) {
           toast({
-            title: "ไม่มีสิทธิ์เข้าใช้งาน",
-            description: "คุณไม่มีสิทธิ์เข้าใช้งานระบบจัดการโรงเรียน เฉพาะผู้ดูแลระบบเท่านั้น",
+            title: "ไม่ได้รับอนุญาต",
+            description: "คุณยังไม่ได้รับการอนุมัติเข้าใช้งานระบบ กรุณารอการอนุมัติจากผู้ดูแลระบบ",
             variant: "destructive"
           });
           navigate('/');
           return;
         }
+
+        const hasApprovedRole = roles.some(r => r.approved);
+        if (!hasApprovedRole) {
+          toast({
+            title: "รอการอนุมัติ",
+            description: "บัญชีของคุณยังไม่ได้รับการอนุมัติ กรุณารอการอนุมัติจากผู้ดูแลระบบ",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
+        }
+
+        const isAdmin = roles.some(r => r.role === 'admin' && r.approved);
+        if (!isAdmin) {
+          toast({
+            title: "ไม่ได้รับอนุญาต",
+            description: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
+        }
+
+        setUserRole('admin');
 
         setIsLoading(false);
       } catch (error) {

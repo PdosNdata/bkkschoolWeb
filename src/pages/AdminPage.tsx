@@ -17,6 +17,8 @@ interface UserRole {
   user_id: string;
   role: string;
   email?: string;
+  approved: boolean;
+  pending_approval: boolean;
 }
 
 const AdminPage = () => {
@@ -45,19 +47,7 @@ const AdminPage = () => {
 
       if (error) throw error;
 
-      // Extract email from user_id (since we stored it in a specific format)
-      const userRolesWithEmails = (data || []).map((role) => {
-        // Extract email from user_id format: user_email_timestamp
-        const emailMatch = role.user_id.match(/^user_(.+)_\d+$/);
-        const email = emailMatch ? emailMatch[1].replace(/_/g, '@') : `user-${role.user_id.slice(0, 8)}`;
-        
-        return {
-          ...role,
-          email: email
-        };
-      });
-
-      setUserRoles(userRolesWithEmails);
+      setUserRoles(data || []);
     } catch (error) {
       console.error('Error fetching user roles:', error);
       toast({
@@ -107,7 +97,9 @@ const AdminPage = () => {
       // Insert new roles
       const roleInserts = selectedRoles.map(role => ({
         user_id: mockUserId,
-        role: role as "teacher" | "student" | "guardian" | "admin"
+        role: role as "teacher" | "student" | "guardian" | "admin",
+        approved: true,
+        pending_approval: false
       }));
 
       const { error: insertError } = await supabase
@@ -170,20 +162,51 @@ const AdminPage = () => {
     return roleObj ? roleObj.label : role;
   };
 
+  const handleApproveUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .update({ 
+          approved: true, 
+          pending_approval: false 
+        })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "อนุมัติสำเร็จ",
+        description: "อนุมัติผู้ใช้เข้าสู่ระบบสำเร็จแล้ว"
+      });
+
+      fetchUserRoles();
+    } catch (error) {
+      console.error('Error approving user:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอนุมัติผู้ใช้ได้",
+        variant: "destructive"
+      });
+    }
+  };
+
   const groupedUserRoles = userRoles.reduce((acc, role) => {
     const existing = acc.find(item => item.user_id === role.user_id);
     if (existing) {
       existing.roles.push(role.role);
+      existing.roleIds.push(role.id);
+      if (!role.approved) existing.needsApproval = true;
     } else {
       acc.push({
         user_id: role.user_id,
-        email: role.email || 'ไม่พบอีเมล',
+        email: role.user_id, // Use user_id as display since it's the actual UUID
         roles: [role.role],
-        roleIds: [role.id]
+        roleIds: [role.id],
+        needsApproval: !role.approved
       });
     }
     return acc;
-  }, [] as Array<{ user_id: string; email: string; roles: string[]; roleIds: string[] }>);
+  }, [] as Array<{ user_id: string; email: string; roles: string[]; roleIds: string[]; needsApproval?: boolean }>);
 
   if (isLoading) {
     return (
@@ -286,18 +309,35 @@ const AdminPage = () => {
                           <p className="text-sm text-muted-foreground">
                             รหัสผู้ใช้: {user.user_id.slice(0, 8)}...
                           </p>
+                          {user.needsApproval && (
+                            <p className="text-sm text-orange-600 font-medium">
+                              รอการอนุมัติ
+                            </p>
+                          )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            // Delete all roles for this user
-                            user.roleIds.forEach(id => handleDeleteRole(id));
-                          }}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          {user.needsApproval && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleApproveUser(user.user_id)}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              อนุมัติ
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              // Delete all roles for this user
+                              user.roleIds.forEach(id => handleDeleteRole(id));
+                            }}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {user.roles.map((role, index) => (
