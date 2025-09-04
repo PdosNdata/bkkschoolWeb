@@ -10,6 +10,7 @@ import AdmissionForm from "./pages/AdmissionForm";
 import Dashboard from "./pages/Dashboard";
 import PublicRelations from "./pages/PublicRelations";
 import NewsFormPage from "./pages/NewsFormPage";
+import MediaFormPage from "./pages/MediaFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
 import NotFound from "./pages/NotFound";
@@ -152,6 +153,14 @@ const App = () => {
                 } 
               />
               <Route path="/activities" element={<AllActivitiesPage />} />
+              <Route 
+                path="/media-form" 
+                element={
+                  <ProtectedRoute>
+                    <MediaFormPage />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

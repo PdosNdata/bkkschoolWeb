@@ -68,6 +68,14 @@ const Dashboard = () => {
     href: "/NewsForm",
     roles: ["teacher", "admin"]
   }, {
+    title: "คลังสื่อออนไลน์",
+    description: "จัดการสื่อการเรียนรู้ วิดีโอ เอกสาร และลิงค์ต่างๆ",
+    icon: Megaphone,
+    color: "bg-orange-50 border-orange-200",
+    iconColor: "text-orange-600",
+    href: "/media-form",
+    roles: ["teacher", "admin"]
+  }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",
     icon: Settings,

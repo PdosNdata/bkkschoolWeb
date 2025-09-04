@@ -95,6 +95,45 @@ export type Database = {
         }
         Relationships: []
       }
+      media_resources: {
+        Row: {
+          author_name: string
+          created_at: string
+          description: string
+          id: string
+          media_type: string
+          media_url: string
+          published_date: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          created_at?: string
+          description: string
+          id?: string
+          media_type: string
+          media_url: string
+          published_date?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          description?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          published_date?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           author_name: string
