@@ -57,7 +57,7 @@ const Dashboard = () => {
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/activities-form",
-    roles: ["student", "teacher", "admin"]
+    roles: ["teacher", "admin"]
   },
     {
     title: "ประชาสัมพันธ์",
