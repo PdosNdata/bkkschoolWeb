@@ -92,6 +92,7 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
 
       if (error) throw error;
       setMediaList(data || []);
+      console.log('Fetched media:', data); // Debug log
     } catch (error) {
       console.error('Error fetching media:', error);
       toast({
@@ -107,10 +108,12 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
   const checkCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
+    console.log('Current user from auth:', user); // Debug log
     
     if (user) {
       const role = await checkUserRole(user.id);
       setUserRole(role);
+      console.log('User role:', role); // Debug log
     }
   };
 
