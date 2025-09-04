@@ -17,7 +17,7 @@ const ImageSlider = () => {
     },
     {
       id: 2,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop",
+      image: "https://raw.githubusercontent.com/PdosNdata/myimages/dff4fbbf17775fa6a6a4f0c451364f2897d6cff9/%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B9%82%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%E0%B8%A3%E0%B8%B1%E0%B8%81.jpg",
       title: "สิ่งแวดล้อมการเรียนรู้",
       description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
       link: "#environment"
