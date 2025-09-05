@@ -342,54 +342,76 @@ const AdminPage = () => {
                   ยังไม่มีผู้ใช้ในระบบ
                 </p>
               ) : (
-                <div className="space-y-4">
-                  {groupedUserRoles.map((user) => (
-                    <div key={user.user_id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <p className="font-medium">{user.email}</p>
-                          <p className="text-sm text-muted-foreground">
-                            รหัสผู้ใช้: {user.user_id.slice(0, 8)}...
-                          </p>
-                          {user.needsApproval && (
-                            <p className="text-sm text-orange-600 font-medium">
-                              รอการอนุมัติ
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          {user.needsApproval && (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleApproveUser(user.user_id)}
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              อนุมัติ
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              // Delete all roles for this user
-                              user.roleIds.forEach(id => handleDeleteRole(id));
-                            }}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {user.roles.map((role, index) => (
-                          <Badge key={index} variant="secondary">
-                            {getRoleLabel(role)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>อีเมล</TableHead>
+                        <TableHead>สิทธิ์</TableHead>
+                        <TableHead>สถานะ</TableHead>
+                        <TableHead className="text-center">การจัดการ</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupedUserRoles.map((user) => (
+                        <TableRow key={user.user_id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{user.email}</p>
+                              <p className="text-sm text-muted-foreground">
+                                รหัส: {user.user_id.slice(0, 8)}...
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {user.roles.map((role, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {getRoleLabel(role)}
+                                </Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {user.needsApproval ? (
+                              <Badge variant="outline" className="text-orange-600 border-orange-600">
+                                รอการอนุมัติ
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-green-600 border-green-600">
+                                อนุมัติแล้ว
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 justify-center">
+                              {user.needsApproval && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleApproveUser(user.user_id)}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  อนุมัติ
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  // Delete all roles for this user
+                                  user.roleIds.forEach(id => handleDeleteRole(id));
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </CardContent>
