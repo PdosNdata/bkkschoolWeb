@@ -351,18 +351,20 @@ const AdminPage = () => {
       }
 
       if (successCount > 0) {
+        // Refresh the user roles list to show imported data
+        await fetchUserRoles();
+        
         toast({
           title: "นำเข้าข้อมูลสำเร็จ",
-          description: `นำเข้าข้อมูลผู้ใช้ ${successCount} คนสำเร็จ`
+          description: `นำเข้าข้อมูลผู้ใช้ ${successCount} คนสำเร็จ และแสดงรายการล่าสุดแล้ว`
         });
-        fetchUserRoles();
       }
 
       if (errors.length > 0) {
         toast({
           title: "มีข้อผิดพลาดบางส่วน",
-          description: `พบข้อผิดพลาด ${errors.length} รายการ`,
-          variant: "destructive"
+          description: `นำเข้าสำเร็จ ${successCount} คน, พบข้อผิดพลาด ${errors.length} รายการ`,
+          variant: errors.length > successCount ? "destructive" : "default"
         });
       }
 
