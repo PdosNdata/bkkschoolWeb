@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Search } from "lucide-react";
 
 interface UserRole {
   id: string;
@@ -37,6 +38,9 @@ const AdminPage = () => {
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const availableRoles = [
     { value: "teacher", label: "ครู" },
@@ -227,6 +231,23 @@ const AdminPage = () => {
     return acc;
   }, [] as Array<{ user_id: string; email: string; roles: string[]; roleIds: string[]; needsApproval?: boolean }>);
 
+  // Filter and search logic
+  const filteredUsers = groupedUserRoles.filter(user => {
+    // Search filter
+    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.user_id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Role filter
+    const matchesRole = roleFilter === "all" || user.roles.includes(roleFilter);
+    
+    // Status filter
+    const matchesStatus = statusFilter === "all" || 
+                         (statusFilter === "approved" && !user.needsApproval) ||
+                         (statusFilter === "pending" && user.needsApproval);
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -336,11 +357,53 @@ const AdminPage = () => {
               <CardDescription>
                 รายการผู้ใช้ทั้งหมดและสิทธิ์ที่ได้รับ
               </CardDescription>
+              
+              {/* Search and Filter Section */}
+              <div className="space-y-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="ค้นหาด้วยอีเมลหรือรหัสผู้ใช้..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="กรองตามสิทธิ์" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">ทุกสิทธิ์</SelectItem>
+                      <SelectItem value="teacher">ครู</SelectItem>
+                      <SelectItem value="student">นักเรียน</SelectItem>
+                      <SelectItem value="guardian">ผู้ปกครอง</SelectItem>
+                      <SelectItem value="admin">ผู้ดูแลระบบ</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="กรองตามสถานะ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">ทุกสถานะ</SelectItem>
+                      <SelectItem value="approved">อนุมัติแล้ว</SelectItem>
+                      <SelectItem value="pending">รอการอนุมัติ</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Results Count */}
+                <div className="text-sm text-muted-foreground">
+                  แสดง {filteredUsers.length} จาก {groupedUserRoles.length} ผู้ใช้
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              {groupedUserRoles.length === 0 ? (
+              {filteredUsers.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
-                  ยังไม่มีผู้ใช้ในระบบ
+                  {groupedUserRoles.length === 0 ? "ยังไม่มีผู้ใช้ในระบบ" : "ไม่พบผู้ใช้ที่ค้นหา"}
                 </p>
               ) : (
                 <div className="overflow-x-auto">
@@ -354,7 +417,7 @@ const AdminPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {groupedUserRoles.map((user) => (
+                      {filteredUsers.map((user) => (
                         <TableRow key={user.user_id}>
                           <TableCell>
                             <div>
