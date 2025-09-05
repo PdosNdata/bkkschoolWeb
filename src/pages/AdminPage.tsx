@@ -62,13 +62,31 @@ const AdminPage = () => {
 
       if (error) throw error;
 
-      // Ensure email is properly displayed (use stored email or fallback to user_id)
-      const updatedUserRoles = data?.map(role => ({
-        ...role,
-        email: role.email || role.user_id || 'ไม่ระบุอีเมล'
-      })) || [];
+      // Get unique user IDs to fetch emails
+      const userIds = [...new Set(data?.map(role => role.user_id) || [])];
+      
+      if (userIds.length > 0) {
+        // Call edge function to get real email addresses
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-emails', {
+          body: { userIds }
+        });
 
-      setUserRoles(updatedUserRoles);
+        if (emailError) {
+          console.error('Error fetching emails:', emailError);
+        }
+
+        const userEmailMap = emailData?.userEmailMap || {};
+
+        // Update user roles with real email addresses
+        const updatedUserRoles = data?.map(role => ({
+          ...role,
+          email: userEmailMap[role.user_id] || role.email || 'ไม่ระบุอีเมล'
+        })) || [];
+
+        setUserRoles(updatedUserRoles);
+      } else {
+        setUserRoles(data || []);
+      }
     } catch (error) {
       console.error('Error fetching user roles:', error);
       toast({
