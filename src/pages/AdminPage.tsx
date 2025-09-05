@@ -62,7 +62,13 @@ const AdminPage = () => {
 
       if (error) throw error;
 
-      setUserRoles(data || []);
+      // Ensure email is properly displayed (use stored email or fallback to user_id)
+      const updatedUserRoles = data?.map(role => ({
+        ...role,
+        email: role.email || role.user_id || 'ไม่ระบุอีเมล'
+      })) || [];
+
+      setUserRoles(updatedUserRoles);
     } catch (error) {
       console.error('Error fetching user roles:', error);
       toast({
