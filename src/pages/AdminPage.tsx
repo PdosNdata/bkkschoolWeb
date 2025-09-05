@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Trash2, Plus, Search } from "lucide-react";
+import { Trash2, Plus, Search, Upload, CheckCircle } from "lucide-react";
 
 interface UserRole {
   id: string;
@@ -31,6 +31,7 @@ interface UserFormRow {
 
 const AdminPage = () => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [userRows, setUserRows] = useState<UserFormRow[]>([
     { id: 1, email: "", roles: [], action: '' },
     { id: 2, email: "", roles: [], action: '' }
@@ -41,6 +42,7 @@ const AdminPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isImporting, setIsImporting] = useState(false);
 
   const availableRoles = [
     { value: "teacher", label: "ครู" },
@@ -213,6 +215,148 @@ const AdminPage = () => {
     }
   };
 
+  const handleBulkApproval = async () => {
+    const pendingUsers = filteredUsers.filter(user => user.needsApproval);
+    
+    if (pendingUsers.length === 0) {
+      toast({
+        title: "ไม่มีผู้ใช้ที่ต้องอนุมัติ",
+        description: "ไม่มีผู้ใช้ที่รอการอนุมัติ",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      for (const user of pendingUsers) {
+        await handleApproveUser(user.user_id);
+      }
+
+      toast({
+        title: "อนุมัติทั้งหมดสำเร็จ",
+        description: `อนุมัติผู้ใช้ ${pendingUsers.length} คนสำเร็จแล้ว`
+      });
+    } catch (error) {
+      console.error('Error bulk approving users:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอนุมัติผู้ใช้ทั้งหมดได้",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'text/csv') {
+      toast({
+        title: "ไฟล์ไม่ถูกต้อง",
+        description: "กรุณาเลือกไฟล์ CSV เท่านั้น",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsImporting(true);
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      // Expected headers: ชื่อ, อีเมล, รหัสผ่าน, สถานะ
+      const expectedHeaders = ['ชื่อ', 'อีเมล', 'รหัสผ่าน', 'สถานะ'];
+      
+      const headerCheck = expectedHeaders.every(header => 
+        headers.some(h => h.includes(header))
+      );
+
+      if (!headerCheck) {
+        toast({
+          title: "รูปแบบไฟล์ไม่ถูกต้อง",
+          description: "ไฟล์ CSV ต้องมีคอลัมน์: ชื่อ, อีเมล, รหัสผ่าน, สถานะ",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const roleMapping: { [key: string]: string } = {
+        'ครู': 'teacher',
+        'นักเรียน': 'student',
+        'ผู้ปกครอง': 'guardian'
+      };
+
+      let successCount = 0;
+      const errors: string[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length < 4) continue;
+
+        const [name, email, password, status] = values;
+        const roleKey = roleMapping[status];
+
+        if (!roleKey) {
+          errors.push(`แถวที่ ${i + 1}: สถานะ "${status}" ไม่ถูกต้อง`);
+          continue;
+        }
+
+        try {
+          const mockUserId = `user_${email.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${i}`;
+          
+          const { error } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: mockUserId,
+              role: roleKey as "teacher" | "student" | "guardian",
+              email: email,
+              approved: false,
+              pending_approval: true
+            });
+
+          if (error) {
+            errors.push(`แถวที่ ${i + 1}: ${error.message}`);
+          } else {
+            successCount++;
+          }
+        } catch (error) {
+          errors.push(`แถวที่ ${i + 1}: เกิดข้อผิดพลาดในการบันทึก`);
+        }
+      }
+
+      if (successCount > 0) {
+        toast({
+          title: "นำเข้าข้อมูลสำเร็จ",
+          description: `นำเข้าข้อมูลผู้ใช้ ${successCount} คนสำเร็จ`
+        });
+        fetchUserRoles();
+      }
+
+      if (errors.length > 0) {
+        toast({
+          title: "มีข้อผิดพลาดบางส่วน",
+          description: `พบข้อผิดพลาด ${errors.length} รายการ`,
+          variant: "destructive"
+        });
+      }
+
+    } catch (error) {
+      console.error('Error importing CSV:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถนำเข้าไฟล์ CSV ได้",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const groupedUserRoles = userRoles.reduce((acc, role) => {
     const existing = acc.find(item => item.user_id === role.user_id);
     if (existing) {
@@ -358,6 +502,28 @@ const AdminPage = () => {
                 รายการผู้ใช้ทั้งหมดและสิทธิ์ที่ได้รับ
               </CardDescription>
               
+              {/* CSV Import Section */}
+              <div className="mb-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isImporting ? "กำลังนำเข้า..." : "นำเข้าไฟล์ CSV"}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-2">
+                  รูปแบบไฟล์: ชื่อ, อีเมล, รหัสผ่าน, สถานะ (ครู/นักเรียน/ผู้ปกครอง)
+                </p>
+              </div>
+
               {/* Search and Filter Section */}
               <div className="space-y-4 pt-4">
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -394,9 +560,28 @@ const AdminPage = () => {
                   </Select>
                 </div>
                 
+                {/* Bulk Actions */}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleBulkApproval}
+                    variant="default"
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    disabled={!filteredUsers.some(user => user.needsApproval)}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    อนุมัติทั้งหมด
+                  </Button>
+                </div>
+                
                 {/* Results Count */}
                 <div className="text-sm text-muted-foreground">
                   แสดง {filteredUsers.length} จาก {groupedUserRoles.length} ผู้ใช้
+                  {filteredUsers.filter(user => user.needsApproval).length > 0 && (
+                    <span className="text-orange-600 ml-2">
+                      (รอการอนุมัติ {filteredUsers.filter(user => user.needsApproval).length} คน)
+                    </span>
+                  )}
                 </div>
               </div>
             </CardHeader>
