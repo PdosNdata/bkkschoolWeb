@@ -16,7 +16,7 @@ interface UserRole {
   id: string;
   user_id: string;
   role: string;
-  email?: string;
+  email: string;
   approved: boolean;
   pending_approval: boolean;
 }
@@ -112,6 +112,7 @@ const AdminPage = () => {
           const roleInserts = row.roles.map(role => ({
             user_id: mockUserId,
             role: role as "teacher" | "student" | "guardian" | "admin",
+            email: row.email,
             approved: true,
             pending_approval: false
           }));
@@ -217,7 +218,7 @@ const AdminPage = () => {
     } else {
       acc.push({
         user_id: role.user_id,
-        email: role.user_id, // Use user_id as display since it's the actual UUID
+        email: role.email || role.user_id, // Use email if available, fallback to user_id
         roles: [role.role],
         roleIds: [role.id],
         needsApproval: !role.approved
