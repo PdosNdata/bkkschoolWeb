@@ -312,17 +312,27 @@ const AdminPage = () => {
       
       const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').trim());
       
+      console.log('Parsed headers:', headers);
+      
       // Expected headers: ชื่อ, อีเมล, รหัสผ่าน, สถานะ
       const expectedHeaders = ['ชื่อ', 'อีเมล', 'รหัสผ่าน', 'สถานะ'];
       
-      const headerCheck = expectedHeaders.every(header => 
-        headers.some(h => h.includes(header))
-      );
+      // More flexible header checking - normalize and check for similar content
+      const normalizeText = (text: string) => text.replace(/\s+/g, '').toLowerCase();
+      
+      const headerCheck = expectedHeaders.every(expectedHeader => {
+        const normalizedExpected = normalizeText(expectedHeader);
+        return headers.some(header => {
+          const normalizedHeader = normalizeText(header);
+          return normalizedHeader.includes(normalizedExpected) || normalizedExpected.includes(normalizedHeader);
+        });
+      });
 
       if (!headerCheck) {
+        console.log('Header check failed. Expected:', expectedHeaders, 'Got:', headers);
         toast({
           title: "รูปแบบไฟล์ไม่ถูกต้อง",
-          description: "ไฟล์ CSV ต้องมีคอลัมน์: ชื่อ, อีเมล, รหัสผ่าน, สถานะ",
+          description: `ไฟล์ CSV ต้องมีคอลัมน์: ${expectedHeaders.join(', ')}. พบคอลัมน์: ${headers.join(', ')}`,
           variant: "destructive"
         });
         return;
