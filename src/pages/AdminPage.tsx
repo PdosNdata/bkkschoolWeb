@@ -288,7 +288,29 @@ const AdminPage = () => {
     try {
       const text = await file.text();
       const lines = text.split('\n').filter(line => line.trim());
-      const headers = lines[0].split(',').map(h => h.trim());
+      
+      // Parse CSV with proper handling for quoted values
+      const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      };
+      
+      const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').trim());
       
       // Expected headers: ชื่อ, อีเมล, รหัสผ่าน, สถานะ
       const expectedHeaders = ['ชื่อ', 'อีเมล', 'รหัสผ่าน', 'สถานะ'];
@@ -316,11 +338,19 @@ const AdminPage = () => {
       const errors: string[] = [];
 
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
+        const values = parseCSVLine(lines[i]).map(v => v.replace(/"/g, '').trim());
         if (values.length < 4) continue;
 
         const [name, email, password, status] = values;
-        const roleKey = roleMapping[status];
+        const cleanStatus = status.trim();
+        const roleKey = roleMapping[cleanStatus];
+        
+        console.log(`Processing row ${i + 1}: name="${name}", email="${email}", status="${cleanStatus}", roleKey="${roleKey}"`);
+
+        if (!email || !email.includes('@')) {
+          errors.push(`แถวที่ ${i + 1}: อีเมลไม่ถูกต้อง "${email}"`);
+          continue;
+        }
 
         if (!roleKey) {
           errors.push(`แถวที่ ${i + 1}: สถานะ "${status}" ไม่ถูกต้อง`);
