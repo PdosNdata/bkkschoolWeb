@@ -149,8 +149,8 @@ const AdminPage = () => {
     try {
       for (const row of validRows) {
         if (row.action === 'approve') {
-          // Generate a mock user ID based on email
-          const mockUserId = `user_${row.email.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+          // Generate proper UUID for user ID
+          const mockUserId = crypto.randomUUID();
           
           // Insert new roles
           const roleInserts = row.roles.map(role => ({
@@ -396,7 +396,7 @@ const AdminPage = () => {
         }
 
         try {
-          const mockUserId = `user_${email.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${i}`;
+          const mockUserId = crypto.randomUUID();
           
           const { error } = await supabase
             .from('user_roles')
