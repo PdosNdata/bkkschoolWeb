@@ -170,6 +170,12 @@ const AdminPage = () => {
     });
   };
 
+  const handleSelectAllPermission = (permissionName: string, granted: boolean) => {
+    userRoles.forEach(user => {
+      handlePermissionChange(user.user_id, permissionName, granted);
+    });
+  };
+
   const getUserPermission = (userId: string, permissionName: string): boolean => {
     const pending = pendingPermissions.find(p => p.user_id === userId && p.permission_name === permissionName);
     if (pending) return pending.granted;
@@ -646,13 +652,30 @@ const AdminPage = () => {
               ) : (
                 <div className="space-y-6">
                   <div className="overflow-x-auto">
-                    <Table>
+                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-60">ผู้ใช้</TableHead>
                           {availablePermissions.map((permission) => (
-                            <TableHead key={permission.value} className="text-center min-w-24">
-                              <div className="text-xs">{permission.label}</div>
+                            <TableHead key={permission.value} className="text-center min-w-32">
+                              <div className="space-y-2">
+                                <div className="text-xs font-medium">{permission.label}</div>
+                                <div className="flex items-center justify-center space-x-1">
+                                  <Checkbox
+                                    id={`select-all-${permission.value}`}
+                                    checked={filteredUsers.every(user => getUserPermission(user.user_id, permission.value))}
+                                    onCheckedChange={(checked) => 
+                                      handleSelectAllPermission(permission.value, checked === true)
+                                    }
+                                  />
+                                  <Label 
+                                    htmlFor={`select-all-${permission.value}`}
+                                    className="text-xs text-muted-foreground"
+                                  >
+                                    เลือกทั้งหมด
+                                  </Label>
+                                </div>
+                              </div>
                             </TableHead>
                           ))}
                         </TableRow>
