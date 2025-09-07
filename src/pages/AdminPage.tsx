@@ -56,6 +56,20 @@ const AdminPage = () => {
 
   const fetchUserRoles = async () => {
     try {
+      // Check authentication first
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        console.error('Authentication error:', authError);
+        toast({
+          title: "ไม่ได้รับอนุญาต",
+          description: "กรุณาเข้าสู่ระบบก่อน",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('Current user:', user.email);
+      
       const { data, error } = await supabase
         .from('user_roles')
         .select('*');
@@ -273,6 +287,20 @@ const AdminPage = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Check authentication first
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication error during upload:', authError);
+      toast({
+        title: "ไม่ได้รับอนุญาต",
+        description: "กรุณาเข้าสู่ระบบก่อนอัพโหลดไฟล์",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('User authenticated for upload:', user.email);
 
     if (file.type !== 'text/csv') {
       toast({
