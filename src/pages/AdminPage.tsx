@@ -22,6 +22,19 @@ interface UserRole {
   pending_approval: boolean;
 }
 
+interface UserPermission {
+  id: string;
+  user_id: string;
+  permission_name: string;
+  granted: boolean;
+}
+
+interface PermissionUpdate {
+  user_id: string;
+  permission_name: string;
+  granted: boolean;
+}
+
 interface UserFormRow {
   id: number;
   email: string;
@@ -37,6 +50,8 @@ const AdminPage = () => {
     { id: 2, email: "", roles: [], action: '' }
   ]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
+  const [pendingPermissions, setPendingPermissions] = useState<PermissionUpdate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,8 +65,22 @@ const AdminPage = () => {
     { value: "guardian", label: "ผู้ปกครอง" }
   ];
 
+  const availablePermissions = [
+    { value: "view_news", label: "ดูข่าวสาร" },
+    { value: "create_news", label: "สร้างข่าวสาร" },
+    { value: "edit_news", label: "แก้ไขข่าวสาร" },
+    { value: "view_activities", label: "ดูกิจกรรม" },
+    { value: "create_activities", label: "สร้างกิจกรรม" },
+    { value: "edit_activities", label: "แก้ไขกิจกรรม" },
+    { value: "view_media", label: "ดูสื่อ" },
+    { value: "upload_media", label: "อัพโหลดสื่อ" },
+    { value: "view_dashboard", label: "ดูแดชบอร์ด" },
+    { value: "admin_panel", label: "จัดการระบบ" }
+  ];
+
   useEffect(() => {
     fetchUserRoles();
+    fetchUserPermissions();
   }, []);
 
   const fetchUserRoles = async () => {
@@ -110,6 +139,98 @@ const AdminPage = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchUserPermissions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_permissions')
+        .select('*');
+
+      if (error) throw error;
+      setUserPermissions(data || []);
+    } catch (error) {
+      console.error('Error fetching user permissions:', error);
+    }
+  };
+
+  const handlePermissionChange = (userId: string, permissionName: string, granted: boolean) => {
+    setPendingPermissions(prev => {
+      const existing = prev.find(p => p.user_id === userId && p.permission_name === permissionName);
+      if (existing) {
+        return prev.map(p => 
+          p.user_id === userId && p.permission_name === permissionName 
+            ? { ...p, granted } 
+            : p
+        );
+      } else {
+        return [...prev, { user_id: userId, permission_name: permissionName, granted }];
+      }
+    });
+  };
+
+  const getUserPermission = (userId: string, permissionName: string): boolean => {
+    const pending = pendingPermissions.find(p => p.user_id === userId && p.permission_name === permissionName);
+    if (pending) return pending.granted;
+    
+    const existing = userPermissions.find(p => p.user_id === userId && p.permission_name === permissionName);
+    return existing ? existing.granted : false;
+  };
+
+  const saveAllPermissions = async () => {
+    if (pendingPermissions.length === 0) {
+      toast({
+        title: "ไม่มีการเปลี่ยนแปลง",
+        description: "ไม่มีสิทธิ์ที่ต้องบันทึก",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      for (const permission of pendingPermissions) {
+        const { error } = await supabase
+          .from('user_permissions')
+          .upsert({
+            user_id: permission.user_id,
+            permission_name: permission.permission_name,
+            granted: permission.granted
+          }, {
+            onConflict: 'user_id,permission_name'
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "บันทึกสำเร็จ",
+        description: `บันทึกสิทธิ์ ${pendingPermissions.length} รายการสำเร็จ`
+      });
+
+      setPendingPermissions([]);
+      await fetchUserPermissions();
+    } catch (error) {
+      console.error('Error saving permissions:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถบันทึกสิทธิ์ได้",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const addNewUserRow = () => {
+    const newId = Math.max(...userRows.map(row => row.id)) + 1;
+    setUserRows(prev => [...prev, { id: newId, email: "", roles: [], action: '' }]);
+  };
+
+  const removeUserRow = (rowId: number) => {
+    if (userRows.length > 1) {
+      setUserRows(prev => prev.filter(row => row.id !== rowId));
     }
   };
 
@@ -507,7 +628,187 @@ const AdminPage = () => {
           <p className="text-lg text-muted-foreground">กำหนดสิทธิ์การเข้าใช้งานระบบสำหรับผู้ใช้</p>
         </div>
 
-        <div className="w-full max-w-6xl mx-auto">
+        <div className="w-full max-w-6xl mx-auto space-y-8">
+
+          {/* Menu Permissions Management Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>จัดการสิทธิ์เมนู</CardTitle>
+              <CardDescription>
+                กำหนดสิทธิ์การเข้าใช้เมนูต่าง ๆ สำหรับแต่ละผู้ใช้
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {filteredUsers.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  ไม่มีผู้ใช้ในระบบ กรุณาเพิ่มผู้ใช้ก่อน
+                </p>
+              ) : (
+                <div className="space-y-6">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-60">ผู้ใช้</TableHead>
+                          {availablePermissions.map((permission) => (
+                            <TableHead key={permission.value} className="text-center min-w-24">
+                              <div className="text-xs">{permission.label}</div>
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.map((user) => (
+                          <TableRow key={user.user_id}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium text-sm">{user.email}</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {user.roles.map((role, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs">
+                                      {getRoleLabel(role)}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </TableCell>
+                            {availablePermissions.map((permission) => (
+                              <TableCell key={permission.value} className="text-center">
+                                <Checkbox
+                                  checked={getUserPermission(user.user_id, permission.value)}
+                                  onCheckedChange={(checked) => 
+                                    handlePermissionChange(user.user_id, permission.value, checked === true)
+                                  }
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  
+                  {/* Save All Permissions Button */}
+                  {pendingPermissions.length > 0 && (
+                    <div className="flex justify-center pt-4 border-t">
+                      <Button
+                        onClick={saveAllPermissions}
+                        disabled={isSubmitting}
+                        size="lg"
+                        className="bg-primary hover:bg-primary/90"
+                      >
+                        {isSubmitting ? "กำลังบันทึก..." : `บันทึกทั้งหมด (${pendingPermissions.length} รายการ)`}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Add New Users Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle>เพิ่มผู้ใช้ใหม่</CardTitle>
+              <CardDescription>
+                เพิ่มผู้ใช้ใหม่และกำหนดสิทธิ์การเข้าใช้งาน
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {userRows.map((row, index) => (
+                  <div key={row.id} className="p-4 border rounded-lg space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium">ผู้ใช้ที่ {index + 1}</h4>
+                      {userRows.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeUserRow(row.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`email-${row.id}`}>อีเมล</Label>
+                        <Input
+                          id={`email-${row.id}`}
+                          type="email"
+                          placeholder="ป้อนอีเมล"
+                          value={row.email}
+                          onChange={(e) => updateUserRow(row.id, 'email', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`action-${row.id}`}>การจัดการ</Label>
+                        <Select 
+                          value={row.action} 
+                          onValueChange={(value) => updateUserRow(row.id, 'action', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="เลือกการจัดการ" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="approve">อนุมัติ</SelectItem>
+                            <SelectItem value="delete">ลบ</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label>สิทธิ์การใช้งาน</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                        {availableRoles.map((role) => (
+                          <div key={role.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`role-${row.id}-${role.value}`}
+                              checked={row.roles.includes(role.value)}
+                              onCheckedChange={(checked) => 
+                                handleRoleChange(row.id, role.value, checked === true)
+                              }
+                            />
+                            <Label 
+                              htmlFor={`role-${row.id}-${role.value}`}
+                              className="text-sm"
+                            >
+                              {role.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addNewUserRow}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    เพิ่มผู้ใช้
+                  </Button>
+                  
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    {isSubmitting ? "กำลังบันทึก..." : "บันทึกทั้งหมด"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
 
           {/* Users List Section */}
           <Card>
