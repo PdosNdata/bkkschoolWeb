@@ -120,7 +120,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
           {/* Logo + Title - clickable to home */}
           <Link to="/" className="flex items-center space-x-2">
             <img
-              src="https://i.postimg.cc/y8Y4TXJY/1.png"
+              src="/src/assets/school-logo.png"
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
               className="w-auto h-8"
             />

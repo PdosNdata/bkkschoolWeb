@@ -23,7 +23,7 @@ const ImagePopup = () => {
 
           {/* Image content */}
           <div className="relative">
-            <img src="https://raw.githubusercontent.com/PdosNdata/myimages/01d8cde4b78ecc09a435a9d055d3fbff958bd569/%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%E0%B8%A5%E0%B9%88%E0%B8%B2%E0%B8%AA%E0%B8%B8%E0%B8%94.png" alt="โรงเรียนบ้านค้อดอนแคน" className="w-full h-[600px] max-h-[600px] object-cover" />
+            <img src="/src/assets/popup-image-optimized.webp" alt="โรงเรียนบ้านค้อดอนแคน" className="w-full h-[600px] max-h-[600px] object-cover" />
             
             {/* Overlay content */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">

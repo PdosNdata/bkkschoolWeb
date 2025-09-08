@@ -10,21 +10,21 @@ const ImageSlider = () => {
    
     {
       id: 1,
-      image: "https://raw.githubusercontent.com/PdosNdata/myimages/bcc665534b2d533cab00459f6dbbce8393d89b14/%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%81%E0%B8%B4%E0%B8%88%E0%B8%81%E0%B8%A3%E0%B8%A3%E0%B8%A1.png",
+      image: "/src/assets/activities-image-optimized.webp",
       title: "กิจกรรมนักเรียน",
       description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
       link: "#activities"
     },
     {
       id: 2,
-      image: "https://raw.githubusercontent.com/PdosNdata/myimages/dff4fbbf17775fa6a6a4f0c451364f2897d6cff9/%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B9%82%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%E0%B8%A3%E0%B8%B1%E0%B8%81.jpg",
+      image: "/src/assets/environment-image-optimized.webp",
       title: "สิ่งแวดล้อมการเรียนรู้",
       description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
       link: "#environment"
     },
     {
       id: 3,
-      image: "https://raw.githubusercontent.com/PdosNdata/myimages/a0c0d76537450f70ae4e54b518b51b576d2f9f90/piclibrary.jpg",
+      image: "/src/assets/library-image-optimized.webp",
       title: "ห้องสมุดและแหล่งเรียนรู้",
       description: "แหล่งความรู้ที่ครบครันและทันสมัย",
       link: "#library"
