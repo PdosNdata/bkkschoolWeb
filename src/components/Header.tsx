@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import UserSettingsModal from "./UserSettingsModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User as UserIcon, Menu } from "lucide-react";
+import schoolLogo from "@/assets/school-logo.png";
 const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -120,7 +121,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
           {/* Logo + Title - clickable to home */}
           <Link to="/" className="flex items-center space-x-2">
             <img
-              src="/src/assets/school-logo.png"
+              src={schoolLogo}
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
               className="w-auto h-8"
             />

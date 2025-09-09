@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import popupImage from "@/assets/popup-image-optimized.webp";
 const ImagePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
@@ -23,7 +24,7 @@ const ImagePopup = () => {
 
           {/* Image content */}
           <div className="relative">
-            <img src="/src/assets/popup-image-optimized.webp" alt="โรงเรียนบ้านค้อดอนแคน" className="w-full h-[600px] max-h-[600px] object-cover" />
+            <img src={popupImage} alt="โรงเรียนบ้านค้อดอนแคน" className="w-full h-[600px] max-h-[600px] object-cover" />
             
             {/* Overlay content */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">

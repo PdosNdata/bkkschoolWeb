@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import activitiesImage from "@/assets/activities-image-optimized.webp";
+import environmentImage from "@/assets/environment-image-optimized.webp";
+import libraryImage from "@/assets/library-image-optimized.webp";
 
 const ImageSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,21 +13,21 @@ const ImageSlider = () => {
    
     {
       id: 1,
-      image: "/src/assets/activities-image-optimized.webp",
+      image: activitiesImage,
       title: "กิจกรรมนักเรียน",
       description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
       link: "#activities"
     },
     {
       id: 2,
-      image: "/src/assets/environment-image-optimized.webp",
+      image: environmentImage,
       title: "สิ่งแวดล้อมการเรียนรู้",
       description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
       link: "#environment"
     },
     {
       id: 3,
-      image: "/src/assets/library-image-optimized.webp",
+      image: libraryImage,
       title: "ห้องสมุดและแหล่งเรียนรู้",
       description: "แหล่งความรู้ที่ครบครันและทันสมัย",
       link: "#library"
