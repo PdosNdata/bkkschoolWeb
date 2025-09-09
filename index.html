@@ -11,13 +11,13 @@
     <!-- Preload critical LCP image -->
     <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp">
     
-    <!-- K2D Font - Async loading only to eliminate render blocking -->
+    <!-- K2D Font - Non-blocking load via preload+rel swap -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <noscript><link href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=optional" rel="stylesheet"></noscript>
-    <script>
-      !function(e){"use strict";var t=function(){var t=e.document.createElement("link");t.rel="stylesheet",t.href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=optional",e.document.head.appendChild(t)};"complete"===e.document.readyState?t():e.addEventListener("load",t)}(window);
-    </script>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=optional" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=optional"></noscript>
 
     <meta property="og:title" content="kodon-campus-chronicle" />
     <meta property="og:description" content="Lovable Generated Project" />
