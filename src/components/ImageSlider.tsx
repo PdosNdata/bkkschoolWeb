@@ -75,7 +75,11 @@ const ImageSlider = () => {
                     <img
                       src={slide.image}
                       alt={slide.title}
+                      width="1024"
+                      height="384"
                       className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "low"}
                     />
                     
                     {/* Overlay */}
