@@ -150,6 +150,10 @@ const NewsSection = () => {
                         src={item.cover_image}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        width="400"
+                        height="192"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
                   )}

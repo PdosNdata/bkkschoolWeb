@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import UserSettingsModal from "./UserSettingsModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User as UserIcon, Menu } from "lucide-react";
-import schoolLogo from "@/assets/school-logo.png";
+import schoolLogo from "@/assets/school-logo-optimized.webp";
 const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -124,6 +124,10 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
               src={schoolLogo}
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
               className="w-auto h-8"
+              width="32"
+              height="32"
+              loading="eager"
+              fetchPriority="high"
             />
             <div className="flex flex-col">
               <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
