@@ -5,12 +5,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import activitiesImage from "@/assets/activities-image-optimized.webp";
 import environmentImage from "@/assets/environment-image-optimized.webp";
 import libraryImage from "@/assets/library-image-optimized.webp";
+import popupImage from "@/assets/popup-image-optimized-webp.webp";
 
 const ImageSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-   
+    {
+      id: 0,
+      image: popupImage,
+      title: "ยินดีต้อนรับสู่โรงเรียนบ้านค้อดอนแคน",
+      description: "แหล่งเรียนรู้ที่เปี่ยมไปด้วยความอบอุ่นและคุณภาพ",
+      link: "#home"
+    },
     {
       id: 1,
       image: activitiesImage,
