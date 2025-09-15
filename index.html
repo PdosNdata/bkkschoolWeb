@@ -14,18 +14,20 @@
     <link rel="preload" href="/src/assets/environment-image-optimized.webp" as="image" type="image/webp">
     <link rel="preload" href="/src/assets/library-image-optimized.webp" as="image" type="image/webp">
     
-    <!-- K2D Font - Non-blocking load via preload+rel swap -->
+    <!-- K2D Font - Preload for consistent loading -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Preload font for immediate availability -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap">
+    
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://dhufwdxxfbahovnmjgrc.supabase.co">
     <link rel="preconnect" href="https://i.postimg.cc">
     <link rel="preconnect" href="https://raw.githubusercontent.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@100;200;300;400;500;600;700;800&display=swap"></noscript>
 
     <meta property="og:title" content="kodon-campus-chronicle" />
     <meta property="og:description" content="Lovable Generated Project" />
