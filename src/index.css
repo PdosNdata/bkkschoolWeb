@@ -132,10 +132,10 @@ All colors MUST be HSL.
 
   html, body {
     @apply bg-background text-foreground;
-    font-family: 'K2D', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', sans-serif;
+    font-family: 'K2D', sans-serif !important;
   }
   
   * {
-    font-family: inherit;
+    font-family: 'K2D', sans-serif !important;
   }
 }
