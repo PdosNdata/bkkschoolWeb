@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
-import popupImage from "@/assets/popup-image-optimized-webp.webp";
+import popupImage from "@/assets/popup-image-optimized.webp";
 const ImagePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
