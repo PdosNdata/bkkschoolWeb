@@ -35,7 +35,7 @@ const HeroSection = () => {
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-white font-semibold mb-2">หลักสูตรทันสมัย</h3>
-              <p className="text-white/80 text-sm">พัฒนาการเรียนรู้ด้วยเทคโนโลยี</p>
+              <p className="text-white/80 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
             </CardContent>
           </Card>
 
