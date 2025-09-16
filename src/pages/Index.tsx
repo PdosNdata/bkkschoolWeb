@@ -7,10 +7,8 @@ import NewsSection from "@/components/NewsSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ImagePopup from "@/components/ImagePopup";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <ImagePopup />
       <Header />
       <ImageSlider />
@@ -39,7 +37,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-2">โทรศัพท์</h3>
-                <p className="text-muted-foreground">043-123-4567</p>
+                <p className="text-muted-foreground">-</p>
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-2">อีเมล</h3>
@@ -54,8 +52,6 @@ const Index = () => {
         </section>
       </div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
