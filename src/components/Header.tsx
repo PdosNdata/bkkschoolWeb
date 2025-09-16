@@ -119,18 +119,18 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo + Title - clickable to home */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-300 cursor-pointer">
             <img
               src={schoolLogo}
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
-              className="w-auto h-8"
+              className="w-auto h-8 transition-transform duration-300 hover:scale-105"
               width="32"
               height="32"
               loading="eager"
               fetchPriority="high"
             />
             <div className="flex flex-col">
-              <span className="font-bold text-primary text-lg">โรงเรียนบ้านค้อดอนแคน</span>
+              <span className="font-bold text-primary text-lg hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
               <span className="text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
           </Link>
