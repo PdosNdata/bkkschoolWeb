@@ -45,7 +45,7 @@ const HeroSection = () => {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-white/80 text-sm">ทีมงานที่มีความเชี่ยวชาญ</p>
+              <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
             </CardContent>
           </Card>
 
