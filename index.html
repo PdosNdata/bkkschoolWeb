@@ -20,17 +20,34 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Critical font loading with fallback -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=block" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=block"></noscript>
+    <!-- Critical font loading with cache control -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap"></noscript>
     
-    <!-- Inline critical font styles for immediate rendering -->
+    <!-- Inline critical font styles for persistent rendering -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=block');
+      /* Font face declarations for persistent loading */
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 300 700;
+        font-display: swap;
+        src: url('https://fonts.gstatic.com/s/k2d/v11/aTdqj20QHMC5rP7GBV7LZlc.woff2') format('woff2');
+        unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC;
+      }
       
-      /* Immediate font application */
-      html, body, * {
+      /* Force font application with high specificity */
+      html, html *, body, body * {
         font-family: 'K2D', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif !important;
+        font-feature-settings: normal !important;
+      }
+      
+      /* Prevent FOUT */
+      .font-loading {
+        visibility: hidden;
+      }
+      .fonts-loaded .font-loading {
+        visibility: visible;
       }
     </style>
     
