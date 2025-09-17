@@ -10,7 +10,9 @@ import {
   Eye,
   PlayCircle,
   ExternalLink,
-  Globe
+  Globe,
+  Share2,
+  Copy
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,6 +86,21 @@ const ContactSection = () => {
 
   const openMedia = (url: string) => {
     window.open(url, '_blank');
+  };
+
+  const handleShareFacebook = (item: MediaResource) => {
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.media_url)}&quote=${encodeURIComponent(item.title)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
+
+  const handleCopyLink = async (item: MediaResource) => {
+    try {
+      await navigator.clipboard.writeText(item.media_url);
+      // You can add a toast notification here if needed
+      console.log('Link copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy link: ', err);
+    }
   };
 
   if (isLoading) {
@@ -175,6 +192,20 @@ const ContactSection = () => {
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       เปิดดู
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleShareFacebook(item)}
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCopyLink(item)}
+                    >
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
