@@ -14,10 +14,11 @@
     <link rel="preload" href="/src/assets/environment-image-optimized.webp" as="image" type="image/webp">
     <link rel="preload" href="/src/assets/library-image-optimized.webp" as="image" type="image/webp">
     
-    <!-- K2D Font Loading -->
+    <!-- K2D Font Loading with preload for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://dhufwdxxfbahovnmjgrc.supabase.co">
