@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Edit } from "lucide-react";
+import { CalendarIcon, Plus, Edit, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -38,8 +38,10 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
   const [description, setDescription] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaType, setMediaType] = useState("");
-  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   // Get current user name for author field
@@ -65,7 +67,7 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       setDescription(editingMedia.description);
       setMediaUrl(editingMedia.media_url);
       setMediaType(editingMedia.media_type);
-      setThumbnailUrl(editingMedia.thumbnail_url || "");
+      setThumbnailPreview(editingMedia.thumbnail_url || "");
     } else {
       // Reset form for new media
       setTitle("");
@@ -74,9 +76,52 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       setDescription("");
       setMediaUrl("");
       setMediaType("");
-      setThumbnailUrl("");
+      setThumbnailFile(null);
+      setThumbnailPreview("");
     }
   }, [editingMedia]);
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadThumbnail = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `thumbnails/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-files')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from('media-files')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอัพโหลดรูปภาพได้",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,8 +136,19 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
     }
 
     setIsSubmitting(true);
+    setUploading(true);
 
     try {
+      let thumbnailUrl = editingMedia?.thumbnail_url || "";
+      
+      // Upload thumbnail if selected
+      if (thumbnailFile) {
+        const uploadedUrl = await uploadThumbnail(thumbnailFile);
+        if (uploadedUrl) {
+          thumbnailUrl = uploadedUrl;
+        }
+      }
+
       const mediaData = {
         title,
         author_name: authorName,
@@ -132,7 +188,8 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       setDescription("");
       setMediaUrl("");
       setMediaType("");
-      setThumbnailUrl("");
+      setThumbnailFile(null);
+      setThumbnailPreview("");
       
       onSuccess?.();
 
@@ -145,6 +202,7 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       });
     } finally {
       setIsSubmitting(false);
+      setUploading(false);
     }
   };
 
@@ -241,14 +299,38 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="thumbnailUrl">ลิงค์รูปภาพตัวอย่าง (ไม่บังคับ)</Label>
-            <Input
-              id="thumbnailUrl"
-              type="url"
-              value={thumbnailUrl}
-              onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="https://example.com/thumbnail.jpg"
-            />
+            <Label htmlFor="thumbnail">รูปภาพตัวอย่าง (ไม่บังคับ)</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <input
+                type="file"
+                id="thumbnail"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="thumbnail"
+                className="cursor-pointer flex flex-col items-center justify-center space-y-2"
+              >
+                {thumbnailPreview ? (
+                  <div className="relative">
+                    <img
+                      src={thumbnailPreview}
+                      alt="Preview"
+                      className="max-w-full h-32 object-cover rounded-lg"
+                    />
+                    <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded">
+                      <Upload className="h-4 w-4" />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-gray-400" />
+                    <span className="text-sm text-gray-500">คลิกเพื่อเลือกรูปภาพตัวอย่าง</span>
+                  </>
+                )}
+              </label>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -267,9 +349,9 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
             type="submit" 
             size="lg" 
             className="w-full"
-            disabled={isSubmitting}
+            disabled={isSubmitting || uploading}
           >
-            {isSubmitting ? "กำลังบันทึก..." : (editingMedia ? "อัปเดตข้อมูล" : "บันทึกข้อมูล")}
+            {uploading ? "กำลังอัพโหลด..." : isSubmitting ? "กำลังบันทึก..." : (editingMedia ? "อัปเดตข้อมูล" : "บันทึกข้อมูล")}
           </Button>
         </form>
       </CardContent>
