@@ -89,8 +89,15 @@ const ContactSection = () => {
   };
 
   const handleShareFacebook = (item: MediaResource) => {
-    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.media_url)}&quote=${encodeURIComponent(item.title)}`;
-    window.open(shareUrl, '_blank', 'width=600,height=400');
+    // แชร์ลิงค์ต้นฉบับโดยตรงแทนที่จะผ่านเว็บไซต์
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.media_url)}`;
+    const popup = window.open(shareUrl, 'facebook-share', 'width=600,height=400,scrollbars=yes,resizable=yes');
+    
+    // ถ้า Facebook ยังบล็อค ให้คัดลอกลิงค์แทน
+    if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+      handleCopyLink(item);
+      alert('ไม่สามารถเปิด Facebook ได้ ลิงค์ถูกคัดลอกไว้ให้แล้ว');
+    }
   };
 
   const handleCopyLink = async (item: MediaResource) => {
