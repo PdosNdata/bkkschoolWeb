@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'k2d': ['K2D', 'sans-serif'],
 				'sans': ['K2D', 'sans-serif'],
+				'k2d': ['K2D', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
