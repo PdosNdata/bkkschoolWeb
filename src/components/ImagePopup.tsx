@@ -15,7 +15,7 @@ const ImagePopup = () => {
     setIsOpen(false);
   };
   return <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="w-[95vw] max-w-[800px] h-auto max-h-[90vh] p-0 border-none bg-transparent shadow-none">
+      <DialogContent className="w-[90vw] max-w-[1000px] h-auto max-h-[85vh] p-0 border-none bg-transparent shadow-none">
         <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-white via-purple-50 to-purple-100">
           {/* Close button */}
           <button onClick={handleClose} className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full p-2 transition-all duration-200 shadow-lg hover:shadow-xl">
