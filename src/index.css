@@ -128,13 +128,8 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
-    font-family: 'K2D', sans-serif !important;
   }
 
-  html {
-    font-family: 'K2D', sans-serif !important;
-  }
-  
   body {
     @apply bg-background text-foreground;
     font-family: 'K2D', sans-serif !important;

@@ -14,36 +14,10 @@
     <link rel="preload" href="/src/assets/environment-image-optimized.webp" as="image" type="image/webp">
     <link rel="preload" href="/src/assets/library-image-optimized.webp" as="image" type="image/webp">
     
-    <!-- K2D Font - Robust loading for production -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <!-- K2D Font Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Critical font loading - immediate load -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap">
-    
-    <!-- Production font enforcement styles -->
-    <style>
-      /* K2D Thai font with complete character support */
-      @import url('https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap');
-      
-      /* Force font application across all elements */
-      html, body, * {
-        font-family: 'K2D', sans-serif !important;
-      }
-      
-      /* Ensure specific selectors */
-      .font-k2d, .font-sans {
-        font-family: 'K2D', sans-serif !important;
-      }
-      
-      /* Production font loading prevention of flicker */
-      body {
-        font-family: 'K2D', sans-serif !important;
-        font-display: swap;
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://dhufwdxxfbahovnmjgrc.supabase.co">
