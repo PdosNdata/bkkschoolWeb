@@ -10,8 +10,11 @@ import {
   Eye,
   PlayCircle,
   ExternalLink,
-  Globe
+  Globe,
+  Code2,
+  Palette
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MediaResource {
@@ -28,6 +31,7 @@ interface MediaResource {
 const ContactSection = () => {
   const [mediaResources, setMediaResources] = useState<MediaResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMediaResources();
@@ -122,6 +126,46 @@ const ContactSection = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Static Coding and Design Module Card */}
+            <Card className="bg-white border-0 shadow-elegant overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="relative">
+                <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <Code2 className="w-12 h-12 text-primary" />
+                </div>
+                <div className="absolute top-4 left-4">
+                  <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                    <Palette className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4">
+                  <Badge variant="secondary" className="text-xs">
+                    บทเรียน
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  การเรียนการออกแบบและเรียนโปรแกรมเบื้องต้น
+                </h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  โดย: ครูผู้สอน | {new Date().toLocaleDateString('th-TH')}
+                </p>
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                  เนื้อหาการเรียนรู้เกี่ยวกับการออกแบบและการพัฒนาโปรแกรมเบื้องต้น พร้อมแบบทดสอบความเข้าใจ
+                </p>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => navigate('/coding-design-m1')}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    เข้าเรียน
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
             {mediaResources.map((item) => (
               <Card key={item.id} className="bg-white border-0 shadow-elegant overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="relative">

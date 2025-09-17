@@ -15,6 +15,7 @@ import ActivitiesFormPage from "./pages/ActivitiesFormPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
+import CodingAndDesignM1 from "./components/codinganddesignm1";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +155,7 @@ const App = () => {
                 } 
               />
               <Route path="/activities" element={<AllActivitiesPage />} />
+              <Route path="/coding-design-m1" element={<CodingAndDesignM1 />} />
               <Route 
                 path="/media-form" 
                 element={
