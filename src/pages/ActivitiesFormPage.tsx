@@ -28,8 +28,8 @@ const ActivitiesFormPage = () => {
         const role = roleData?.role || "";
         setUserRole(role);
         
-        // Only teachers can access this page
-        if (role !== "teacher") {
+        // Only teachers and admins can access this page
+        if (role !== "teacher" && role !== "admin") {
           navigate("/dashboard");
           return;
         }
@@ -54,7 +54,7 @@ const ActivitiesFormPage = () => {
     );
   }
 
-  if (userRole !== "teacher") {
+  if (userRole !== "teacher" && userRole !== "admin") {
     return null; // This should not render as user will be redirected
   }
   return (
