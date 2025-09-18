@@ -95,6 +95,50 @@ export type Database = {
         }
         Relationships: []
       }
+      admission_applications_audit: {
+        Row: {
+          action: string
+          application_id: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          performed_at: string | null
+          performed_by: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          application_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_at?: string | null
+          performed_by?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          application_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_at?: string | null
+          performed_by?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admission_applications_audit_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "admission_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_resources: {
         Row: {
           author_name: string
@@ -194,6 +238,39 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_rate_limit: {
+        Row: {
+          blocked_until: string | null
+          email: string
+          first_submission_at: string | null
+          id: string
+          ip_address: unknown
+          is_blocked: boolean | null
+          last_submission_at: string | null
+          submission_count: number | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          email: string
+          first_submission_at?: string | null
+          id?: string
+          ip_address: unknown
+          is_blocked?: boolean | null
+          last_submission_at?: string | null
+          submission_count?: number | null
+        }
+        Update: {
+          blocked_until?: string | null
+          email?: string
+          first_submission_at?: string | null
+          id?: string
+          ip_address?: unknown
+          is_blocked?: boolean | null
+          last_submission_at?: string | null
+          submission_count?: number | null
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           created_at: string
@@ -259,6 +336,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_submission_rate_limit: {
+        Args: { p_email: string; p_ip_address: unknown }
+        Returns: boolean
+      }
+      get_admission_applications_for_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          birth_date: string
+          created_at: string
+          gpa: string
+          grade: string
+          id: string
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          previous_school: string
+          special_needs: string
+          student_id: string
+          student_name: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
