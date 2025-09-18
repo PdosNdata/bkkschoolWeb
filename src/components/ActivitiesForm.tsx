@@ -306,7 +306,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
     
     return {
       line: `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(activityUrl)}&text=${encodeURIComponent(shareText)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}&quote=${encodeURIComponent(shareText)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}`,
       messenger: `https://www.facebook.com/dialog/send?link=${encodeURIComponent(activityUrl)}&app_id=YOUR_APP_ID&redirect_uri=${encodeURIComponent(activityUrl)}`
     };
   };
@@ -315,7 +315,26 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
     const links = generateShareLinks(activityItem);
     const shareUrl = links[platform];
     
-    if (platform === 'messenger') {
+    if (platform === 'facebook') {
+      // Try to open Facebook share dialog
+      const facebookWindow = window.open(shareUrl, '_blank', 'width=600,height=400');
+      
+      // Check if popup was blocked
+      setTimeout(() => {
+        if (!facebookWindow || facebookWindow.closed) {
+          // Fallback: copy link to clipboard
+          const activityUrl = `${window.location.origin}/#activity-detail-${activityItem.id}`;
+          navigator.clipboard.writeText(activityUrl).then(() => {
+            Swal.fire({
+              title: "Facebook ถูกบล็อค",
+              text: "ลิงค์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว คุณสามารถแชร์ด้วยตนเองได้",
+              icon: "info",
+              confirmButtonText: "ตกลง"
+            });
+          });
+        }
+      }, 1000);
+    } else if (platform === 'messenger') {
       const messageText = `${activityItem.title}\n\n${activityItem.content.substring(0, 100)}${activityItem.content.length > 100 ? '...' : ''}\n\nอ่านเพิ่มเติม: ${window.location.origin}#activities`;
       const messengerUrl = `fb-messenger://share/?link=${encodeURIComponent(window.location.origin + '#activities')}&app_id=140586622674265`;
       
@@ -492,48 +511,61 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                     <TableRow key={activity.id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <div className="font-medium line-clamp-2">{activity.title}</div>
-                          <div className="text-sm text-gray-500 line-clamp-2">
+                          <div className="font-medium text-primary">{activity.title}</div>
+                          <div className="text-sm text-gray-600 line-clamp-2">
                             {activity.content.substring(0, 100)}
-                            {activity.content.length > 100 && "..."}
+                            {activity.content.length > 100 && '...'}
                           </div>
+                          {activity.cover_image && (
+                            <img 
+                              src={activity.cover_image} 
+                              alt="Activity cover" 
+                              className="w-16 h-16 object-cover rounded mt-2"
+                            />
+                          )}
                         </div>
                       </TableCell>
-                      <TableCell>{activity.author_name}</TableCell>
-                      <TableCell>{formatDate(activity.created_at)}</TableCell>
+                      <TableCell className="font-medium">{activity.author_name}</TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {formatDate(activity.created_at)}
+                      </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(activity)}
-                            className="h-8 px-2"
+                            className="flex items-center gap-1"
                           >
                             <Edit className="h-3 w-3" />
+                            แก้ไข
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(activity.id)}
-                            className="h-8 px-2 text-red-600 hover:text-red-700"
+                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3" />
+                            ลบ
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleCopyLink(activity.id)}
-                            className="h-8 px-2"
+                            className="flex items-center gap-1"
                           >
-                            <Link className="h-3 w-3" />
+                            <Copy className="h-3 w-3" />
+                            คัดลอกลิงค์
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleShare(activity, 'facebook')}
-                            className="h-8 px-2 text-blue-600"
+                            className="flex items-center gap-1"
                           >
                             <Share2 className="h-3 w-3" />
+                            แชร์ Facebook
                           </Button>
                         </div>
                       </TableCell>
