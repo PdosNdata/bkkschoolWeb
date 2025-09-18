@@ -8,6 +8,15 @@
     <meta name="description" content="เว็บไซต์โรงเรียนบ้านค้อดอนแคน สพป.อด.3">
     <meta name="author" content="โรงเรียนบ้านค้อดอนแคน" />
     
+    <!-- Critical CSS inlined to prevent render blocking -->
+    <style>
+      :root{--background:0 0% 100%;--foreground:261 15% 15%;--primary:261 50% 25%;--primary-foreground:0 0% 98%}
+      *{border-color:hsl(261 15% 89%)}
+      body{background-color:hsl(var(--background));color:hsl(var(--foreground));font-family:'K2D',sans-serif!important;margin:0;padding:0}
+      #root{min-height:100vh}
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+    </style>
+    
     <!-- Preload critical LCP images -->
     <link rel="preload" href="/src/assets/popup-image-optimized-webp.webp" as="image" type="image/webp">
     <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp">
@@ -38,5 +47,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Load main CSS asynchronously to prevent render blocking -->
+    <script>
+      function loadCSS(href) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+      }
+      // Load main CSS after page load
+      if (window.requestIdleCallback) {
+        requestIdleCallback(function() {
+          loadCSS('/src/index.css');
+        });
+      } else {
+        setTimeout(function() {
+          loadCSS('/src/index.css');
+        }, 0);
+      }
+    </script>
   </body>
 </html>
