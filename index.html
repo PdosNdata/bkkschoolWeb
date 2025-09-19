@@ -46,24 +46,7 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Load main CSS asynchronously to prevent render blocking -->
-    <script>
-      function loadCSS(href) {
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-      }
-      // Load main CSS after page load
-      if (window.requestIdleCallback) {
-        requestIdleCallback(function() {
-          loadCSS('/src/index.css');
-        });
-      } else {
-        setTimeout(function() {
-          loadCSS('/src/index.css');
-        }, 0);
-      }
-    </script>
+    <!-- Load main CSS synchronously for proper font rendering -->
+    <link rel="stylesheet" href="/src/index.css">
   </body>
 </html>
