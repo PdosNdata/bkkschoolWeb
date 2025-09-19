@@ -17,11 +17,10 @@
       .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     </style>
     
-    <!-- Preload critical LCP images -->
-    <link rel="preload" href="/src/assets/popup-image-optimized-webp.webp" as="image" type="image/webp">
-    <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp">
-    <link rel="preload" href="/src/assets/environment-image-optimized.webp" as="image" type="image/webp">
-    <link rel="preload" href="/src/assets/library-image-optimized.webp" as="image" type="image/webp">
+     <!-- Preload critical LCP images with appropriate sizes -->
+    <link rel="preload" href="/src/assets/school-logo-optimized.webp" as="image" type="image/webp" media="(max-width: 64px)">
+    <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp" media="(min-width: 768px)" imagesizes="896px">
+    <link rel="preload" href="/src/assets/popup-image-optimized.webp" as="image" type="image/webp" media="(min-width: 320px)" imagesizes="(max-width: 900px) 100vw, 900px">
     
     <!-- Thai Font Loading with preload for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

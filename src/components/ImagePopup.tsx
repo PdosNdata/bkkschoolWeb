@@ -24,7 +24,14 @@ const ImagePopup = () => {
 
           {/* Image content */}
           <div className="relative">
-            <img src={popupImage} alt="โรงเรียนบ้านค้อดอนแคน" className="w-full h-auto max-h-[80vh] object-contain" />
+            <img 
+              src={popupImage} 
+              alt="โรงเรียนบ้านค้อดอนแคน" 
+              className="w-full h-auto max-h-[80vh] object-contain" 
+              sizes="(max-width: 640px) 95vw, (max-width: 768px) 90vw, (max-width: 1024px) 80vw, (max-width: 1280px) 70vw, 60vw"
+              style={{ maxWidth: '900px', height: 'auto' }}
+              loading="eager"
+            />
             
             {/* Overlay content */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">

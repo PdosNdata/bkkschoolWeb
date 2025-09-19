@@ -19,4 +19,15 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
+    assetsInlineLimit: 0, // Don't inline assets to ensure proper compression
+  },
+  assetsInclude: ['**/*.webp'],
 }));

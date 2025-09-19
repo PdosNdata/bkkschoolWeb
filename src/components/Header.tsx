@@ -128,6 +128,8 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
               height="32"
               loading="eager"
               fetchPriority="high"
+              sizes="32px"
+              style={{ maxWidth: '32px', height: 'auto' }}
             />
             <div className="flex flex-col">
               <span className="font-bold text-primary text-lg hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
