@@ -45,7 +45,7 @@ const Index = () => {
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-2">ที่อยู่</h3>
-                <p className="text-muted-foreground">93 หมู่ที่ 3 ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี</p>
+                <p className="text-muted-foreground">93 หมู่ที่ 3 ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี 41130</p>
               </div>
             </div>
           </div>
