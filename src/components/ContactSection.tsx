@@ -89,8 +89,9 @@ const ContactSection = () => {
   };
 
   const handleShareFacebook = (item: MediaResource) => {
-    // แชร์ลิงค์ต้นฉบับโดยตรงแทนที่จะผ่านเว็บไซต์
-    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.media_url)}`;
+    // แชร์ลิงค์หน้าเว็บปัจจุบันแทนที่จะเป็น media_url
+    const currentPageUrl = window.location.href;
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentPageUrl)}`;
     const popup = window.open(shareUrl, 'facebook-share', 'width=600,height=400,scrollbars=yes,resizable=yes');
     
     // ถ้า Facebook ยังบล็อค ให้คัดลอกลิงค์แทน
@@ -102,7 +103,9 @@ const ContactSection = () => {
 
   const handleCopyLink = async (item: MediaResource) => {
     try {
-      await navigator.clipboard.writeText(item.media_url);
+      // คัดลอกลิงค์หน้าเว็บปัจจุบันแทนที่จะเป็น media_url
+      const currentPageUrl = window.location.href;
+      await navigator.clipboard.writeText(currentPageUrl);
       // You can add a toast notification here if needed
       console.log('Link copied to clipboard');
     } catch (err) {
