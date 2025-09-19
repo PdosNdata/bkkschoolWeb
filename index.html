@@ -22,11 +22,10 @@
     <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp" media="(min-width: 768px)" imagesizes="896px">
     <link rel="preload" href="/src/assets/popup-image-optimized.webp" as="image" type="image/webp" media="(min-width: 320px)" imagesizes="(max-width: 900px) 100vw, 900px">
     
-    <!-- Thai Font Loading with preload for faster loading -->
+    <!-- Thai Font Loading - synchronous for reliable production loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=K2D:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://dhufwdxxfbahovnmjgrc.supabase.co">
