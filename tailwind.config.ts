@@ -19,7 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['K2D', 'sans-serif'],
+				'sans': ['Sarabun', 'K2D', 'sans-serif'],
+				'sarabun': ['Sarabun', 'sans-serif'],
 				'k2d': ['K2D', 'sans-serif'],
 			},
 			colors: {
