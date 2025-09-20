@@ -91,7 +91,7 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
   };
 
   const handleShare = (activityItem: Activity, platform: 'facebook' | 'line') => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     const activityUrl = `${baseUrl}/#activity-detail-${activityItem.id}`;
     const title = activityItem.title;
     const content = activityItem.content.substring(0, 100) + (activityItem.content.length > 100 ? '...' : '');
@@ -114,7 +114,7 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
   };
 
   const handleCopyLink = (activityItem: Activity) => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     const activityUrl = `${baseUrl}/#activity-detail-${activityItem.id}`;
     
     navigator.clipboard.writeText(activityUrl).then(() => {

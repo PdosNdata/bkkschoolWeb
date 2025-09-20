@@ -54,7 +54,7 @@ const AllActivitiesPage = () => {
   };
 
   const handleShare = (activity: Activity, platform: 'facebook') => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     const activityUrl = `${baseUrl}/#activity-detail-${activity.id}`;
     
     if (platform === 'facebook') {
@@ -69,7 +69,7 @@ const AllActivitiesPage = () => {
   };
 
   const handleCopyLink = (activity: Activity) => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     const activityUrl = `${baseUrl}/#activity-detail-${activity.id}`;
     
     navigator.clipboard.writeText(activityUrl).then(() => {

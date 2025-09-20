@@ -298,7 +298,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   };
 
   const generateShareLinks = (activityItem: ActivityItem) => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     const activityUrl = `${baseUrl}/#activity-detail-${activityItem.id}`;
     const title = activityItem.title;
     const content = activityItem.content.substring(0, 100) + (activityItem.content.length > 100 ? '...' : '');
@@ -323,7 +323,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
       setTimeout(() => {
         if (!facebookWindow || facebookWindow.closed) {
           // Fallback: copy link to clipboard
-          const activityUrl = `${window.location.origin}/#activity-detail-${activityItem.id}`;
+          const activityUrl = `https://www.bankhodonkan.ac.th/#activity-detail-${activityItem.id}`;
           navigator.clipboard.writeText(activityUrl).then(() => {
             Swal.fire({
               title: "Facebook ถูกบล็อค",
@@ -356,7 +356,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   };
 
   const generateActivityUrl = (activityId?: string) => {
-    const baseUrl = window.location.origin;
+    const baseUrl = 'https://www.bankhodonkan.ac.th';
     return activityId ? `${baseUrl}/#activity-detail-${activityId}` : `${baseUrl}/#activities`;
   };
 
