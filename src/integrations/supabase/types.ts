@@ -137,6 +137,67 @@ export type Database = {
             referencedRelation: "admission_applications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admission_applications_audit_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "admission_applications_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admission_sensitive_data: {
+        Row: {
+          application_id: string
+          created_at: string
+          encrypted_address: string | null
+          encrypted_birth_date: string | null
+          encrypted_parent_email: string | null
+          encrypted_parent_name: string | null
+          encrypted_parent_phone: string | null
+          encrypted_student_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          encrypted_address?: string | null
+          encrypted_birth_date?: string | null
+          encrypted_parent_email?: string | null
+          encrypted_parent_name?: string | null
+          encrypted_parent_phone?: string | null
+          encrypted_student_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          encrypted_address?: string | null
+          encrypted_birth_date?: string | null
+          encrypted_parent_email?: string | null
+          encrypted_parent_name?: string | null
+          encrypted_parent_phone?: string | null
+          encrypted_student_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admission_sensitive_data_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "admission_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_sensitive_data_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "admission_applications_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       media_resources: {
@@ -238,6 +299,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sensitive_data_access_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          application_id: string | null
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          application_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          application_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       submission_rate_limit: {
         Row: {
           blocked_until: string | null
@@ -333,12 +424,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admission_applications_secure: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          created_at: string | null
+          gpa: string | null
+          grade: string | null
+          id: string | null
+          parent_email: string | null
+          parent_name: string | null
+          parent_phone: string | null
+          previous_school: string | null
+          special_needs: string | null
+          student_id: string | null
+          student_name: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_submission_rate_limit: {
         Args: { p_email: string; p_ip_address: unknown }
         Returns: boolean
+      }
+      decrypt_sensitive_field: {
+        Args: { encrypted_data: string; secret_key?: string }
+        Returns: string
+      }
+      encrypt_sensitive_field: {
+        Args: { data: string; secret_key?: string }
+        Returns: string
       }
       get_admission_applications_for_admin: {
         Args: Record<PropertyKey, never>
@@ -366,6 +483,10 @@ export type Database = {
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_sensitive_access: {
+        Args: { access_type: string; app_id: string }
+        Returns: undefined
       }
     }
     Enums: {
