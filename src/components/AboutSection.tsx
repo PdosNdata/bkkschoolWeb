@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Target, Heart, Star, X } from "lucide-react";
 import { useState } from "react";
@@ -103,8 +104,8 @@ const AboutSection = () => {
             </DialogContent>
           </Dialog>
 
-          <Dialog>
-            <DialogTrigger asChild>
+          <HoverCard>
+            <HoverCardTrigger asChild>
               <Card className="bg-gradient-values border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
                 <CardContent className="p-6 text-center">
                   <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -117,29 +118,24 @@ const AboutSection = () => {
                   </p>
                 </CardContent>
               </Card>
-            </DialogTrigger>
-            <DialogContent className="max-w-[700px] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-semibold">เป้าประสงค์โรงเรียนบ้านค้อดอนแคน</DialogTitle>
-                <DialogClose asChild>
-                  <Button variant="ghost" size="sm" className="absolute right-4 top-4 h-8 w-8 p-0">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogClose>
-              </DialogHeader>
-              <div className="space-y-4 text-sm leading-relaxed mt-4">
-                <p>เพื่อให้งานบรรลุผลตามพันธกิจโรงเรียน ได้ยึดเอามาตรฐานการศึกษาระดับปฐมวัย ๓ มาตรฐาน และระดับขั้นพื้นฐาน ๓ มาตรฐาน มาวิเคราะห์เป็นเป้าประสงค์ในการปฏิบัติงานโครงการต่าง ๆ และใช้ตัวชี้วัดของแต่ละมาตรฐานเป็นเป้าหมายระดับโครงการ เพื่อมุ่งพัฒนาโรงเรียนให้ได้คุณภาพตามมาตรฐานการศึกษาขั้นพื้นฐาน ดังนี้</p>
-                <p><strong>๑.</strong> โรงเรียนได้รับการรับรองมาตรฐานจากการประเมินคุณภาพภายนอกของ สมศ.</p>
-                <p><strong>๒.</strong> สถานศึกษามีหลักสูตรที่สอดคล้องกับมาตรฐานการเรียนรู้และตัวชี้วัดแต่ละกลุ่มสาระการเรียนรู้</p>
-                <p><strong>๓.</strong> นักเรียนร้อยละ ๘๐ เป็นคนดี คนเก่งและมีคุณธรรมตามหลักค่านิยมพื้นฐาน ๑๒ ประการ</p>
-                <p><strong>๔.</strong> เด็กพิเศษเรียนร่วมได้รับการพัฒนาอย่างเต็มตามศักยภาพ</p>
-                <p><strong>๕.</strong> ครู นักเรียนสามารถใช้เทคโนโลยีในการพัฒนาการเรียนการสอนได้</p>
-                <p><strong>๖.</strong> สถานศึกษาเป็นศูนย์การเรียนรู้ตามหลักปรัชญาเศรษฐกิจพอเพียงอย่างมีคุณภาพ</p>
-                <p><strong>๗.</strong> สถานศึกษามีการบริหารจัดการตามหลักธรรมาภิบาลอย่างมีประสิทธิภาพ</p>
-                <p><strong>๘.</strong> ชุมชนให้การยอมรับและให้การสนับสนุนด้านการพัฒนาการศึกษา</p>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-[500px] max-h-[400px] overflow-y-auto">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">เป้าประสงค์โรงเรียนบ้านค้อดอนแคน</h3>
+                <div className="space-y-3 text-sm leading-relaxed">
+                  <p>เพื่อให้งานบรรลุผลตามพันธกิจโรงเรียน ได้ยึดเอามาตรฐานการศึกษาระดับปฐมวัย ๓ มาตรฐาน และระดับขั้นพื้นฐาน ๓ มาตรฐาน มาวิเคราะห์เป็นเป้าประสงค์ในการปฏิบัติงานโครงการต่าง ๆ และใช้ตัวชี้วัดของแต่ละมาตรฐานเป็นเป้าหมายระดับโครงการ เพื่อมุ่งพัฒนาโรงเรียนให้ได้คุณภาพตามมาตรฐานการศึกษาขั้นพื้นฐาน ดังนี้</p>
+                  <p><strong>๑.</strong> โรงเรียนได้รับการรับรองมาตรฐานจากการประเมินคุณภาพภายนอกของ สมศ.</p>
+                  <p><strong>๒.</strong> สถานศึกษามีหลักสูตรที่สอดคล้องกับมาตรฐานการเรียนรู้และตัวชี้วัดแต่ละกลุ่มสาระการเรียนรู้</p>
+                  <p><strong>๓.</strong> นักเรียนร้อยละ ๘๐ เป็นคนดี คนเก่งและมีคุณธรรมตามหลักค่านิยมพื้นฐาน ๑๒ ประการ</p>
+                  <p><strong>๔.</strong> เด็กพิเศษเรียนร่วมได้รับการพัฒนาอย่างเต็มตามศักยภาพ</p>
+                  <p><strong>๕.</strong> ครู นักเรียนสามารถใช้เทคโนโลยีในการพัฒนาการเรียนการสอนได้</p>
+                  <p><strong>๖.</strong> สถานศึกษาเป็นศูนย์การเรียนรู้ตามหลักปรัชญาเศรษฐกิจพอเพียงอย่างมีคุณภาพ</p>
+                  <p><strong>๗.</strong> สถานศึกษามีการบริหารจัดการตามหลักธรรมาภิบาลอย่างมีประสิทธิภาพ</p>
+                  <p><strong>๘.</strong> ชุมชนให้การยอมรับและให้การสนับสนุนด้านการพัฒนาการศึกษา</p>
+                </div>
               </div>
-            </DialogContent>
-          </Dialog>
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     </section>;
