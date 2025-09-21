@@ -63,10 +63,7 @@ const AboutSection = () => {
                 <Target className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">วิสัยทัศน์</h3>
-              <p className="text-white/90">
-                เป็นโรงเรียนที่มีมาตรฐานการศึกษาสูง 
-                สร้างนักเรียนให้มีความรู้และคุณธรรม
-              </p>
+              <p className="text-white/90">เโรงเรียนบ้านค้อดอนแคน  เป็นแหล่งเรียนรู้คู่คุณธรรม  นำชุมชนพัฒนาการศึกษาตามหลักปรัชญาของเศรษฐกิจพอเพียง  นักเรียนมีคุณภาพตามมาตรฐาน  ครูเป็นครูมืออาชีพ </p>
             </CardContent>
           </Card>
 
