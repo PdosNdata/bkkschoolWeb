@@ -108,7 +108,7 @@ const AboutSection = () => {
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">ค่านิยม</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">เป้าประสงค์</h3>
               <p className="text-stone-950">
                 ความซื่อสัตย์ ความรับผิดชอบ 
                 การมีจิตสาธารณะ และการใฝ่เรียนรู้
