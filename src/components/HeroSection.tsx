@@ -23,7 +23,22 @@ const HeroSection = () => {
             พัฒนาการศึกษาด้วยหลักสูตรที่ทันสมัย เพื่อสร้างนักเรียนให้มีความรู้และคุณธรรม
             พร้อมก้าวสู่โลกอนาคต
           </p>
-          
+
+          {/* Video Section */}
+          <div className="mb-12">
+            <div className="max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย</h3>
+              <div className="relative aspect-video rounded-xl overflow-hidden shadow-elegant bg-black/20 backdrop-blur-sm border border-white/20">
+                <iframe
+                  src="https://www.youtube.com/embed/ZpWMD-MT5gE"
+                  title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
           
         </div>
 
