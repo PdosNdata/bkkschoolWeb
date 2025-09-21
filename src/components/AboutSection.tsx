@@ -18,25 +18,8 @@ const AboutSection = () => {
           </p>
         </div>
 
-        {/* Video Section */}
-        <div className="mb-16">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-6 text-center">วิดีโอนำเสนอโรงเรียน</h3>
-            <div className="relative aspect-video rounded-xl overflow-hidden shadow-elegant">
-              <iframe
-                src="https://www.youtube.com/embed/ZpWMD-MT5gE"
-                title="วิดีโอนำเสนอโรงเรียนบ้านค้อดอนแคน"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              />
-            </div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <h3 className="text-2xl font-bold text-foreground mb-6">เรื่องราวของเรา</h3>
             <p className="text-muted-foreground leading-relaxed mb-6">
               โรงเรียนบ้านค้อดอนแคนเป็นโรงเรียนที่มีประวัติความเป็นมายาวนาน 
               ตั้งอยู่ในชุมชนที่อบอุ่น มีการพัฒนาการศึกษาอย่างต่อเนื่อง 
