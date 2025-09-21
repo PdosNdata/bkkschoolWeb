@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Target, Heart, Star } from "lucide-react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Target, Heart, Star, X } from "lucide-react";
 const AboutSection = () => {
   return <section id="history" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -66,15 +68,37 @@ const AboutSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-mission border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-8 h-8 text-white" />
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Card className="bg-gradient-mission border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Heart className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3">พันธกิจ</h3>
+                  <p className="text-white/90">จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่  ๓  ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้  และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
+                </CardContent>
+              </Card>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-[600px] max-w-[90vw] p-6 bg-popover border border-border shadow-lg rounded-xl">
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="text-lg font-semibold text-popover-foreground">พันธกิจโรงเรียนบ้านค้อดอนแคน</h4>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => (document.activeElement as HTMLElement)?.blur()}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">พันธกิจ</h3>
-              <p className="text-white/90">จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่  ๓  ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้  และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
-            </CardContent>
-          </Card>
+              <div className="space-y-3 text-sm text-popover-foreground leading-relaxed">
+                <p><strong>๑.</strong> จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่ ๓ ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้ และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
+                <p><strong>๒.</strong> พัฒนากระบวนการเรียนรู้ แหล่งเรียนรู้ สภาพแวดล้อมให้กับนักเรียน และเด็กที่ด้อยโอกาส พิการ ที่เรียนร่วมกับเด็กปกติได้อย่างมีคุณภาพ</p>
+                <p><strong>๓.</strong> ปลูกฝังให้นักเรียนเป็นคนดี มีความสุข และมีคุณธรรมตามหลักค่านิยมพื้นฐาน ๑๒ ประการ</p>
+                <p><strong>๔.</strong> พัฒนาหลักสูตรสถานศึกษาให้มีความสอดคล้องกับมาตรฐานการเรียนรู้และตัวชี้วัดแต่ละกลุ่มสาระการเรียนรู้ โดยเน้นยกระดับผลสัมฤทธิ์ทางการเรียน เน้นพัฒนาการอ่านออกเขียนได้ คิดเลขเป็น คิดสร้างสรรค์และการแก้ปัญหาอย่างสร้างสรรค์</p>
+                <p><strong>๕.</strong> นำหลักปรัชญาเศรษฐกิจพอเพียง และศาสตร์พระราชามาใช้ในการจัดกระบวนการเรียนรู้ทั้งภายในและภายนอกชั้นเรียน</p>
+                <p><strong>๖.</strong> พัฒนาและนำเทคโนโลยีมาใช้ในการจัดกระบวนการเรียนรู้และกระบวนการบริหารให้ทันต่อวิทยาการสมัยใหม่อยู่เสมอ โดยไม่ทิ้งภูมิปัญญาท้องถิ่น</p>
+                <p><strong>๗.</strong> เพิ่มประสิทธิภาพการบริหารจัดการโดยยึดหลักธรรมาภิบาลให้ครู บุคลากรภายในโรงเรียนได้รับการพัฒนาอย่างหลากหลายและต่อเนื่อง</p>
+                <p><strong>๘.</strong> มุ่งสร้างความสัมพันธ์อันดีกับชุมชน รับฟังความคิดเห็นจากทุกฝ่ายนำมาปรับปรุงพัฒนาอยู่เสมอ สนับสนุนให้ความร่วมมือต่อชุมชน และให้ชุมชนมีส่วนร่วมและสนับสนุนโรงเรียนด้วยความเต็มใจ</p>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
 
           <Card className="bg-gradient-values border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
