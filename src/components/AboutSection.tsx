@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Target, Heart, Star, X } from "lucide-react";
+import { useState } from "react";
 const AboutSection = () => {
   return <section id="history" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -68,8 +69,8 @@ const AboutSection = () => {
             </CardContent>
           </Card>
 
-          <HoverCard>
-            <HoverCardTrigger asChild>
+          <Dialog>
+            <DialogTrigger asChild>
               <Card className="bg-gradient-mission border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
                 <CardContent className="p-6 text-center">
                   <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
@@ -79,15 +80,17 @@ const AboutSection = () => {
                   <p className="text-white/90">จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่  ๓  ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้  และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
                 </CardContent>
               </Card>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-[600px] max-w-[90vw] p-6 bg-popover border border-border shadow-lg rounded-xl">
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="text-lg font-semibold text-popover-foreground">พันธกิจโรงเรียนบ้านค้อดอนแคน</h4>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => (document.activeElement as HTMLElement)?.blur()}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="space-y-3 text-sm text-popover-foreground leading-relaxed">
+            </DialogTrigger>
+            <DialogContent className="max-w-[700px] max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold">พันธกิจโรงเรียนบ้านค้อดอนแคน</DialogTitle>
+                <DialogClose asChild>
+                  <Button variant="ghost" size="sm" className="absolute right-4 top-4 h-8 w-8 p-0">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </DialogClose>
+              </DialogHeader>
+              <div className="space-y-4 text-sm leading-relaxed mt-4">
                 <p><strong>๑.</strong> จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่ ๓ ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้ และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
                 <p><strong>๒.</strong> พัฒนากระบวนการเรียนรู้ แหล่งเรียนรู้ สภาพแวดล้อมให้กับนักเรียน และเด็กที่ด้อยโอกาส พิการ ที่เรียนร่วมกับเด็กปกติได้อย่างมีคุณภาพ</p>
                 <p><strong>๓.</strong> ปลูกฝังให้นักเรียนเป็นคนดี มีความสุข และมีคุณธรรมตามหลักค่านิยมพื้นฐาน ๑๒ ประการ</p>
@@ -97,8 +100,8 @@ const AboutSection = () => {
                 <p><strong>๗.</strong> เพิ่มประสิทธิภาพการบริหารจัดการโดยยึดหลักธรรมาภิบาลให้ครู บุคลากรภายในโรงเรียนได้รับการพัฒนาอย่างหลากหลายและต่อเนื่อง</p>
                 <p><strong>๘.</strong> มุ่งสร้างความสัมพันธ์อันดีกับชุมชน รับฟังความคิดเห็นจากทุกฝ่ายนำมาปรับปรุงพัฒนาอยู่เสมอ สนับสนุนให้ความร่วมมือต่อชุมชน และให้ชุมชนมีส่วนร่วมและสนับสนุนโรงเรียนด้วยความเต็มใจ</p>
               </div>
-            </HoverCardContent>
-          </HoverCard>
+            </DialogContent>
+          </Dialog>
 
           <Card className="bg-gradient-values border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
