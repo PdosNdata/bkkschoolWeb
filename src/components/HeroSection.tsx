@@ -24,18 +24,44 @@ const HeroSection = () => {
             พร้อมก้าวสู่โลกอนาคต
           </p>
 
-          {/* Video Section */}
+          {/* Activities Layout */}
           <div className="mb-12">
-            <div className="max-w-4xl mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-6 text-center">วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย</h3>
-              <div className="relative aspect-video rounded-xl overflow-hidden shadow-elegant bg-black/20 backdrop-blur-sm border border-white/20">
-                <iframe
-                  src="https://www.youtube.com/embed/ZpWMD-MT5gE"
-                  title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full rounded-xl"
-                />
+            <div className="max-w-6xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-8 text-center">กิจกรรมโครงการด้วยรักและห่วงใย</h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Side - Videos */}
+                <div className="space-y-6">
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                    <h4 className="text-white font-semibold mb-4">วิดีโอนำเสนอกิจกรรม</h4>
+                    <div className="space-y-4">
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <p className="text-white/80 text-sm mb-2">Youtube</p>
+                        <p className="text-white/60 text-xs break-all">https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5</p>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                        <p className="text-white/80 text-sm mb-2">Youtube</p>
+                        <p className="text-white/60 text-xs break-all">https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side - Activity Images Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl p-6 h-32 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-xl p-6 h-32 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงปลา</span>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl p-6 h-32 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกมะนาวหน่อง</span>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-xl p-6 h-32 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหญ้า</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
