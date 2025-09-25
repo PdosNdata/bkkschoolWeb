@@ -57,7 +57,7 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">                   กิจกรรมปลูกข้าวแปลงนาสาธิตในแปลงนาสาธิต</h5>
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">                   กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
                       <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
