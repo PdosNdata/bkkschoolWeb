@@ -36,7 +36,7 @@ const HeroSection = () => {
                     <h4 className="text-white font-semibold mb-4">วิดีโอนำเสนอกิจกรรม</h4>
                   <div className="space-y-4">
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                      <div className="relative w-[120px] h-[480px] rounded-xl overflow-hidden">
+                      <div className="relative w-20 h-[60px] rounded-xl overflow-hidden">
                         <iframe
                           src="https://www.youtube.com/embed/ZpWMD-MT5gE"
                           title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
@@ -48,7 +48,7 @@ const HeroSection = () => {
                     </div>
                     
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                      <div className="relative w-[120px] h-[480px] rounded-xl overflow-hidden">
+                      <div className="relative w-20 h-[60px] rounded-xl overflow-hidden">
                         <iframe
                           src="https://www.youtube.com/embed/j6yxlI3ShdQ"
                           title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
