@@ -80,11 +80,11 @@ const HeroSection = () => {
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm bg-amber-600">ภาพกิจกรรมปลูกมะนาวหน่อง</span>
+                      <span className="text-white font-medium text-center text-sm bg-amber-600">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
-                    <div className="p-3">
-                      <h5 className="text-white font-medium text-sm mb-1 bg-blue-600">กิจกรรมปลูกมะนาวหน่อง</h5>
-                      <p className="text-white/70 text-xs mb-2">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                    <div className="p-3 bg-white">
+                      <h5 className="text-white mb-1 font-medium text-sm">กิจกรรมปลูกมะนาววงบ่อ</h5>
+                      <p className="text-white/70 mb-2 text-xs">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
                         อ่านต่อ →
                       </button>
@@ -93,10 +93,10 @@ const HeroSection = () => {
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหญ้า</span>
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหมู่ป่า</span>
                     </div>
-                    <div className="p-3">
-                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงหญ้า</h5>
+                    <div className="p-3 bg-zinc-50">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
                       <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
                         อ่านต่อ →
