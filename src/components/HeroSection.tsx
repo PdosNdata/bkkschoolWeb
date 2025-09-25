@@ -63,7 +63,7 @@ const HeroSection = () => {
                 </div>
 
                 {/* Right Side - Activity Images Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
@@ -111,6 +111,59 @@ const HeroSection = () => {
                       <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงหญ้า</h5>
                       <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Additional 4 activities with purple header on white background */}
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
+                    </div>
+                    <div className="p-3 bg-purple-600">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกข้าว</h5>
+                      <p className="text-white/90 text-xs mb-2">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงปลา</span>
+                    </div>
+                    <div className="p-3 bg-purple-600">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงปลา</h5>
+                      <p className="text-white/90 text-xs mb-2">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมทำสวนผัก</span>
+                    </div>
+                    <div className="p-3 bg-purple-600">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมทำสวนผัก</h5>
+                      <p className="text-white/90 text-xs mb-2">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรียน</p>
+                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมหัตถกรรม</span>
+                    </div>
+                    <div className="p-3 bg-purple-600">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมหัตถกรรม</h5>
+                      <p className="text-white/90 text-xs mb-2">สร้างสรรค์งานหัตถกรรมจากวัสดุท้องถิ่น</p>
+                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
