@@ -56,7 +56,7 @@ const HeroSection = () => {
                     <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center bg-slate-50">
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
                     </div>
-                    <div className="p-3">
+                    <div className="p-3 bg-slate-50">
                       <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกข้าว</h5>
                       <p className="text-white/70 text-xs mb-2">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
