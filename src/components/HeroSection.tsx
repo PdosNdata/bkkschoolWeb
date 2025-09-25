@@ -69,8 +69,8 @@ const HeroSection = () => {
                     <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm bg-amber-600">ภาพกิจกรรมเลี้ยงปลา</span>
                     </div>
-                    <div className="p-3">
-                      <h5 className="text-white font-medium text-sm mb-1 bg-blue-600">กิจกรรมเลี้ยงปลา</h5>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1  text-zinc-50">กิจกรรมเลี้ยงปลา</h5>
                       <p className="text-white/70 text-xs mb-2">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
                         อ่านต่อ →
@@ -83,7 +83,7 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm bg-amber-600">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="text-white mb-1 font-medium text-sm">กิจกรรมปลูกมะนาววงบ่อ</h5>
+                      <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
                       <p className="text-white/70 mb-2 text-xs">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
                         อ่านต่อ →
