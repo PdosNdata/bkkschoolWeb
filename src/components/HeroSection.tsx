@@ -9,7 +9,7 @@ const HeroSection = () => {
       backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
     }}></div>
       
-      <div className="container mx-auto px-4 py-20 relative">
+      <div className="container mx-auto px-4 py-20 relative bg-[#9957e1]">
         <div className="text-center mb-12">
           
           
@@ -37,25 +37,13 @@ const HeroSection = () => {
                   <div className="space-y-4">
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
-                        <iframe
-                          src="https://www.youtube.com/embed/ZpWMD-MT5gE"
-                          title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="absolute inset-0 w-full h-full rounded-xl"
-                        />
+                        <iframe src="https://www.youtube.com/embed/ZpWMD-MT5gE" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
                       </div>
                     </div>
                     
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
-                        <iframe
-                          src="https://youtu.be/j6yxIl3ShdQ?si=_EAjLQIMDFxGHsH5"
-                          title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="absolute inset-0 w-full h-full rounded-xl"
-                        />
+                        <iframe src="https://youtu.be/j6yxIl3ShdQ?si=_EAjLQIMDFxGHsH5" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
                       </div>
                     </div>
                   </div>
@@ -111,59 +99,6 @@ const HeroSection = () => {
                       <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงหญ้า</h5>
                       <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
                       <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Additional 4 activities with purple header on white background */}
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-white flex items-center justify-center">
-                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
-                    </div>
-                    <div className="p-3 bg-purple-600">
-                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกข้าว</h5>
-                      <p className="text-white/90 text-xs mb-2">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
-                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-white flex items-center justify-center">
-                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงปลา</span>
-                    </div>
-                    <div className="p-3 bg-purple-600">
-                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงปลา</h5>
-                      <p className="text-white/90 text-xs mb-2">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
-                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-white flex items-center justify-center">
-                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมทำสวนผัก</span>
-                    </div>
-                    <div className="p-3 bg-purple-600">
-                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมทำสวนผัก</h5>
-                      <p className="text-white/90 text-xs mb-2">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรียน</p>
-                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-white flex items-center justify-center">
-                      <span className="text-purple-600 font-medium text-center text-sm">ภาพกิจกรรมหัตถกรรม</span>
-                    </div>
-                    <div className="p-3 bg-purple-600">
-                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมหัตถกรรม</h5>
-                      <p className="text-white/90 text-xs mb-2">สร้างสรรค์งานหัตถกรรมจากวัสดุท้องถิ่น</p>
-                      <button className="text-blue-200 text-xs hover:text-blue-100 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
