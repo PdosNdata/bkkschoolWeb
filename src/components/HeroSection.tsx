@@ -54,10 +54,10 @@ const HeroSection = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-green-300 to-green-600 flex items-center justify-center bg-slate-50 rounded-none">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-600">กิจกรรมปลูกข้าว</h5>
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิตในแปลงนาสาธิต</h5>
                       <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
@@ -67,10 +67,10 @@ const HeroSection = () => {
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
-                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลา</span>
+                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลาดุกในบ่อซีเมนต์</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลา</h5>
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาในบ่อซีเมนต์</h5>
                       <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
