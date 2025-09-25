@@ -33,7 +33,7 @@ const HeroSection = () => {
                 {/* Left Side - Videos */}
                 <div className="space-y-6">
                   <div className="backdrop-blur-md rounded-xl p-6 border border-white/20 bg-fuchsia-200">
-                    <h4 className="text-white font-semibold mb-4">วิดีโอนำเสนอกิจกรรม</h4>
+                    <h4 className="font-semibold mb-4 text-blue-800">วิดีโอนำเสนอกิจกรรม</h4>
                   <div className="space-y-4">
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
