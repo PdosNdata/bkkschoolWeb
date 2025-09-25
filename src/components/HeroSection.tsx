@@ -50,7 +50,7 @@ const HeroSection = () => {
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
                         <iframe
-                          src="https://www.youtube.com/embed/j6yxlI3ShdQ"
+                          src="https://youtu.be/j6yxIl3ShdQ"
                           title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
