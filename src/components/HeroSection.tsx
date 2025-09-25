@@ -66,13 +66,13 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm bg-amber-600">ภาพกิจกรรมเลี้ยงปลา</span>
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
+                      <span className="font-medium text-center text-sm bg-amber-600 text-slate-50">ภาพกิจกรรมเลี้ยงปลา</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1  text-zinc-50">กิจกรรมเลี้ยงปลา</h5>
-                      <p className="text-white/70 text-xs mb-2">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
-                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลา</h5>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
                     </div>
@@ -85,7 +85,7 @@ const HeroSection = () => {
                     <div className="p-3 bg-white">
                       <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
                       <p className="text-white/70 mb-2 text-xs">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
-                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                      <button className="text-xs transition-colors text-gray-700">
                         อ่านต่อ →
                       </button>
                     </div>
@@ -98,7 +98,7 @@ const HeroSection = () => {
                     <div className="p-3 bg-zinc-50">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
                       <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
-                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                      <button className="text-xs transition-colors text-gray-800">
                         อ่านต่อ →
                       </button>
                     </div>
