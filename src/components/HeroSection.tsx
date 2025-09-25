@@ -67,7 +67,7 @@ const HeroSection = () => {
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
-                      <span className="font-medium text-center text-sm bg-amber-600 text-slate-50">ภาพกิจกรรมเลี้ยงปลา</span>
+                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลา</span>
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลา</h5>
