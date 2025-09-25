@@ -35,13 +35,27 @@ const HeroSection = () => {
                   <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
                     <h4 className="text-white font-semibold mb-4">วิดีโอนำเสนอกิจกรรม</h4>
                     <div className="space-y-4">
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors">
                         <p className="text-white/80 text-sm mb-2">Youtube</p>
-                        <p className="text-white/60 text-xs break-all">https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5</p>
+                        <a 
+                          href="https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-300 hover:text-blue-200 text-xs break-all underline decoration-blue-300/50 hover:decoration-blue-200"
+                        >
+                          https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5
+                        </a>
                       </div>
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors">
                         <p className="text-white/80 text-sm mb-2">Youtube</p>
-                        <p className="text-white/60 text-xs break-all">https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD</p>
+                        <a 
+                          href="https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-300 hover:text-blue-200 text-xs break-all underline decoration-blue-300/50 hover:decoration-blue-200"
+                        >
+                          https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD
+                        </a>
                       </div>
                     </div>
                   </div>
