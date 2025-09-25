@@ -103,6 +103,58 @@ const HeroSection = () => {
                       </button>
                     </div>
                   </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">กิจกรรมทำสวนครัว</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมทำสวนครัว</h5>
+                      <p className="text-white/70 text-xs mb-2">ปลูกผักสวนครัวเพื่อการบริโภคในโรงเรียน</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">กิจกรรมเลี้ยงไก่</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงไก่</h5>
+                      <p className="text-white/70 text-xs mb-2">เรียนรู้การเลี้ยงไก่และการดูแลสัตว์ปีก</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">กิจกรรมทำปุ่ย</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมทำปุ่ย</h5>
+                      <p className="text-white/70 text-xs mb-2">สร้างปุ่ยหมักจากเศษใบไม้และวัสดุธรรมชาติ</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-white flex items-center justify-center">
+                      <span className="text-purple-600 font-medium text-center text-sm">กิจกรรมปลูกผลไม้</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกผลไม้</h5>
+                      <p className="text-white/70 text-xs mb-2">ปลูกและดูแลต้นผลไม้ท้องถิ่น</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
