@@ -35,28 +35,57 @@ const HeroSection = () => {
                   <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
                     <h4 className="text-white font-semibold mb-4">วิดีโอนำเสนอกิจกรรม</h4>
                     <div className="space-y-4">
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors">
-                        <p className="text-white/80 text-sm mb-2">Youtube</p>
-                        <a 
-                          href="https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-300 hover:text-blue-200 text-xs break-all underline decoration-blue-300/50 hover:decoration-blue-200"
-                        >
-                          https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5
-                        </a>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors">
-                        <p className="text-white/80 text-sm mb-2">Youtube</p>
-                        <a 
-                          href="https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-300 hover:text-blue-200 text-xs break-all underline decoration-blue-300/50 hover:decoration-blue-200"
-                        >
-                          https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD
-                        </a>
-                      </div>
+                      <a 
+                        href="https://youtu.be/ZpWMD-MT5gE?si=hwRERNwzD3k837b5" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors group"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="relative w-24 h-16 rounded overflow-hidden flex-shrink-0">
+                            <img 
+                              src="https://img.youtube.com/vi/ZpWMD-MT5gE/hqdefault.jpg" 
+                              alt="YouTube Video Thumbnail"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                              <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                                <div className="w-0 h-0 border-l-[6px] border-l-white border-y-[3px] border-y-transparent ml-0.5"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white/80 text-sm mb-1">YouTube Video</p>
+                            <p className="text-blue-300 group-hover:text-blue-200 text-xs">กิจกรรมโครงการด้วยรักและห่วงใย</p>
+                          </div>
+                        </div>
+                      </a>
+                      
+                      <a 
+                        href="https://youtu.be/j6yxlI3ShdQ?si=xHz7h_CheqWF41BD" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors group"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="relative w-24 h-16 rounded overflow-hidden flex-shrink-0">
+                            <img 
+                              src="https://img.youtube.com/vi/j6yxlI3ShdQ/hqdefault.jpg" 
+                              alt="YouTube Video Thumbnail"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                              <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                                <div className="w-0 h-0 border-l-[6px] border-l-white border-y-[3px] border-y-transparent ml-0.5"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white/80 text-sm mb-1">YouTube Video</p>
+                            <p className="text-blue-300 group-hover:text-blue-200 text-xs">กิจกรรมโครงการด้วยรักและห่วงใย</p>
+                          </div>
+                        </div>
+                      </a>
                     </div>
                   </div>
                 </div>
