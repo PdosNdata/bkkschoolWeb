@@ -92,17 +92,56 @@ const HeroSection = () => {
 
                 {/* Right Side - Activity Images Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl p-6 h-32 flex items-center justify-center">
-                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าว</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกข้าว</h5>
+                      <p className="text-white/70 text-xs mb-2">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
                   </div>
-                  <div className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-xl p-6 h-32 flex items-center justify-center">
-                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงปลา</span>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงปลา</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงปลา</h5>
+                      <p className="text-white/70 text-xs mb-2">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
                   </div>
-                  <div className="bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl p-6 h-32 flex items-center justify-center">
-                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกมะนาวหน่อง</span>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกมะนาวหน่อง</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมปลูกมะนาวหน่อง</h5>
+                      <p className="text-white/70 text-xs mb-2">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
                   </div>
-                  <div className="bg-gradient-to-br from-pink-500 to-pink-700 rounded-xl p-6 h-32 flex items-center justify-center">
-                    <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหญ้า</span>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหญ้า</span>
+                    </div>
+                    <div className="p-3">
+                      <h5 className="text-white font-medium text-sm mb-1">กิจกรรมเลี้ยงหญ้า</h5>
+                      <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
+                      <button className="text-blue-300 text-xs hover:text-blue-200 transition-colors">
+                        อ่านต่อ →
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
