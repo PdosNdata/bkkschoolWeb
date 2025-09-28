@@ -57,8 +57,12 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
-                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม
+
+
+
+                    </p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -71,7 +75,8 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล
+                    </p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -170,33 +175,33 @@ const HeroSection = () => {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-white/20 backdrop-blur-md hover:bg-white/90 transition-all duration-300 hover:scale-105">
+          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-primary font-semibold mb-2">หลักสูตรทันสมัย</h3>
-              <p className="text-primary/80 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
+              <h3 className="text-white font-semibold mb-2">หลักสูตรทันสมัย</h3>
+              <p className="text-white/80 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-white/20 backdrop-blur-md hover:bg-white/90 transition-all duration-300 hover:scale-105">
+          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-primary font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-primary/80 text-sm">ทีมงานที่มีประสบการณ์</p>
+              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+              <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-white/20 backdrop-blur-md hover:bg-white/90 transition-all duration-300 hover:scale-105">
+          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-primary font-bold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-primary/80 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
+              <h3 className="text-white font-semibold mb-2">ผลงานที่โดดเด่น</h3>
+              <p className="text-white/80 text-sm">รางวัลผลงานของโรงเรียน</p>
             </CardContent>
           </Card>
 
