@@ -84,7 +84,7 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
-                      <p className="text-white/70 mb-2 text-xs">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
                       <button className="text-xs transition-colors text-gray-700">
                         อ่านต่อ →
                       </button>
@@ -95,9 +95,61 @@ const HeroSection = () => {
                     <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหมู่ป่า</span>
                     </div>
-                    <div className="p-3 bg-zinc-50">
+                    <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
-                      <p className="text-white/70 text-xs mb-2">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลหญ้าสำหรับอาหารสัตว์</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกผักในโรงเรือน</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกผักในโรงเรือน</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรือน</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมทำปุ่ยชีวภาพ</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมทำปุ่ยชีวภาพ</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การทำปุ่ยชีวภาพจากวัสดุเหลือใช้</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงไก่พื้นเมือง</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงไก่พื้นเมือง</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงไก่พื้นเมืองแบบธรรมชาติ</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไผ่</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์</p>
                       <button className="text-xs transition-colors text-gray-800">
                         อ่านต่อ →
                       </button>
