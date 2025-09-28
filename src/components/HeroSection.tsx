@@ -2,18 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
-import { Link } from "react-router-dom";
-
-// Import activity images
-import riceFarmingImage from "@/assets/activity-rice-farming.png";
-import fishFarmingImage from "@/assets/activity-fish-farming.png";
-import limeFarmingImage from "@/assets/activity-lime-farming.png";
-import pigFarmingImage from "@/assets/activity-pig-farming.png";
-import vegetableFarmingImage from "@/assets/activity-vegetable-farming.png";
-import fruitFarmingImage from "@/assets/activity-fruit-farming.png";
-import poultryFarmingImage from "@/assets/activity-poultry-farming.png";
-import bambooConservationImage from "@/assets/activity-bamboo-conservation.png";
-import sufficiencyEconomyImage from "@/assets/activity-sufficiency-economy.png";
 const HeroSection = () => {
   return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
       {/* Background decorative elements */}
@@ -62,116 +50,115 @@ const HeroSection = () => {
                   </div>
                 </div>
 
-                {/* Right Side - Activity Images Grid - 3 columns x 3 rows */}
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Row 1 */}
-                  {/* Card 1 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-green-300 to-green-600 relative overflow-hidden">
-                      <img src={riceFarmingImage} alt="กิจกรรมปลูกข้าวแปลงนาสาธิต" className="absolute inset-0 w-full h-full object-cover" />
+                {/* Right Side - Activity Images Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-green-300 to-green-600 flex items-center justify-center bg-slate-50 rounded-none">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-green-100 text-green-800 text-xs mb-2">การเกษตร</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
-                    </div>
-                  </div>
-                  
-                  {/* Card 2 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-blue-400 to-blue-600 relative overflow-hidden">
-                      <img src={fishFarmingImage} alt="กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์" className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs mb-2">การประมง</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      <button className="text-xs transition-colors text-slate-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 3 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-orange-400 to-orange-600 relative overflow-hidden">
-                      <img src={limeFarmingImage} alt="กิจกรรมปลูกมะนาววงบ่อ" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
+                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลาดุกกบในบ่อซีเมนต์</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-orange-100 text-orange-800 text-xs mb-2">สวนผลไม้</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมปลูกมะนาววงบ่อ</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
-                    </div>
-                  </div>
-                  
-                  {/* Row 2 */}
-                  {/* Card 4 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-purple-400 to-purple-600 relative overflow-hidden">
-                      <img src={pigFarmingImage} alt="กิจกรรมเลี้ยงหมูป่า" className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-purple-100 text-purple-800 text-xs mb-2">ปศุสัตว์</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมเลี้ยงหมูป่า</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-xs transition-colors text-slate-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 5 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-red-400 to-red-600 relative overflow-hidden">
-                      <img src={vegetableFarmingImage} alt="กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                      <span className="font-medium text-center text-sm bg-amber-600 text-white">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-red-100 text-red-800 text-xs mb-2">สวนผัก</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
-                    </div>
-                  </div>
-                  
-                  {/* Card 6 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-pink-400 to-pink-600 relative overflow-hidden">
-                      <img src={fruitFarmingImage} alt="กิจกรรมปลูกไม้ผล" className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-pink-100 text-pink-800 text-xs mb-2">สวนผลไม้</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมปลูกไม้ผล</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
+                    <div className="p-3 bg-white">
+                      <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
+                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <button className="text-xs transition-colors text-gray-700">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Row 3 - Same size as other cards */}
-                  {/* Card 7 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-teal-400 to-teal-600 relative overflow-hidden">
-                      <img src={poultryFarmingImage} alt="กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหมูป่า</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-teal-100 text-teal-800 text-xs mb-2">ปศุสัตว์</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
-                    </div>
-                  </div>
-                  
-                  {/* Card 8 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 relative overflow-hidden">
-                      <img src={bambooConservationImage} alt="กิจกรรมอนุรักษ์ป่าไผ่" className="absolute inset-0 w-full h-full object-cover" />
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-indigo-100 text-indigo-800 text-xs mb-2">อนุรักษ์</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมอนุรักษ์ป่าไผ่</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงหมูป่า
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 9 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 relative overflow-hidden">
-                      <img src={sufficiencyEconomyImage} alt="กิจกรรมเศรษฐกิจพอเพียง" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-yellow-100 text-yellow-800 text-xs mb-2">เศรษฐกิจ</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมเศรษฐกิจพอเพียง</h5>
-                      <Button variant="outline" size="sm" className="w-full text-xs">อ่านต่อ</Button>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรือน</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกไม้ผล</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกไม้ผล</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกไม้ผล
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงไก่พื้นเมืองแบบธรรมชาติ</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไผ่</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -182,7 +169,7 @@ const HeroSection = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -193,17 +180,15 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Link to="/personinschool">
-            <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-                <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+              <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
+            </CardContent>
+          </Card>
 
           <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
@@ -228,5 +213,4 @@ const HeroSection = () => {
       </div>
     </section>;
 };
-
 export default HeroSection;
