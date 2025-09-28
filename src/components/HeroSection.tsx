@@ -79,12 +79,12 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-20 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
                       <span className="font-medium text-center text-sm bg-amber-600 text-white">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
-                    <div className="p-3 bg-white">
+                    {/* <div className="p-3 bg-white">
                       <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
-                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p> */}
                       <button className="text-xs transition-colors text-gray-700">
                         อ่านต่อ →
                       </button>
