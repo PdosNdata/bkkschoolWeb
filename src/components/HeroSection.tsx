@@ -37,13 +37,13 @@ const HeroSection = () => {
                   <div className="space-y-4">
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
-                        <iframe src="https://youtu.be/j6yxI135hdQ?si=F1uSMZ9nhy0-5CEA" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
+                        <iframe src="https://youtu.be/ZpWMD-MT5gE?si=H1cuGFHmyH7DFakW" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
                       </div>
                     </div>
                     
                     <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                       <div className="relative w-[500px] h-[360px] rounded-xl overflow-hidden">
-                       <iframe src="https://youtu.be/j6yxI135hdQ?si=F1uSMZ9nhy0-5CEA" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
+                       <iframe src="https://youtu.be/ZpWMD-MT5gE?si=H1cuGFHmyH7DFakW" title="วิดีโอนำเสนอกิจกรรมโครงการด้วยรักและห่วงใย" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute inset-0 w-full h-full rounded-xl" />
                       </div>
                     </div>
                   </div>
