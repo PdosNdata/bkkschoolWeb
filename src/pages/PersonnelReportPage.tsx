@@ -197,47 +197,7 @@ const PersonnelReportPage = () => {
                     {viewMode === 'grid' ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                         {groupedPersonnel[group].map((person) => (
-                          <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative group">
-                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                    <MoreVertical className="w-4 h-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => window.open(`/personnel-form?id=${person.id}`, '_blank')}>
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    แก้ไข
-                                  </DropdownMenuItem>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        ลบ
-                                      </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                                        <AlertDialogAction 
-                                          onClick={() => handleDeletePersonnel(person.id, person.full_name)}
-                                          className="bg-red-600 hover:bg-red-700"
-                                        >
-                                          ลบ
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                           <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">{" "}
                             <div className="flex flex-col items-center text-center space-y-3">
                               {person.photo_url ? (
                                 <img
@@ -287,90 +247,48 @@ const PersonnelReportPage = () => {
                     ) : (
                       <div className="divide-y divide-gray-200">
                         {groupedPersonnel[group].map((person) => (
-                          <div key={person.id} className="p-4 hover:bg-gray-50 transition-colors group">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4">
-                                {person.photo_url ? (
-                                  <img
-                                    src={person.photo_url}
-                                    alt={person.full_name}
-                                    className="w-12 h-12 rounded-lg object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                                    <UserCheck className="w-6 h-6 text-purple-600" />
-                                  </div>
-                                )}
-                                <div className="flex-1">
-                                  <h4 className="font-semibold text-gray-900">
-                                    {person.full_name}
-                                  </h4>
-                                  {person.position && (
-                                    <p className="text-sm text-purple-600 font-medium">
-                                      {person.position}
-                                    </p>
-                                  )}
-                                  <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
-                                    {person.department && (
-                                      <div className="flex items-center">
-                                        <Building className="w-3 h-3 mr-1" />
-                                        <span>{person.department}</span>
-                                      </div>
-                                    )}
-                                    {person.email && (
-                                      <div className="flex items-center">
-                                        <Mail className="w-3 h-3 mr-1" />
-                                        <span>{person.email}</span>
-                                      </div>
-                                    )}
-                                    {person.phone && (
-                                      <div className="flex items-center">
-                                        <Phone className="w-3 h-3 mr-1" />
-                                        <span>{person.phone}</span>
-                                      </div>
-                                    )}
-                                  </div>
+                          <div key={person.id} className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-4">
+                              {person.photo_url ? (
+                                <img
+                                  src={person.photo_url}
+                                  alt={person.full_name}
+                                  className="w-12 h-12 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                                  <UserCheck className="w-6 h-6 text-purple-600" />
                                 </div>
-                              </div>
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                      <MoreVertical className="w-4 h-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => window.open(`/personnel-form?id=${person.id}`, '_blank')}>
-                                      <Edit className="w-4 h-4 mr-2" />
-                                      แก้ไข
-                                    </DropdownMenuItem>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                          <Trash2 className="w-4 h-4 mr-2" />
-                                          ลบ
-                                        </DropdownMenuItem>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                                          <AlertDialogAction 
-                                            onClick={() => handleDeletePersonnel(person.id, person.full_name)}
-                                            className="bg-red-600 hover:bg-red-700"
-                                          >
-                                            ลบ
-                                          </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                              )}
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900">
+                                  {person.full_name}
+                                </h4>
+                                {person.position && (
+                                  <p className="text-sm text-purple-600 font-medium">
+                                    {person.position}
+                                  </p>
+                                )}
+                                <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                                  {person.department && (
+                                    <div className="flex items-center">
+                                      <Building className="w-3 h-3 mr-1" />
+                                      <span>{person.department}</span>
+                                    </div>
+                                  )}
+                                  {person.email && (
+                                    <div className="flex items-center">
+                                      <Mail className="w-3 h-3 mr-1" />
+                                      <span>{person.email}</span>
+                                    </div>
+                                  )}
+                                  {person.phone && (
+                                    <div className="flex items-center">
+                                      <Phone className="w-3 h-3 mr-1" />
+                                      <span>{person.phone}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
