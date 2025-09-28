@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Import activity images
 import riceFarmingImage from "@/assets/activity-rice-farming.png";
@@ -192,15 +193,17 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
-            </CardContent>
-          </Card>
+          <Link to="/personnel-report">
+            <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+                <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
