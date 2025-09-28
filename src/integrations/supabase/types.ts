@@ -275,6 +275,48 @@ export type Database = {
         }
         Relationships: []
       }
+      personnel: {
+        Row: {
+          additional_details: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          photo_url: string | null
+          position: string | null
+          subject_group: string | null
+          updated_at: string
+        }
+        Insert: {
+          additional_details?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          photo_url?: string | null
+          position?: string | null
+          subject_group?: string | null
+          updated_at?: string
+        }
+        Update: {
+          additional_details?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          photo_url?: string | null
+          position?: string | null
+          subject_group?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

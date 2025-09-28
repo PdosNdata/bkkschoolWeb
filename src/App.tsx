@@ -15,6 +15,8 @@ import MediaFormPage from "./pages/MediaFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
 import AdminPage from "./pages/AdminPage";
+import PersonnelPage from "./pages/PersonnelPage";
+import PersonnelFormPage from "./pages/PersonnelFormPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -170,6 +172,22 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <AdminPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/personnel" 
+                element={
+                  <ProtectedRoute>
+                    <PersonnelPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/personnel-form" 
+                element={
+                  <ProtectedRoute>
+                    <PersonnelFormPage />
                   </ProtectedRoute>
                 } 
               />

@@ -1,0 +1,221 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, UserCheck, Mail, Phone, Building } from "lucide-react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
+interface Personnel {
+  id: string;
+  full_name: string;
+  position: string;
+  department: string;
+  subject_group: string;
+  email: string;
+  phone: string;
+  photo_url: string;
+  additional_details: string;
+  created_at: string;
+}
+
+const PersonnelPage = () => {
+  const [personnel, setPersonnel] = useState<Personnel[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchPersonnel();
+  }, []);
+
+  const fetchPersonnel = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('personnel')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPersonnel(data || []);
+    } catch (error) {
+      console.error('Error fetching personnel:', error);
+      toast({
+        variant: "destructive",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลบุคลากรได้",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPersonnel = personnel.filter(person =>
+    person.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    person.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    person.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    person.subject_group?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-blue-50">
+      <Header />
+      
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">ระบบจัดการข้อมูลบุคลากร</h1>
+              <p className="text-gray-600">จัดการข้อมูลครู อาจารย์ และเจ้าหน้าที่ในสถานศึกษา</p>
+            </div>
+            <Link to="/personnel-form">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                เพิ่มบุคลากรใหม่
+              </Button>
+            </Link>
+          </div>
+
+          {/* Search Section */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="ค้นหาบุคลากร (ชื่อ, ตำแหน่ง, แผนก, กลุ่มสาระฯ)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Personnel List */}
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : (
+            <>
+              {/* Stats */}
+              <div className="mb-6">
+                <Card className="bg-white border-purple-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <UserCheck className="w-5 h-5 text-purple-600" />
+                        <span className="text-sm text-gray-600">
+                          รายการบุคลากร ({filteredPersonnel.length} คน)
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Personnel Grid */}
+              {filteredPersonnel.length === 0 ? (
+                <Card className="text-center py-12">
+                  <CardContent>
+                    <UserCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      {searchTerm ? 'ไม่พบข้อมูลบุคลากร' : 'ยังไม่มีข้อมูลบุคลากร'}
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      {searchTerm 
+                        ? 'ลองค้นหาด้วยคำอื่น หรือเพิ่มบุคลากรใหม่' 
+                        : 'เริ่มต้นเพิ่มข้อมูลบุคลากรใหม่เพื่อจัดการระบบ'
+                      }
+                    </p>
+                    <Link to="/personnel-form">
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                        <Plus className="w-4 h-4 mr-2" />
+                        เพิ่มบุคลากรใหม่
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPersonnel.map((person) => (
+                    <Card key={person.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start space-x-4">
+                          {person.photo_url ? (
+                            <img
+                              src={person.photo_url}
+                              alt={person.full_name}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                              <UserCheck className="w-6 h-6 text-purple-600" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-lg font-semibold text-gray-900 truncate">
+                              {person.full_name}
+                            </CardTitle>
+                            {person.position && (
+                              <p className="text-sm text-purple-600 font-medium">
+                                {person.position}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-2">
+                          {person.department && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Building className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span className="truncate">{person.department}</span>
+                            </div>
+                          )}
+                          {person.subject_group && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <UserCheck className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span className="truncate">{person.subject_group}</span>
+                            </div>
+                          )}
+                          {person.email && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span className="truncate">{person.email}</span>
+                            </div>
+                          )}
+                          {person.phone && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span className="truncate">{person.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                        {person.additional_details && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {person.additional_details}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default PersonnelPage;
