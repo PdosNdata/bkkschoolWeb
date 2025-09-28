@@ -144,38 +144,49 @@ const HeroSection = () => {
                     </div>
                   </div>
                   
-                  {/* Row 3 - Aligned with second YouTube video */}
-                  <div className="relative top-4">
-                    {/* Card 7 */}
-                    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                      <div className="h-24 bg-gradient-to-br from-teal-400 to-teal-600 relative">
-                        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
-                      </div>
-                      <div className="p-3">
-                        <Badge className="bg-teal-100 text-teal-800 text-xs mb-2">ปศุสัตว์</Badge>
-                        <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
-                        <p className="text-xs text-gray-600 flex items-center">
-                          <span className="mr-1">📍</span>
-                          บ้านค้อดอนแคน
-                        </p>
-                      </div>
+                  {/* Row 3 - Same size as other cards */}
+                  {/* Card 7 */}
+                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
+                    <div className="h-24 bg-gradient-to-br from-teal-400 to-teal-600 relative">
+                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                    </div>
+                    <div className="p-3">
+                      <Badge className="bg-teal-100 text-teal-800 text-xs mb-2">ปศุสัตว์</Badge>
+                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
+                      <p className="text-xs text-gray-600 flex items-center">
+                        <span className="mr-1">📍</span>
+                        บ้านค้อดอนแคน
+                      </p>
                     </div>
                   </div>
                   
-                  <div className="relative top-4">
-                    {/* Card 8 */}
-                    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                      <div className="h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 relative">
-                        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
-                      </div>
-                      <div className="p-3">
-                        <Badge className="bg-indigo-100 text-indigo-800 text-xs mb-2">อนุรักษ์</Badge>
-                        <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมอนุรักษ์ป่าไผ่</h5>
-                        <p className="text-xs text-gray-600 flex items-center">
-                          <span className="mr-1">📍</span>
-                          บ้านค้อดอนแคน
-                        </p>
-                      </div>
+                  {/* Card 8 */}
+                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
+                    <div className="h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 relative">
+                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                    </div>
+                    <div className="p-3">
+                      <Badge className="bg-indigo-100 text-indigo-800 text-xs mb-2">อนุรักษ์</Badge>
+                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมอนุรักษ์ป่าไผ่</h5>
+                      <p className="text-xs text-gray-600 flex items-center">
+                        <span className="mr-1">📍</span>
+                        บ้านค้อดอนแคน
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Card 9 */}
+                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
+                    <div className="h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 relative">
+                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                    </div>
+                    <div className="p-3">
+                      <Badge className="bg-yellow-100 text-yellow-800 text-xs mb-2">เศรษฐกิจ</Badge>
+                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเศรษฐกิจพอเพียง</h5>
+                      <p className="text-xs text-gray-600 flex items-center">
+                        <span className="mr-1">📍</span>
+                        บ้านค้อดอนแคน
+                      </p>
                     </div>
                   </div>
                 </div>
