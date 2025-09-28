@@ -57,12 +57,8 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      
-                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม
-
-
-
-                    </p>
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -75,8 +71,7 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล
-                    </p>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -157,8 +152,8 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไผ่</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไม้เศรษฐกิจ
 
                     </p>
                       <button className="text-xs transition-colors text-gray-800">
@@ -201,7 +196,7 @@ const HeroSection = () => {
                 <Award className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-white font-semibold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-white/80 text-sm">รางวัลผลงานของโรงเรียน</p>
+              <p className="text-white/80 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
             </CardContent>
           </Card>
 
