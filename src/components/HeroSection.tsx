@@ -193,7 +193,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Link to="/personnel-report">
+          <Link to="/personinschool">
             <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer">
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

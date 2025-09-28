@@ -18,6 +18,7 @@ import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
+import PersonnelInSchool from "./pages/PersonnelInSchool";
 import NotFound from "./pages/NotFound";
 
 
@@ -160,6 +161,7 @@ const App = () => {
                 } 
               />
               <Route path="/activities" element={<AllActivitiesPage />} />
+              <Route path="/personinschool" element={<PersonnelInSchool />} />
               <Route 
                 path="/media-form" 
                 element={
