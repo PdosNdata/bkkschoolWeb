@@ -50,8 +50,8 @@ const HeroSection = () => {
                   </div>
                 </div>
 
-                {/* Right Side - Activity Images Grid - 3 columns x 3 rows */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* Right Side - Activity Images Grid - 2 columns x 4 rows */}
+                <div className="grid grid-cols-2 gap-4">
                   {/* Card 1 */}
                   <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-green-300 to-green-600 relative">
@@ -171,23 +171,8 @@ const HeroSection = () => {
                       </p>
                     </div>
                   </div>
-                  </div>
-                  
-                  {/* Card 9 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-emerald-400 to-emerald-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
-                    </div>
-                    <div className="p-4">
-                      <Badge className="bg-emerald-100 text-emerald-800 text-xs mb-2">การเรียนรู้</Badge>
-                      <h5 className="font-medium text-sm mb-2 text-gray-900">กิจกรรมเรียนรู้ภูมิปัญญาท้องถิ่น</h5>
-                      <p className="text-xs text-gray-600 mb-2 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
-                    </div>
-                  </div>
                 </div>
+              </div>
             </div>
           </div>
           
