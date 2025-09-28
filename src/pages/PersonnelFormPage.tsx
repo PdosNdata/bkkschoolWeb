@@ -169,7 +169,7 @@ const PersonnelFormPage = () => {
                         <img 
                           src={photoPreview} 
                           alt="Preview" 
-                          className="w-24 h-24 rounded-lg object-cover mx-auto"
+                          className="max-w-32 max-h-32 rounded-lg object-contain mx-auto"
                         />
                         <Button
                           type="button"
