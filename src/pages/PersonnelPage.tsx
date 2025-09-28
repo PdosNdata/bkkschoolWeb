@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, UserCheck, Mail, Phone, Building, FileText, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, UserCheck, Mail, Phone, Building, FileText, Edit, Trash2, User } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -189,7 +189,7 @@ const PersonnelPage = () => {
                             />
                           ) : (
                             <div className="w-16 h-16 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                              <UserCheck className="w-8 h-8 text-purple-600" />
+                              <User className="w-8 h-8 text-purple-600" />
                             </div>
                           )}
                           
