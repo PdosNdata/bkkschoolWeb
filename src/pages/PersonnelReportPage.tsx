@@ -148,43 +148,43 @@ const PersonnelReportPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                       {groupedPersonnel[group].map((person) => (
                         <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="flex items-start space-x-3">
+                          <div className="flex flex-col items-center text-center space-y-3">
                             {person.photo_url ? (
                               <img
                                 src={person.photo_url}
                                 alt={person.full_name}
-                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                className="w-20 h-20 rounded-lg object-cover"
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                                <UserCheck className="w-6 h-6 text-purple-600" />
+                              <div className="w-20 h-20 rounded-lg bg-purple-100 flex items-center justify-center">
+                                <UserCheck className="w-10 h-10 text-purple-600" />
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-gray-900 truncate text-sm">
+                            <div className="w-full">
+                              <h4 className="font-semibold text-gray-900 text-sm mb-1">
                                 {person.full_name}
                               </h4>
                               {person.position && (
-                                <p className="text-sm text-purple-600 font-medium">
+                                <p className="text-sm text-purple-600 font-medium mb-2">
                                   {person.position}
                                 </p>
                               )}
-                              <div className="mt-2 space-y-1">
+                              <div className="space-y-1 text-left">
                                 {person.department && (
                                   <div className="flex items-center text-xs text-gray-600">
-                                    <Building className="w-3 h-3 mr-1 flex-shrink-0" />
+                                    <Building className="w-3 h-3 mr-2 flex-shrink-0" />
                                     <span className="truncate">{person.department}</span>
                                   </div>
                                 )}
                                 {person.email && (
                                   <div className="flex items-center text-xs text-gray-600">
-                                    <Mail className="w-3 h-3 mr-1 flex-shrink-0" />
+                                    <Mail className="w-3 h-3 mr-2 flex-shrink-0" />
                                     <span className="truncate">{person.email}</span>
                                   </div>
                                 )}
                                 {person.phone && (
                                   <div className="flex items-center text-xs text-gray-600">
-                                    <Phone className="w-3 h-3 mr-1 flex-shrink-0" />
+                                    <Phone className="w-3 h-3 mr-2 flex-shrink-0" />
                                     <span className="truncate">{person.phone}</span>
                                   </div>
                                 )}
