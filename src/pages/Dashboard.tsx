@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings } from "lucide-react";
+import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -77,6 +77,14 @@ const Dashboard = () => {
     iconColor: "text-orange-600",
     href: "/media-form",
     roles: ["teacher", "admin"]
+  }, {
+    title: "ระบบบุคลากร",
+    description: "จัดการข้อมูลครู อาจารย์ และเจ้าหน้าที่",
+    icon: UserCheck,
+    color: "bg-teal-50 border-teal-200",
+    iconColor: "text-teal-600",
+    href: "/personnel",
+    roles: ["admin"]
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",
