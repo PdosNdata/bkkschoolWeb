@@ -168,9 +168,13 @@ const HeroSection = () => {
                       <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
 
                     </p>
-                      <button className="text-xs transition-colors text-gray-800">
-                        อ่านต่อ →
-                      </button>
+                      <button className="text-xs transition-colors text-gray-800">ภาพกิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจเรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์ อ่านต่อ →
+
+เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
+
+
+
+อ่านต่อ →</button>
                     </div>
                   </div>
                 </div>
