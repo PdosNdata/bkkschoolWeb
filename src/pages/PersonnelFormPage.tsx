@@ -111,7 +111,10 @@ const PersonnelFormPage = () => {
         .from('avatars')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
@@ -120,6 +123,11 @@ const PersonnelFormPage = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading photo:', error);
+      toast({
+        variant: "destructive",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอัปโหลดรูปภาพได้",
+      });
       return null;
     }
   };
