@@ -157,7 +157,14 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">ภาพกิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ
+กิจกรรมอนุรักษ์ป่าไผ่
+
+เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
+
+
+
+อ่านต่อ →</h5>
                       <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
 
                     </p>
