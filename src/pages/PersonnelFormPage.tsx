@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload, Star } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
@@ -15,9 +15,15 @@ import Footer from "@/components/Footer";
 const PersonnelFormPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const personnelId = searchParams.get('id');
+  const isEditing = !!personnelId;
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -28,6 +34,51 @@ const PersonnelFormPage = () => {
     phone: '',
     additionalDetails: ''
   });
+
+  useEffect(() => {
+    if (isEditing && personnelId) {
+      fetchPersonnelData(personnelId);
+    }
+  }, [isEditing, personnelId]);
+
+  const fetchPersonnelData = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('personnel')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setFormData({
+          fullName: data.full_name || '',
+          position: data.position || '',
+          department: data.department || '',
+          subjectGroup: data.subject_group || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          additionalDetails: data.additional_details || ''
+        });
+        
+        if (data.photo_url) {
+          setCurrentPhotoUrl(data.photo_url);
+          setPhotoPreview(data.photo_url);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching personnel data:', error);
+      toast({
+        variant: "destructive",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลบุคลากรได้",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (name: string, value: string) => {
     setFormData(prev => ({
@@ -88,41 +139,54 @@ const PersonnelFormPage = () => {
     setIsSubmitting(true);
 
     try {
-      let photoUrl = null;
+      let photoUrl = currentPhotoUrl;
       
-      // Upload photo if selected
+      // Upload new photo if selected
       if (photoFile) {
         photoUrl = await uploadPhoto(photoFile);
       }
 
-      // Insert personnel data
-      const { error } = await supabase
-        .from('personnel')
-        .insert({
-          full_name: formData.fullName.trim(),
-          position: formData.position.trim() || null,
-          department: formData.department.trim() || null,
-          subject_group: formData.subjectGroup || null,
-          email: formData.email.trim() || null,
-          phone: formData.phone.trim() || null,
-          photo_url: photoUrl,
-          additional_details: formData.additionalDetails.trim() || null
-        });
+      const personnelData = {
+        full_name: formData.fullName.trim(),
+        position: formData.position.trim() || null,
+        department: formData.department.trim() || null,
+        subject_group: formData.subjectGroup || null,
+        email: formData.email.trim() || null,
+        phone: formData.phone.trim() || null,
+        photo_url: photoUrl,
+        additional_details: formData.additionalDetails.trim() || null
+      };
+
+      let error;
+      if (isEditing && personnelId) {
+        // Update existing personnel
+        const result = await supabase
+          .from('personnel')
+          .update(personnelData)
+          .eq('id', personnelId);
+        error = result.error;
+      } else {
+        // Insert new personnel
+        const result = await supabase
+          .from('personnel')
+          .insert(personnelData);
+        error = result.error;
+      }
 
       if (error) throw error;
 
       toast({
         title: "สำเร็จ!",
-        description: "เพิ่มข้อมูลบุคลากรเรียบร้อยแล้ว",
+        description: isEditing ? "แก้ไขข้อมูลบุคลากรเรียบร้อยแล้ว" : "เพิ่มข้อมูลบุคลากรเรียบร้อยแล้ว",
       });
 
       navigate('/personnel');
     } catch (error) {
-      console.error('Error adding personnel:', error);
+      console.error('Error saving personnel:', error);
       toast({
         variant: "destructive",
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเพิ่มข้อมูลบุคลากรได้",
+        description: isEditing ? "ไม่สามารถแก้ไขข้อมูลบุคลากรได้" : "ไม่สามารถเพิ่มข้อมูลบุคลากรได้",
       });
     } finally {
       setIsSubmitting(false);
@@ -138,7 +202,7 @@ const PersonnelFormPage = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">ระบบจัดการข้อมูลบุคลากร</h1>
-            <p className="text-gray-600">เพิ่ม แก้ไข และจัดการข้อมูลบุคลากรในสถานศึกษา</p>
+            <p className="text-gray-600">{isEditing ? 'แก้ไขข้อมูลบุคลากร' : 'เพิ่ม แก้ไข และจัดการข้อมูลบุคลากรในสถานศึกษา'}</p>
           </div>
 
           {/* Form Card */}
@@ -146,11 +210,16 @@ const PersonnelFormPage = () => {
             <CardHeader className="bg-purple-600 text-white rounded-t-lg">
               <CardTitle className="flex items-center">
                 <Star className="w-5 h-5 mr-2 text-yellow-300" />
-                เพิ่มบุคลากรใหม่
+                {isEditing ? 'แก้ไขข้อมูลบุคลากร' : 'เพิ่มบุคลากรใหม่'}
               </CardTitle>
             </CardHeader>
             
             <CardContent className="p-6">
+              {isLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Required Field Note */}
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -171,16 +240,16 @@ const PersonnelFormPage = () => {
                           alt="Preview" 
                           className="max-w-32 max-h-32 rounded-lg object-contain mx-auto"
                         />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setPhotoFile(null);
-                            setPhotoPreview(null);
-                          }}
-                        >
-                          เลือกไฟล์ใหม่
-                        </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setPhotoFile(null);
+                              setPhotoPreview(currentPhotoUrl);
+                            }}
+                          >
+                            {isEditing ? 'เลือกไฟล์ใหม่' : 'เลือกไฟล์ใหม่'}
+                          </Button>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -323,25 +392,27 @@ const PersonnelFormPage = () => {
                     ) : (
                       <>
                         <Star className="w-4 h-4 mr-2" />
-                        เพิ่มบุคลากร
+                        {isEditing ? 'บันทึกการแก้ไข' : 'เพิ่มบุคลากร'}
                       </>
                     )}
                   </Button>
                 </div>
               </form>
+              )}
             </CardContent>
           </Card>
 
-          {/* Empty State */}
-          <Card className="mt-6 bg-gray-50 border-dashed">
-            <CardContent className="p-6 text-center">
-              <p className="text-gray-500 mb-2">รายการบุคลากร (0 คน)</p>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">ยังไม่มีข้อมูลบุคลากร</p>
-                <p className="text-sm text-gray-400">เพิ่มบุคลากรใหม่เพื่อเริ่มต้นใช้งาน</p>
-              </div>
-            </CardContent>
-          </Card>
+          {!isEditing && (
+            <Card className="mt-6 bg-gray-50 border-dashed">
+              <CardContent className="p-6 text-center">
+                <p className="text-gray-500 mb-2">รายการบุคลากร (0 คน)</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400">ยังไม่มีข้อมูลบุคลากร</p>
+                  <p className="text-sm text-gray-400">เพิ่มบุคลากรใหม่เพื่อเริ่มต้นใช้งาน</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 
