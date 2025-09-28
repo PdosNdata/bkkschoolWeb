@@ -57,12 +57,8 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      
-                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม
-
-
-
-                    </p>
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -75,8 +71,7 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล
-                    </p>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -185,7 +180,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/15 border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-orange-white border-white/20 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-white" />
