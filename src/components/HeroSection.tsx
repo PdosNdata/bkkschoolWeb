@@ -153,8 +153,7 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไม้เศรษฐกิจ
-
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไม่เศรษฐกิจ
                     </p>
                       <button className="text-xs transition-colors text-gray-800">
                         อ่านต่อ →
