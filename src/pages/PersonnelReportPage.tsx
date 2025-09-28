@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, FileText, UserCheck, Mail, Phone, Building } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Users, FileText, UserCheck, Mail, Phone, Building, Edit, Trash2, Grid3X3, List, MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +31,7 @@ const PersonnelReportPage = () => {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [groupedPersonnel, setGroupedPersonnel] = useState<GroupedPersonnel>({});
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,6 +73,32 @@ const PersonnelReportPage = () => {
     }
   };
 
+  const handleDeletePersonnel = async (id: string, name: string) => {
+    try {
+      const { error } = await supabase
+        .from('personnel')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "ลบบุคลากรสำเร็จ",
+        description: `ลบข้อมูลของ ${name} แล้ว`,
+      });
+
+      // Refresh data
+      fetchPersonnel();
+    } catch (error) {
+      console.error('Error deleting personnel:', error);
+      toast({
+        variant: "destructive",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถลบข้อมูลบุคลากรได้",
+      });
+    }
+  };
+
   const subjectGroups = Object.keys(groupedPersonnel);
   const totalPersonnel = personnel.length;
 
@@ -89,6 +118,26 @@ const PersonnelReportPage = () => {
                 </p>
               </div>
               <div className="flex gap-3">
+                <div className="flex bg-white/10 rounded-lg border border-white/20 overflow-hidden">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className={`rounded-none border-0 ${viewMode === 'grid' ? 'bg-white text-purple-600' : 'text-white hover:bg-white/20'}`}
+                  >
+                    <Grid3X3 className="w-4 h-4 mr-1" />
+                    การ์ด
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className={`rounded-none border-0 ${viewMode === 'list' ? 'bg-white text-purple-600' : 'text-white hover:bg-white/20'}`}
+                  >
+                    <List className="w-4 h-4 mr-1" />
+                    รายการ
+                  </Button>
+                </div>
                 <Link to="/personnel">
                   <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -145,55 +194,189 @@ const PersonnelReportPage = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-                      {groupedPersonnel[group].map((person) => (
-                        <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="flex flex-col items-center text-center space-y-3">
-                            {person.photo_url ? (
-                              <img
-                                src={person.photo_url}
-                                alt={person.full_name}
-                                className="w-20 h-20 rounded-lg object-cover"
-                              />
-                            ) : (
-                              <div className="w-20 h-20 rounded-lg bg-purple-100 flex items-center justify-center">
-                                <UserCheck className="w-10 h-10 text-purple-600" />
-                              </div>
-                            )}
-                            <div className="w-full">
-                              <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                                {person.full_name}
-                              </h4>
-                              {person.position && (
-                                <p className="text-sm text-purple-600 font-medium mb-2">
-                                  {person.position}
-                                </p>
+                    {viewMode === 'grid' ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                        {groupedPersonnel[group].map((person) => (
+                          <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative group">
+                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => window.open(`/personnel-form?id=${person.id}`, '_blank')}>
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    แก้ไข
+                                  </DropdownMenuItem>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        ลบ
+                                      </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                          onClick={() => handleDeletePersonnel(person.id, person.full_name)}
+                                          className="bg-red-600 hover:bg-red-700"
+                                        >
+                                          ลบ
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                            <div className="flex flex-col items-center text-center space-y-3">
+                              {person.photo_url ? (
+                                <img
+                                  src={person.photo_url}
+                                  alt={person.full_name}
+                                  className="w-20 h-20 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <div className="w-20 h-20 rounded-lg bg-purple-100 flex items-center justify-center">
+                                  <UserCheck className="w-10 h-10 text-purple-600" />
+                                </div>
                               )}
-                              <div className="space-y-1 text-left">
-                                {person.department && (
-                                  <div className="flex items-center text-xs text-gray-600">
-                                    <Building className="w-3 h-3 mr-2 flex-shrink-0" />
-                                    <span className="truncate">{person.department}</span>
-                                  </div>
+                              <div className="w-full">
+                                <h4 className="font-semibold text-gray-900 text-sm mb-1">
+                                  {person.full_name}
+                                </h4>
+                                {person.position && (
+                                  <p className="text-sm text-purple-600 font-medium mb-2">
+                                    {person.position}
+                                  </p>
                                 )}
-                                {person.email && (
-                                  <div className="flex items-center text-xs text-gray-600">
-                                    <Mail className="w-3 h-3 mr-2 flex-shrink-0" />
-                                    <span className="truncate">{person.email}</span>
-                                  </div>
-                                )}
-                                {person.phone && (
-                                  <div className="flex items-center text-xs text-gray-600">
-                                    <Phone className="w-3 h-3 mr-2 flex-shrink-0" />
-                                    <span className="truncate">{person.phone}</span>
-                                  </div>
-                                )}
+                                <div className="space-y-1 text-left">
+                                  {person.department && (
+                                    <div className="flex items-center text-xs text-gray-600">
+                                      <Building className="w-3 h-3 mr-2 flex-shrink-0" />
+                                      <span className="truncate">{person.department}</span>
+                                    </div>
+                                  )}
+                                  {person.email && (
+                                    <div className="flex items-center text-xs text-gray-600">
+                                      <Mail className="w-3 h-3 mr-2 flex-shrink-0" />
+                                      <span className="truncate">{person.email}</span>
+                                    </div>
+                                  )}
+                                  {person.phone && (
+                                    <div className="flex items-center text-xs text-gray-600">
+                                      <Phone className="w-3 h-3 mr-2 flex-shrink-0" />
+                                      <span className="truncate">{person.phone}</span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-200">
+                        {groupedPersonnel[group].map((person) => (
+                          <div key={person.id} className="p-4 hover:bg-gray-50 transition-colors group">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                {person.photo_url ? (
+                                  <img
+                                    src={person.photo_url}
+                                    alt={person.full_name}
+                                    className="w-12 h-12 rounded-lg object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                                    <UserCheck className="w-6 h-6 text-purple-600" />
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900">
+                                    {person.full_name}
+                                  </h4>
+                                  {person.position && (
+                                    <p className="text-sm text-purple-600 font-medium">
+                                      {person.position}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                                    {person.department && (
+                                      <div className="flex items-center">
+                                        <Building className="w-3 h-3 mr-1" />
+                                        <span>{person.department}</span>
+                                      </div>
+                                    )}
+                                    {person.email && (
+                                      <div className="flex items-center">
+                                        <Mail className="w-3 h-3 mr-1" />
+                                        <span>{person.email}</span>
+                                      </div>
+                                    )}
+                                    {person.phone && (
+                                      <div className="flex items-center">
+                                        <Phone className="w-3 h-3 mr-1" />
+                                        <span>{person.phone}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                      <MoreVertical className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => window.open(`/personnel-form?id=${person.id}`, '_blank')}>
+                                      <Edit className="w-4 h-4 mr-2" />
+                                      แก้ไข
+                                    </DropdownMenuItem>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                          <Trash2 className="w-4 h-4 mr-2" />
+                                          ลบ
+                                        </DropdownMenuItem>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                          <AlertDialogAction 
+                                            onClick={() => handleDeletePersonnel(person.id, person.full_name)}
+                                            className="bg-red-600 hover:bg-red-700"
+                                          >
+                                            ลบ
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
