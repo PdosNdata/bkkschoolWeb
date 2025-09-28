@@ -57,8 +57,12 @@ const HeroSection = () => {
                       <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
-                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม
+
+
+
+                    </p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -71,7 +75,8 @@ const HeroSection = () => {
                     </div>
                     <div className="p-3 bg-white">
                       <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล
+                    </p>
                       <button className="text-xs transition-colors text-slate-800">
                         อ่านต่อ →
                       </button>
@@ -149,11 +154,12 @@ const HeroSection = () => {
                   
                   <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไผ่</span>
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</span>
                     </div>
                     <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไม่เศรษฐกิจ
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
+
                     </p>
                       <button className="text-xs transition-colors text-gray-800">
                         อ่านต่อ →
@@ -195,7 +201,7 @@ const HeroSection = () => {
                 <Award className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-white font-semibold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-white/80 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
+              <p className="text-white/80 text-sm">รางวัลผลงานของโรงเรียน</p>
             </CardContent>
           </Card>
 
