@@ -180,13 +180,13 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-primary border-white/20 backdrop-blur-md hover:bg-primary/90 transition-all duration-300 hover:scale-105">
+          <Card className="bg-white border-white/20 backdrop-blur-md hover:bg-white/90 transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-white/80 text-sm">ทีมงานที่มีประสบการณ์</p>
+              <h3 className="text-primary font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+              <p className="text-primary/80 text-sm">ทีมงานที่มีประสบการณ์</p>
             </CardContent>
           </Card>
 
