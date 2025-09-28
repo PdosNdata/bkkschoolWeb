@@ -17,6 +17,7 @@ import AllActivitiesPage from "./pages/AllActivitiesPage";
 import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
+import PersonnelReportPage from "./pages/PersonnelReportPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -188,6 +189,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <PersonnelFormPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/personnel-report" 
+                element={
+                  <ProtectedRoute>
+                    <PersonnelReportPage />
                   </ProtectedRoute>
                 } 
               />

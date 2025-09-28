@@ -73,10 +73,12 @@ const PersonnelPage = () => {
               <p className="text-gray-600">เพิ่ม แก้ไข และจัดการข้อมูลบุคลากรในสถานศึกษา</p>
             </div>
             <div className="flex gap-3">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                <FileText className="w-4 h-4 mr-2" />
-                รายงานบุคลากร
-              </Button>
+              <Link to="/personnel-report">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <FileText className="w-4 h-4 mr-2" />
+                  รายงานบุคลากร
+                </Button>
+              </Link>
               <Link to="/personnel-form">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
