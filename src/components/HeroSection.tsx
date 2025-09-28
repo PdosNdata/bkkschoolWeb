@@ -50,143 +50,115 @@ const HeroSection = () => {
                   </div>
                 </div>
 
-                {/* Right Side - Activity Images Grid - 3 columns x 3 rows */}
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Row 1 */}
-                  {/* Card 1 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-green-300 to-green-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                {/* Right Side - Activity Images Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-green-300 to-green-600 flex items-center justify-center bg-slate-50 rounded-none">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-green-100 text-green-800 text-xs mb-2">การเกษตร</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
+                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      <button className="text-xs transition-colors text-slate-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 2 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-blue-400 to-blue-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
+                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลาดุกกบในบ่อซีเมนต์</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs mb-2">การประมง</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
+                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-xs transition-colors text-slate-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 3 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-orange-400 to-orange-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                      <span className="font-medium text-center text-sm bg-amber-600 text-white">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-orange-100 text-orange-800 text-xs mb-2">สวนผลไม้</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมปลูกมะนาววงบ่อ</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
+                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <button className="text-xs transition-colors text-gray-700">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Row 2 */}
-                  {/* Card 4 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-purple-400 to-purple-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหมูป่า</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-purple-100 text-purple-800 text-xs mb-2">ปศุสัตว์</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเลี้ยงหมูป่า</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Card 5 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-red-400 to-red-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-red-100 text-red-800 text-xs mb-2">สวนผัก</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงหมูป่า
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 6 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-pink-400 to-pink-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-pink-100 text-pink-800 text-xs mb-2">สวนผลไม้</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมปลูกไม้ผล</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรือน</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Row 3 - Same size as other cards */}
-                  {/* Card 7 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-teal-400 to-teal-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกไม้ผล</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-teal-100 text-teal-800 text-xs mb-2">ปศุสัตว์</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Card 8 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-indigo-400 to-indigo-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
-                    </div>
-                    <div className="p-3">
-                      <Badge className="bg-indigo-100 text-indigo-800 text-xs mb-2">อนุรักษ์</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมอนุรักษ์ป่าไผ่</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกไม้ผล</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกไม้ผล
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Card 9 */}
-                  <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
-                    <div className="h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 relative">
-                      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Cpath d=\"M20,20 L80,20 L80,80 L20,80 Z\" fill=\"%23ffffff\" opacity=\"0.1\"/%3E%3C/svg%3E')" }}></div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</span>
                     </div>
-                    <div className="p-3">
-                      <Badge className="bg-yellow-100 text-yellow-800 text-xs mb-2">เศรษฐกิจ</Badge>
-                      <h5 className="font-medium text-sm mb-1 text-gray-900">กิจกรรมเศรษฐกิจพอเพียง</h5>
-                      <p className="text-xs text-gray-600 flex items-center">
-                        <span className="mr-1">📍</span>
-                        บ้านค้อดอนแคน
-                      </p>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงไก่พื้นเมืองแบบธรรมชาติ</p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไม้เศรษฐกิจ</span>
+                    </div>
+                    <div className="p-3 bg-white">
+                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไม่เศรษฐกิจ</h5>
+                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าเศรษฐกิจ
+
+                    </p>
+                      <button className="text-xs transition-colors text-gray-800">
+                        อ่านต่อ →
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -241,5 +213,4 @@ const HeroSection = () => {
       </div>
     </section>;
 };
-
 export default HeroSection;
