@@ -251,12 +251,12 @@ const PersonnelFormPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="คณิตศาสตร์">คณิตศาสตร์</SelectItem>
-                        <SelectItem value="วิทยาศาสตร์">วิทยาศาสตร์</SelectItem>
+                        <SelectItem value="วิทยาศาสตร์และเทคโนโลยี">วิทยาศาสตร์</SelectItem>
                         <SelectItem value="ภาษาไทย">ภาษาไทย</SelectItem>
                         <SelectItem value="ภาษาต่างประเทศ">ภาษาต่างประเทศ</SelectItem>
-                        <SelectItem value="สังคมศึกษา">สังคมศึกษา</SelectItem>
+                        <SelectItem value="สังคมศึกษาศาสนาและวัฒนธรรม">สังคมศึกษา</SelectItem>
                         <SelectItem value="ศิลปะ">ศิลปะ</SelectItem>
-                        <SelectItem value="พลศึกษา">พลศึกษา</SelectItem>
+                        <SelectItem value="สุขศึกษาและพลศึกษา">พลศึกษา</SelectItem>
                         <SelectItem value="การงานอาชีพ">การงานอาชีพ</SelectItem>
                         <SelectItem value="บริหาร">บริหาร</SelectItem>
                         <SelectItem value="สนับสนุน">สนับสนุน</SelectItem>
