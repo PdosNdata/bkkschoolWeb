@@ -19,6 +19,7 @@ import PersonnelPage from "./pages/PersonnelPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
 import PersonnelInSchool from "./pages/PersonnelInSchool";
+import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -199,6 +200,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <PersonnelReportPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/menu-permissions" 
+                element={
+                  <ProtectedRoute>
+                    <MenuPermissionsPage />
                   </ProtectedRoute>
                 } 
               />
