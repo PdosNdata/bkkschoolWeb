@@ -52,111 +52,79 @@ const HeroSection = () => {
 
                 {/* Right Side - Activity Images Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-green-300 to-green-600 flex items-center justify-center bg-slate-50 rounded-none">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
-                      <p className="text-xs mb-2 text-indigo-600">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
-                      <button className="text-xs transition-colors text-slate-800">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมปลูกข้าวแปลงนาสาธิต</h5>
+                      <p className="text-xs mb-3 text-blue-800">นักเรียนเรียนรู้การปลูกข้าวตามแบบดั้งเดิม</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center bg-blue-500">
-                      <span className="font-medium text-center text-sm  text-slate-50">ภาพกิจกรรมเลี้ยงปลาดุกกบในบ่อซีเมนต์</span>
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมเลี้ยงปลาดุกกบในบ่อซีเมนต์</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
-                      <p className="text-xs mb-2 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
-                      <button className="text-xs transition-colors text-slate-800">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมเลี้ยงปลาดุกและกบในบ่อซีเมนต์</h5>
+                      <p className="text-xs mb-3 text-blue-800">เรียนรู้การเลี้ยงปลาในบ่อและการดูแล</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                      <span className="font-medium text-center text-sm bg-amber-600 text-white">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="mb-1 font-medium text-sm text-blue-800">กิจกรรมปลูกมะนาววงบ่อ</h5>
-                      <p className="text-xs mb-2 text-indigo-600">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
-                      <button className="text-xs transition-colors text-gray-700">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมปลูกมะนาววงบ่อ</h5>
+                      <p className="text-xs mb-3 text-blue-800">ปลูกและดูแลมะนาวหน่องตามภูมิปัญญาท้องถิ่น</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงหมูป่า</span>
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมเลี้ยงหมูป่า</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงหมูป่า</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงหมูป่า
-
-                    </p>
-                      <button className="text-xs transition-colors text-gray-800">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมเลี้ยงหมูป่า</h5>
+                      <p className="text-xs mb-3 text-blue-800">เรียนรู้การเลี้ยงหมูป่า</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</span>
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรือน</p>
-                      <button className="text-xs transition-colors text-gray-800">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</h5>
+                      <p className="text-xs mb-3 text-blue-800">เรียนรู้การปลูกผักปลอดสารพิษในโรงเรือน</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <div className="h-32 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมปลูกไม้ผล</span>
+                      <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกไม้ผล</span>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมปลูกไม้ผล</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกไม้ผล
-
-                    </p>
-                      <button className="text-xs transition-colors text-gray-800">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</span>
-                    </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมเลี้ยงไก่ไข่ เป็ด ไก่พันธุ์พื้นเมือง</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การเลี้ยงไก่พื้นเมืองแบบธรรมชาติ</p>
-                      <button className="text-xs transition-colors text-gray-800">
-                        อ่านต่อ →
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
-                      <span className="text-white font-medium text-center text-sm">ภาพกิจกรรมอนุรักษ์ป่าไผ่</span>
-                    </div>
-                    <div className="p-3 bg-white">
-                      <h5 className="font-medium text-sm mb-1 text-blue-800">กิจกรรมอนุรักษ์ป่าไผ่</h5>
-                      <p className="text-xs mb-2 text-indigo-600">เรียนรู้การปลูกและดูแลป่าไผ่เพื่ออนุรักษ์
-
-                    </p>
-                      <button className="text-xs transition-colors text-gray-800">
+                    <div className="p-4 bg-white">
+                      <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมปลูกไม้ผล</h5>
+                      <p className="text-xs mb-3 text-blue-800">เรียนรู้การปลูกไม้ผล</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
                         อ่านต่อ →
                       </button>
                     </div>
