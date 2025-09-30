@@ -235,27 +235,27 @@ const AuthModal = ({
     resetForm();
   };
   return <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[400px] max-h-[90vh] p-0 overflow-hidden bg-gradient-to-br from-purple-400 via-purple-500 to-pink-500">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl m-2 sm:m-4 p-4 sm:p-6 md:p-8 shadow-2xl overflow-y-auto max-h-[calc(90vh-2rem)]">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-gradient-to-br from-purple-400 via-purple-500 to-pink-500">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl m-4 p-8 shadow-2xl">
           {/* User Avatar Icon */}
-          <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-              <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <User className="h-8 w-8 text-white" />
             </div>
           </div>
 
-          <DialogHeader className="text-center mb-4 sm:mb-6">
-            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+          <DialogHeader className="text-center mb-6">
+            <DialogTitle className="text-2xl font-bold text-gray-800 mb-2">
               {isLogin ? "ยินดีต้อนรับ" : "สร้างบัญชีใหม่"}
             </DialogTitle>
-            <DialogDescription className="text-sm sm:text-base text-gray-600">
+            <DialogDescription className="text-gray-600">
               {isLogin ? "กรุณาเข้าสู่ระบบเพื่อเข้าใช้งานต่อ" : "สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบ"}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleEmailAuth} className="space-y-3 sm:space-y-4">
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="email" className="text-sm sm:text-base text-gray-700">ชื่อผู้ใช้</Label>
+          <form onSubmit={handleEmailAuth} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-700">ชื่อผู้ใช้</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input 
@@ -264,14 +264,14 @@ const AuthModal = ({
                   placeholder="กรอกชื่อผู้ใช้" 
                   value={formData.email} 
                   onChange={e => handleInputChange("email", e.target.value)} 
-                  className="pl-10 h-10 sm:h-12 border-gray-200 rounded-lg focus:border-purple-500 text-sm sm:text-base" 
+                  className="pl-10 h-12 border-gray-200 rounded-lg focus:border-purple-500" 
                   required 
                 />
               </div>
             </div>
 
-            <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="password" className="text-sm sm:text-base text-gray-700">รหัสผ่าน</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-gray-700">รหัสผ่าน</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input 
@@ -280,7 +280,7 @@ const AuthModal = ({
                   placeholder="กรอกรหัสผ่าน" 
                   value={formData.password} 
                   onChange={e => handleInputChange("password", e.target.value)} 
-                  className="pl-10 pr-10 h-10 sm:h-12 border-gray-200 rounded-lg focus:border-purple-500 text-sm sm:text-base" 
+                  className="pl-10 pr-10 h-12 border-gray-200 rounded-lg focus:border-purple-500" 
                   required 
                 />
                 <button 
@@ -295,8 +295,8 @@ const AuthModal = ({
 
             {!isLogin && (
               <>
-                <div className="space-y-1 sm:space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm sm:text-base text-gray-700">ยืนยันรหัสผ่าน</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-gray-700">ยืนยันรหัสผ่าน</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input 
@@ -305,30 +305,30 @@ const AuthModal = ({
                       placeholder="ยืนยันรหัสผ่าน" 
                       value={formData.confirmPassword} 
                       onChange={e => handleInputChange("confirmPassword", e.target.value)} 
-                      className="pl-10 h-10 sm:h-12 border-gray-200 rounded-lg focus:border-purple-500 text-sm sm:text-base" 
+                      className="pl-10 h-12 border-gray-200 rounded-lg focus:border-purple-500" 
                       required 
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2 sm:space-y-3">
-                  <Label className="text-sm sm:text-base text-gray-700">ประเภทผู้ใช้</Label>
+                <div className="space-y-3">
+                  <Label className="text-gray-700">ประเภทผู้ใช้</Label>
                   <RadioGroup 
                     value={formData.userType} 
                     onValueChange={(value) => handleInputChange("userType", value)}
-                    className="grid grid-cols-1 gap-2 sm:gap-3"
+                    className="grid grid-cols-1 gap-3"
                   >
-                    <div className="flex items-center space-x-2 p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value="teacher" id="teacher" />
-                      <Label htmlFor="teacher" className="flex-1 cursor-pointer text-sm sm:text-base">ครู</Label>
+                      <Label htmlFor="teacher" className="flex-1 cursor-pointer">ครู</Label>
                     </div>
-                    <div className="flex items-center space-x-2 p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value="student" id="student" />
-                      <Label htmlFor="student" className="flex-1 cursor-pointer text-sm sm:text-base">นักเรียน</Label>
+                      <Label htmlFor="student" className="flex-1 cursor-pointer">นักเรียน</Label>
                     </div>
-                    <div className="flex items-center space-x-2 p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value="guardian" id="guardian" />
-                      <Label htmlFor="guardian" className="flex-1 cursor-pointer text-sm sm:text-base">ผู้ปกครอง</Label>
+                      <Label htmlFor="guardian" className="flex-1 cursor-pointer">ผู้ปกครอง</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -353,7 +353,7 @@ const AuthModal = ({
 
             <Button 
               type="submit" 
-              className="w-full h-10 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium rounded-lg shadow-lg transition-all duration-200 text-sm sm:text-base" 
+              className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium rounded-lg shadow-lg transition-all duration-200" 
               disabled={isLoading}
             >
               {isLoading ? "กำลังดำเนินการ..." : isLogin ? "เข้าระบบ" : "สมัครสมาชิก"}
@@ -374,7 +374,7 @@ const AuthModal = ({
               <Button 
                 type="button" 
                 variant="outline" 
-                className="w-full h-10 sm:h-12 border-gray-200 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base" 
+                className="w-full h-12 border-gray-200 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-3" 
                 onClick={handleGoogleAuth} 
                 disabled={isLoading}
               >

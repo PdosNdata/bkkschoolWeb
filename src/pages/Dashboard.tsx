@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield } from "lucide-react";
+import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -84,14 +84,6 @@ const Dashboard = () => {
     color: "bg-teal-50 border-teal-200",
     iconColor: "text-teal-600",
     href: "/personnel",
-    roles: ["admin"]
-  }, {
-    title: "จัดการสิทธิ์เมนู",
-    description: "กำหนดสิทธิ์การเข้าใช้เมนูต่าง ๆ สำหรับผู้ใช้",
-    icon: Shield,
-    color: "bg-indigo-50 border-indigo-200",
-    iconColor: "text-indigo-600",
-    href: "/menu-permissions",
     roles: ["admin"]
   }, {
     title: "Admin",

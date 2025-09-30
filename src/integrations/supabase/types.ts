@@ -137,6 +137,13 @@ export type Database = {
             referencedRelation: "admission_applications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admission_applications_audit_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "admission_applications_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       admission_sensitive_data: {
@@ -182,6 +189,13 @@ export type Database = {
             columns: ["application_id"]
             isOneToOne: true
             referencedRelation: "admission_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_sensitive_data_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "admission_applications_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -452,7 +466,25 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admission_applications_secure: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          created_at: string | null
+          gpa: string | null
+          grade: string | null
+          id: string | null
+          parent_email: string | null
+          parent_name: string | null
+          parent_phone: string | null
+          previous_school: string | null
+          special_needs: string | null
+          student_id: string | null
+          student_name: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_submission_rate_limit: {
@@ -468,25 +500,6 @@ export type Database = {
         Returns: string
       }
       get_admission_applications_for_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          address: string
-          birth_date: string
-          created_at: string
-          gpa: string
-          grade: string
-          id: string
-          parent_email: string
-          parent_name: string
-          parent_phone: string
-          previous_school: string
-          special_needs: string
-          student_id: string
-          student_name: string
-          updated_at: string
-        }[]
-      }
-      get_admission_applications_secure: {
         Args: Record<PropertyKey, never>
         Returns: {
           address: string

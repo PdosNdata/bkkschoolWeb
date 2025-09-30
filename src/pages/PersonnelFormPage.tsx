@@ -327,7 +327,6 @@ const PersonnelFormPage = () => {
                         <SelectValue placeholder="เลือกกลุ่มสาระการเรียนรู้" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ปฐมวัย">ปฐมวัย</SelectItem>
                         <SelectItem value="คณิตศาสตร์">คณิตศาสตร์</SelectItem>
                         <SelectItem value="วิทยาศาสตร์และเทคโนโลยี">วิทยาศาสตร์และเทคโนโลยี</SelectItem>
                         <SelectItem value="ภาษาไทย">ภาษาไทย</SelectItem>
