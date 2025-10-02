@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 const HeroSection = () => {
+  const navigate = useNavigate();
+  
   return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20" style={{
@@ -148,7 +152,10 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card 
+            className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
+            onClick={() => navigate('/personnel-report')}
+          >
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-purple-700" />
