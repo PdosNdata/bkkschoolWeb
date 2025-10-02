@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, FileText, UserCheck, Mail, Phone, Building, Grid3X3, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,8 @@ const PublicPersonnelReport = () => {
   const [groupedPersonnel, setGroupedPersonnel] = useState<GroupedPersonnel>({});
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,6 +71,11 @@ const PublicPersonnelReport = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePersonnelClick = (person: Personnel) => {
+    setSelectedPersonnel(person);
+    setDialogOpen(true);
   };
 
   const subjectGroups = Object.keys(groupedPersonnel);
@@ -156,7 +164,11 @@ const PublicPersonnelReport = () => {
                     {viewMode === 'grid' ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                         {groupedPersonnel[group].map((person) => (
-                          <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div 
+                            key={person.id} 
+                            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => handlePersonnelClick(person)}
+                          >
                             <div className="flex flex-col items-center text-center space-y-3">
                               {person.photo_url ? (
                                 <img
@@ -206,7 +218,11 @@ const PublicPersonnelReport = () => {
                     ) : (
                       <div className="divide-y divide-gray-200">
                         {groupedPersonnel[group].map((person) => (
-                          <div key={person.id} className="p-4 hover:bg-gray-50 transition-colors">
+                          <div 
+                            key={person.id} 
+                            className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() => handlePersonnelClick(person)}
+                          >
                             <div className="flex items-center space-x-4">
                               {person.photo_url ? (
                                 <img
@@ -261,6 +277,73 @@ const PublicPersonnelReport = () => {
           )}
         </div>
       </main>
+
+      {/* Image Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-purple-800">
+              {selectedPersonnel?.full_name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedPersonnel?.photo_url ? (
+              <div className="w-full flex justify-center">
+                <img
+                  src={selectedPersonnel.photo_url}
+                  alt={selectedPersonnel.full_name}
+                  className="max-w-full max-h-96 object-contain rounded-lg"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-96 bg-purple-100 flex items-center justify-center rounded-lg">
+                <UserCheck className="w-32 h-32 text-purple-600" />
+              </div>
+            )}
+            <div className="space-y-3 bg-purple-50 p-4 rounded-lg">
+              {selectedPersonnel?.position && (
+                <div className="flex items-start">
+                  <span className="font-semibold text-purple-800 min-w-[120px]">ตำแหน่ง:</span>
+                  <span className="text-gray-800">{selectedPersonnel.position}</span>
+                </div>
+              )}
+              {selectedPersonnel?.department && (
+                <div className="flex items-start">
+                  <Building className="w-5 h-5 mr-2 text-purple-600 mt-0.5" />
+                  <span className="font-semibold text-purple-800 min-w-[100px]">แผนก:</span>
+                  <span className="text-gray-800">{selectedPersonnel.department}</span>
+                </div>
+              )}
+              {selectedPersonnel?.subject_group && (
+                <div className="flex items-start">
+                  <span className="font-semibold text-purple-800 min-w-[120px]">กลุ่มสาระ:</span>
+                  <span className="text-gray-800">{selectedPersonnel.subject_group}</span>
+                </div>
+              )}
+              {selectedPersonnel?.email && (
+                <div className="flex items-start">
+                  <Mail className="w-5 h-5 mr-2 text-purple-600 mt-0.5" />
+                  <span className="font-semibold text-purple-800 min-w-[100px]">อีเมล:</span>
+                  <span className="text-gray-800 break-all">{selectedPersonnel.email}</span>
+                </div>
+              )}
+              {selectedPersonnel?.phone && (
+                <div className="flex items-start">
+                  <Phone className="w-5 h-5 mr-2 text-purple-600 mt-0.5" />
+                  <span className="font-semibold text-purple-800 min-w-[100px]">เบอร์โทร:</span>
+                  <span className="text-gray-800">{selectedPersonnel.phone}</span>
+                </div>
+              )}
+              {selectedPersonnel?.additional_details && (
+                <div className="flex items-start">
+                  <span className="font-semibold text-purple-800 min-w-[120px]">รายละเอียดเพิ่มเติม:</span>
+                  <span className="text-gray-800">{selectedPersonnel.additional_details}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
