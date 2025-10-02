@@ -18,6 +18,7 @@ import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
+import PublicPersonnelReport from "./pages/PublicPersonnelReport";
 import PersonnelInSchool from "./pages/PersonnelInSchool";
 import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import NotFound from "./pages/NotFound";
@@ -203,8 +204,9 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/public-personnel-report" element={<PublicPersonnelReport />} />
               <Route 
-                path="/menu-permissions" 
+                path="/menu-permissions"
                 element={
                   <ProtectedRoute>
                     <MenuPermissionsPage />

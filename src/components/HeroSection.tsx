@@ -154,7 +154,7 @@ const HeroSection = () => {
 
           <Card 
             className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
-            onClick={() => navigate('/personnel-report')}
+            onClick={() => navigate('/public-personnel-report')}
           >
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
