@@ -140,43 +140,43 @@ const HeroSection = () => {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-br from-purple-400 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-6 h-6 text-purple-700" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-purple-800 font-semibold mb-2">หลักสูตรทันสมัย</h3>
-              <p className="text-purple-700 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
+              <h3 className="text-white font-semibold mb-2">หลักสูตรทันสมัย</h3>
+              <p className="text-white/90 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
+          <Card className="bg-gradient-to-br from-blue-400 to-blue-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-purple-700" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-purple-800 font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-purple-700 text-sm">ทีมงานที่มีประสบการณ์</p>
+              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+              <p className="text-white/90 text-sm">ทีมงานที่มีประสบการณ์</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-br from-pink-400 to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-6 h-6 text-purple-700" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-purple-800 font-semibold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-purple-700 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
+              <h3 className="text-white font-semibold mb-2">ผลงานที่โดดเด่น</h3>
+              <p className="text-white/90 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-br from-indigo-400 to-indigo-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-6 h-6 text-purple-700" />
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-purple-800 font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
-              <p className="text-purple-700 text-sm">ส่งเสริมความคิดสร้างสรรค์</p>
+              <h3 className="text-white font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
+              <p className="text-white/90 text-sm">ส่งเสริมความคิดสร้างสรรค์</p>
             </CardContent>
           </Card>
         </div>
