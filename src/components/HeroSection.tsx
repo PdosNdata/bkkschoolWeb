@@ -3,17 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 const HeroSection = () => {
   const navigate = useNavigate();
-  
   return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20" style={{
       backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
     }}></div>
       
-      <div className="container mx-auto px-4 py-20 relative bg-[#9957e1]">
+      <div className="container mx-auto px-4 py-20 relative bg-purple-400">
         <div className="text-center mb-12">
           
           
@@ -152,10 +150,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card 
-            className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
-            onClick={() => navigate('/public-personnel-report')}
-          >
+          <Card className="bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-purple-700" />
