@@ -6,7 +6,6 @@ import { Users, ArrowRight, Calendar, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ActivitiesDetailModal from "./ActivitiesDetailModal";
-
 interface Activity {
   id: string;
   title: string;
@@ -20,19 +19,17 @@ const ActivitiesSection = () => {
   const [loading, setLoading] = useState(true);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const fetchActivities = async () => {
     try {
-      const { data, error } = await supabase
-        .from('activities')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(6);
-
+      const {
+        data,
+        error
+      } = await supabase.from('activities').select('*').order('created_at', {
+        ascending: false
+      }).limit(6);
       if (error) {
         throw error;
       }
-
       setActivities(data || []);
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -40,21 +37,17 @@ const ActivitiesSection = () => {
       setLoading(false);
     }
   };
-
   const openActivityDetail = (activity: Activity) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
   };
-
   const closeActivityDetail = () => {
     setSelectedActivity(null);
     setIsModalOpen(false);
   };
-
   useEffect(() => {
     fetchActivities();
   }, []);
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -62,53 +55,30 @@ const ActivitiesSection = () => {
       day: 'numeric'
     });
   };
-  return (
-    <section id="activities" className="py-20 bg-gradient-news-bg">
+  return <section id="activities" className="py-20 bg-gradient-news-bg">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
             <Users className="w-4 h-4 mr-2" />
             กิจกรรมสร้างสรรค์
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            กิจกรรมสร้างสรรค์สังคม
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">กิจกรรมภายในและภายนอกโรงเรียน</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             ส่งเสริมการเรียนรู้ผ่านกิจกรรมที่หลากหลาย 
             เพื่อพัฒนาทักษะชีวิตและความสามารถในด้านต่าง ๆ อย่างรอบด้าน
           </p>
         </div>
 
-        {loading ? (
-          <div className="text-center py-8">
+        {loading ? <div className="text-center py-8">
             <p>กำลังโหลดกิจกรรม...</p>
-          </div>
-        ) : activities.length === 0 ? (
-          <div className="text-center py-8">
+          </div> : activities.length === 0 ? <div className="text-center py-8">
             <p>ยังไม่มีกิจกรรม</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {activities.map((activity) => (
-              <Card 
-                key={activity.id} 
-                className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer"
-                onClick={() => openActivityDetail(activity)}
-              >
+          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {activities.map(activity => <Card key={activity.id} className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer" onClick={() => openActivityDetail(activity)}>
                 <CardContent className="p-0">
-                  {activity.cover_image && (
-                    <div className="w-full h-48 overflow-hidden rounded-t-lg">
-                      <img
-                        src={activity.cover_image}
-                        alt={activity.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        width="400"
-                        height="192"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  )}
+                  {activity.cover_image && <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                      <img src={activity.cover_image} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" width="400" height="192" loading="lazy" decoding="async" />
+                    </div>}
                   
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
@@ -130,24 +100,17 @@ const ActivitiesSection = () => {
                       </div>
                     </div>
                     
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openActivityDetail(activity);
-                      }}
-                    >
+                    <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-primary-foreground" onClick={e => {
+                e.stopPropagation();
+                openActivityDetail(activity);
+              }}>
                       อ่านต่อ
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+              </Card>)}
+          </div>}
 
         {/* Highlight Section */}
         <div className="bg-gradient-primary rounded-2xl p-8 md:p-12 text-center text-white">
@@ -172,13 +135,8 @@ const ActivitiesSection = () => {
           </div>
         </div>
 
-        <ActivitiesDetailModal
-          activity={selectedActivity}
-          isOpen={isModalOpen}
-          onClose={closeActivityDetail}
-        />
+        <ActivitiesDetailModal activity={selectedActivity} isOpen={isModalOpen} onClose={closeActivityDetail} />
       </div>
-    </section>
-  );
+    </section>;
 };
 export default ActivitiesSection;
