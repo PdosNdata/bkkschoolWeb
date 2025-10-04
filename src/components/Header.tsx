@@ -22,7 +22,7 @@ const Header = () => {
   const isHome = location.pathname === "/";
 const menuItems = [
   { name: "หน้าแรก", href: "/", id: null },
-  { name: "ประวัติโรงเรียน", href: "/#about", id: "about" },
+  { name: "ประวัติโรงเรียน", href: "/#history", id: "history" },
   { name: "กิจกรรมภายใน", href: "/#activities", id: "activities" },
   { name: "ข่าวสาร", href: "/#news", id: "news" },
   { name: "คลังสื่อออนไลน์", href: "/#media", id: "media" },
@@ -30,14 +30,25 @@ const menuItems = [
 ];
 
 const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string | null) => {
-  if (id && location.pathname === "/") {
+  if (!id) {
+    // หน้าแรก - scroll to top
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    return;
+  }
+  
+  if (location.pathname === "/") {
+    // อยู่ในหน้าแรกอยู่แล้ว - แค่ scroll
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  } else if (id && location.pathname !== "/") {
-    // If not on home page, navigate to home then scroll
+  } else {
+    // อยู่หน้าอื่น - ต้องไปหน้าแรกก่อนแล้วค่อย scroll
+    e.preventDefault();
     navigate("/");
     setTimeout(() => {
       const element = document.getElementById(id);
@@ -138,7 +149,11 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo + Title - clickable to home */}
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-300 cursor-pointer">
+          <Link 
+            to="/" 
+            onClick={(e) => handleMenuClick(e, null)}
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
+          >
             <img
               src={schoolLogo}
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
