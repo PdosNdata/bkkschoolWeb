@@ -62,7 +62,7 @@ const ActivitiesSection = () => {
             <Users className="w-4 h-4 mr-2" />
             กิจกรรมสร้างสรรค์
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">กิจกรรมภายในและภายนอกโรงเรียน</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">กิจกรรมสร้างสรรค์</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             ส่งเสริมการเรียนรู้ผ่านกิจกรรมที่หลากหลาย 
             เพื่อพัฒนาทักษะชีวิตและความสามารถในด้านต่าง ๆ อย่างรอบด้าน
