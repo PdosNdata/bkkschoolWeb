@@ -21,13 +21,32 @@ const Header = () => {
   const location = useLocation();
   const isHome = location.pathname === "/";
 const menuItems = [
-  { name: "หน้าแรก", href: "/" },
-  { name: "ประวัติโรงเรียน", href: "/#history" },
-  { name: "กิจกรรมภายใน", href: "/#activities" },
-  { name: "ข่าวสาร", href: "/#news" },
-  { name: "คลังสื่อออนไลน์", href: "/#media" },
-  { name: "ติดต่อเรา", href: "/#contact" },
+  { name: "หน้าแรก", href: "/", id: null },
+  { name: "ประวัติโรงเรียน", href: "/#about", id: "about" },
+  { name: "กิจกรรมภายใน", href: "/#activities", id: "activities" },
+  { name: "ข่าวสาร", href: "/#news", id: "news" },
+  { name: "คลังสื่อออนไลน์", href: "/#media", id: "media" },
+  { name: "ติดต่อเรา", href: "/#contact", id: "contact" },
 ];
+
+const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string | null) => {
+  if (id && location.pathname === "/") {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  } else if (id && location.pathname !== "/") {
+    // If not on home page, navigate to home then scroll
+    navigate("/");
+    setTimeout(() => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  }
+};
 
 const fetchProfile = async (uid: string, emailFallback?: string | null) => {
   try {
@@ -145,6 +164,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                   <Link
                     key={item.name}
                     to={item.href}
+                    onClick={(e) => handleMenuClick(e, item.id)}
                     className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
                   >
                     {item.name}
@@ -171,7 +191,10 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                       <Link
                         key={item.name}
                         to={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={(e) => {
+                          handleMenuClick(e, item.id);
+                          setIsMobileMenuOpen(false);
+                        }}
                         className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-4 py-3 rounded-md text-left"
                       >
                         {item.name}
