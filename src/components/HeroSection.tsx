@@ -67,7 +67,7 @@ const HeroSection = () => {
                   return (
                     <div 
                       key={activity.id} 
-                      className="bg-white overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer"
+                      className="bg-white overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer border border-white"
                       onClick={() => navigate(`/activity/${activity.id}`)}
                     >
                       <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center overflow-hidden">
