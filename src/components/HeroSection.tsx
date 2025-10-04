@@ -110,7 +110,7 @@ const HeroSection = () => {
                 </div>
                 
                 <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="h-32 bg-gradient-to-t from-orange-300 to-orange-600 flex items-center justify-center">
+                  <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center">
                     <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกไม้ผล</span>
                   </div>
                   <div className="p-4 bg-white">
