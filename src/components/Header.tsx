@@ -21,12 +21,12 @@ const Header = () => {
   const location = useLocation();
   const isHome = location.pathname === "/";
 const menuItems = [
-  { name: "หน้าแรก", href: "#home" },
-  { name: "ประวัติโรงเรียน", href: "#history" },
-  { name: "กิจกรรมภายใน", href: "#activities" },
-  { name: "ข่าวสาร", href: "#news" },
-  { name: "คลังสื่อออนไลน์", href: "#media" },
-  { name: "ติดต่อเรา", href: "#contact" },
+  { name: "หน้าแรก", href: "/" },
+  { name: "ประวัติโรงเรียน", href: "/#history" },
+  { name: "กิจกรรมภายใน", href: "/#activities" },
+  { name: "ข่าวสาร", href: "/#news" },
+  { name: "คลังสื่อออนไลน์", href: "/#media" },
+  { name: "ติดต่อเรา", href: "/#contact" },
 ];
 
 const fetchProfile = async (uid: string, emailFallback?: string | null) => {
@@ -142,13 +142,13 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
               {/* Desktop Navigation */}
               <nav className="hidden md:flex space-x-8">
                 {menuItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
 
@@ -168,14 +168,14 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                 <SheetContent side="right" className="w-64">
                   <nav className="flex flex-col space-y-4 mt-8">
                     {menuItems.map((item) => (
-                      <a
+                      <Link
                         key={item.name}
-                        href={item.href}
+                        to={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-4 py-3 rounded-md text-left"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     ))}
                   </nav>
                 </SheetContent>
