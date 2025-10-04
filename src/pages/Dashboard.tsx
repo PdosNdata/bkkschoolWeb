@@ -148,18 +148,11 @@ const Dashboard = () => {
           return;
         }
 
-        const isAdmin = roles.some(r => r.role === 'admin' && r.approved);
-        if (!isAdmin) {
-          toast({
-            title: "ไม่ได้รับอนุญาต",
-            description: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
+        // Get the first approved role for the user
+        const approvedRole = roles.find(r => r.approved);
+        if (approvedRole) {
+          setUserRole(approvedRole.role);
         }
-
-        setUserRole('admin');
 
         setIsLoading(false);
       } catch (error) {
