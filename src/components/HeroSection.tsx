@@ -65,10 +65,14 @@ const HeroSection = () => {
                   const coverImageUrl = activity.cover_image || (activity.images && activity.images.length > 0 ? activity.images[activity.cover_image_index || 0] : null);
                   
                   return (
-                    <div key={activity.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer" onClick={() => navigate(`/activity/${activity.id}`)}>
+                    <div 
+                      key={activity.id} 
+                      className="bg-white rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer"
+                      onClick={() => navigate(`/activity/${activity.id}`)}
+                    >
                       <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center overflow-hidden">
                         {coverImageUrl ? (
-                          <img src={coverImageUrl} alt={activity.title} className="w-full h-full object-cover" />
+                          <img src={coverImageUrl} alt={activity.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
                         ) : (
                           <span className="text-white font-medium text-center text-sm px-4">{activity.title}</span>
                         )}
