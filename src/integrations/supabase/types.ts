@@ -19,8 +19,10 @@ export type Database = {
           author_name: string
           content: string
           cover_image: string | null
+          cover_image_index: number | null
           created_at: string
           id: string
+          images: string[] | null
           title: string
           updated_at: string
         }
@@ -28,8 +30,10 @@ export type Database = {
           author_name?: string
           content: string
           cover_image?: string | null
+          cover_image_index?: number | null
           created_at?: string
           id?: string
+          images?: string[] | null
           title: string
           updated_at?: string
         }
@@ -37,8 +41,10 @@ export type Database = {
           author_name?: string
           content?: string
           cover_image?: string | null
+          cover_image_index?: number | null
           created_at?: string
           id?: string
+          images?: string[] | null
           title?: string
           updated_at?: string
         }

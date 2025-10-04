@@ -52,13 +52,22 @@ const Dashboard = () => {
     href: "/StudentForm",
     roles: ["student", "teacher", "admin"]
   }, 
-    {
+  {
     title: "กิจกรรมภายใน",
     description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
     icon: GraduationCap,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/activities-form",
+    roles: ["teacher", "admin"]
+  },
+  {
+    title: "กิจกรรมทั้งหมด",
+    description: "จัดการกิจกรรมแบบละเอียด พร้อมอัปโหลดหลายภาพ",
+    icon: Calendar,
+    color: "bg-violet-50 border-violet-200",
+    iconColor: "text-violet-600",
+    href: "/activity-all-form",
     roles: ["teacher", "admin"]
   },
     {
