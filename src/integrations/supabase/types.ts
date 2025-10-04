@@ -17,6 +17,7 @@ export type Database = {
       activities: {
         Row: {
           author_name: string
+          category: string | null
           content: string
           cover_image: string | null
           cover_image_index: number | null
@@ -28,6 +29,7 @@ export type Database = {
         }
         Insert: {
           author_name?: string
+          category?: string | null
           content: string
           cover_image?: string | null
           cover_image_index?: number | null
@@ -39,6 +41,7 @@ export type Database = {
         }
         Update: {
           author_name?: string
+          category?: string | null
           content?: string
           cover_image?: string | null
           cover_image_index?: number | null

@@ -8,12 +8,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Trash2, Share2, Facebook, X, Image as ImageIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from "sweetalert2";
 
 interface ActivityAllFormData {
   title: string;
   content: string;
   author_name: string;
+  category: string;
   images: string[];
   cover_image_index: number;
 }
@@ -23,6 +25,7 @@ interface Activity {
   title: string;
   content: string;
   author_name: string;
+  category: string;
   images: string[];
   cover_image_index: number;
   created_at: string;
@@ -38,6 +41,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
     title: "",
     content: "",
     author_name: "",
+    category: "กิจกรรมภายใน",
     images: [],
     cover_image_index: 0,
   });
@@ -220,6 +224,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       title: "",
       content: "",
       author_name: formData.author_name,
+      category: "กิจกรรมภายใน",
       images: [],
       cover_image_index: 0,
     });
@@ -233,6 +238,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       title: activity.title,
       content: activity.content,
       author_name: activity.author_name,
+      category: activity.category || "กิจกรรมภายใน",
       images: activity.images || [],
       cover_image_index: activity.cover_image_index || 0,
     });
@@ -337,6 +343,23 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
             </div>
 
             <div>
+              <Label htmlFor="category">ประเภทกิจกรรม *</Label>
+              <Select 
+                value={formData.category} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="เลือกประเภทกิจกรรม" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="กิจกรรมด้วยรักและห่วงใย">กิจกรรมด้วยรักและห่วงใย</SelectItem>
+                  <SelectItem value="กิจกรรมภายใน">กิจกรรมภายใน</SelectItem>
+                  <SelectItem value="กิจกรรมภายนอก">กิจกรรมภายนอก</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
               <Label htmlFor="content">รายละเอียดกิจกรรม *</Label>
               <Textarea
                 id="content"
@@ -429,6 +452,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                   <TableRow>
                     <TableHead>ภาพปก</TableHead>
                     <TableHead>หัวข้อ</TableHead>
+                    <TableHead>ประเภท</TableHead>
                     <TableHead>ผู้เขียน</TableHead>
                     <TableHead>วันที่สร้าง</TableHead>
                     <TableHead className="text-right">จัดการ</TableHead>
@@ -451,6 +475,11 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{activity.title}</TableCell>
+                      <TableCell>
+                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                          {activity.category || 'กิจกรรมภายใน'}
+                        </span>
+                      </TableCell>
                       <TableCell>{activity.author_name}</TableCell>
                       <TableCell>{formatDate(activity.created_at)}</TableCell>
                       <TableCell className="text-right">
