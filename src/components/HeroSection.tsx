@@ -121,6 +121,32 @@ const HeroSection = () => {
                     </button>
                   </div>
                 </div>
+                
+                <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมห้องสมุดมีชีวิต</span>
+                  </div>
+                  <div className="p-4 bg-white">
+                    <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมห้องสมุดมีชีวิต</h5>
+                    <p className="text-xs mb-3 text-blue-800">เรียนรู้การใช้ห้องสมุดและส่งเสริมการอ่าน</p>
+                    <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
+                      อ่านต่อ →
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center">
+                    <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมสหกรณ์ร้านค้า</span>
+                  </div>
+                  <div className="p-4 bg-white">
+                    <h5 className="font-medium text-sm mb-2 text-blue-600 text-center">กิจกรรมสหกรณ์ร้านค้า</h5>
+                    <p className="text-xs mb-3 text-blue-800">เรียนรู้การบริหารจัดการร้านค้าและสหกรณ์</p>
+                    <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
+                      อ่านต่อ →
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
