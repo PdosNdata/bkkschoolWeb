@@ -10,12 +10,12 @@ const HeroSection = () => {
   const navigate = useNavigate();
   
   const { data: activities = [] } = useQuery({
-    queryKey: ['activities', 'กิจกรรมด้วยรักและห่วงใย'],
+    queryKey: ['activities', 'creative-society'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('activities')
         .select('*')
-        .eq('category', 'กิจกรรมด้วยรักและห่วงใย')
+        .in('category', ['กิจกรรมภายใน', 'กิจกรรมภายนอก'])
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -46,7 +46,7 @@ const HeroSection = () => {
           {/* Activities Layout */}
           <div className="mb-12">
             <div className="max-w-6xl mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-8 text-center">กิจกรรมโครงการด้วยรักและห่วงใย</h3>
+              <h3 className="text-2xl font-bold text-white mb-8 text-center">กิจกรรมสร้างสรรค์สังคม</h3>
               
               {/* Videos Row - แถวบน */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
