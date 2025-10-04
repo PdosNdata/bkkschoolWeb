@@ -55,7 +55,7 @@ const HeroSection = () => {
                 {/* Right Side - Activity Images Grid */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกข้าวในแปลงนาสาธิต</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -68,7 +68,7 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-green-300 to-green-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมเลี้ยงปลาดุกกบในบ่อซีเมนต์</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -81,7 +81,7 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-purple-300 to-purple-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกมะนาววงบ่อ</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -94,7 +94,7 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-pink-300 to-pink-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมเลี้ยงหมูป่า</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -107,7 +107,7 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-rose-300 to-rose-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกผักตามฤดูกาลและพืชผักสวนครัว</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -120,7 +120,7 @@ const HeroSection = () => {
                   </div>
                   
                   <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <div className="h-32 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-t from-orange-300 to-orange-600 flex items-center justify-center">
                       <span className="text-white font-medium text-center text-sm px-4">ภาพกิจกรรมปลูกไม้ผล</span>
                     </div>
                     <div className="p-4 bg-white">
@@ -140,7 +140,7 @@ const HeroSection = () => {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-purple-400 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-blue-300 to-blue-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="w-6 h-6 text-white" />
@@ -150,7 +150,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-400 to-blue-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
+          <Card className="bg-gradient-to-t from-green-300 to-green-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-white" />
@@ -160,7 +160,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-pink-400 to-pink-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-rose-300 to-rose-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="w-6 h-6 text-white" />
@@ -170,7 +170,7 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-indigo-400 to-indigo-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-orange-300 to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lightbulb className="w-6 h-6 text-white" />
