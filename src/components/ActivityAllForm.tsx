@@ -51,6 +51,8 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     fetchActivities();
@@ -441,11 +443,48 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
         <CardContent className="pt-6">
           <h2 className="text-2xl font-bold mb-4">รายการกิจกรรมทั้งหมด</h2>
           
+          {/* Search and Filter */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <Label htmlFor="search">ค้นหาชื่อกิจกรรม</Label>
+              <Input
+                id="search"
+                type="text"
+                placeholder="ค้นหาจากชื่อกิจกรรม..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="filter-category">ประเภทกิจกรรม</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger id="filter-category">
+                  <SelectValue placeholder="เลือกประเภทกิจกรรม" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="กิจกรรมด้วยรักและห่วงใย">กิจกรรมด้วยรักและห่วงใย</SelectItem>
+                  <SelectItem value="กิจกรรมภายใน">กิจกรรมภายใน</SelectItem>
+                  <SelectItem value="กิจกรรมภายนอก">กิจกรรมภายนอก</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
           {loadingActivities ? (
             <p className="text-center py-8">กำลังโหลด...</p>
-          ) : activities.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">ยังไม่มีกิจกรรม</p>
-          ) : (
+          ) : (() => {
+            const filteredActivities = activities.filter((activity) => {
+              const matchesSearch = activity.title.toLowerCase().includes(searchTerm.toLowerCase());
+              const matchesCategory = selectedCategory === "all" || activity.category === selectedCategory;
+              return matchesSearch && matchesCategory;
+            });
+
+            return filteredActivities.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">
+                {activities.length === 0 ? "ยังไม่มีกิจกรรม" : "ไม่พบกิจกรรมที่ค้นหา"}
+              </p>
+            ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -459,7 +498,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activities.map((activity) => (
+                  {filteredActivities.map((activity) => (
                     <TableRow key={activity.id}>
                       <TableCell>
                         {activity.images && activity.images.length > 0 ? (
@@ -525,7 +564,8 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                 </TableBody>
               </Table>
             </div>
-          )}
+            );
+          })()}
         </CardContent>
       </Card>
     </div>
