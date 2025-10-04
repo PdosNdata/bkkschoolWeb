@@ -78,9 +78,15 @@ const ActivitiesSection = () => {
           </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {activities.map(activity => <Card key={activity.id} className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer" onClick={() => openActivityDetail(activity)}>
                 <CardContent className="p-0">
-                  {activity.cover_image && <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                  <div className="w-full h-48 overflow-hidden rounded-t-lg bg-gradient-primary relative">
+                    {activity.cover_image ? (
                       <img src={activity.cover_image} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" width="400" height="192" loading="lazy" decoding="async" />
-                    </div>}
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
+                        {activity.title}
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
