@@ -8,65 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 270 40% 98%;
-    --foreground: 270 30% 25%;
+    --background: 270 35% 96%;
+    --foreground: 270 50% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 270 30% 25%;
+    --card-foreground: 270 50% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 30% 25%;
+    --popover-foreground: 270 50% 15%;
 
-    --primary: 270 60% 65%;
+    --primary: 270 70% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 280 70% 75%;
+    --primary-glow: 280 65% 55%;
 
-    --secondary: 270 40% 92%;
-    --secondary-foreground: 270 60% 35%;
+    --secondary: 270 50% 25%;
+    --secondary-foreground: 270 30% 95%;
 
-    --muted: 270 30% 95%;
-    --muted-foreground: 270 15% 50%;
+    --muted: 270 40% 90%;
+    --muted-foreground: 270 25% 40%;
 
-    --accent: 280 50% 88%;
-    --accent-foreground: 270 60% 35%;
+    --accent: 280 60% 35%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 270 25% 88%;
-    --input: 270 25% 90%;
-    --ring: 270 60% 65%;
+    --border: 270 30% 85%;
+    --input: 270 30% 88%;
+    --ring: 270 70% 45%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(270 60% 65%), hsl(280 70% 75%));
-    --gradient-hero: linear-gradient(135deg, hsl(270 50% 88%), hsl(280 60% 75%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(270 30% 96%));
+    --gradient-primary: linear-gradient(135deg, hsl(270 70% 45%), hsl(280 65% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(270 60% 35%), hsl(280 55% 50%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(270 40% 92%));
     
-    /* Activity gradients - soft purple tones */
-    --gradient-arts: linear-gradient(135deg, hsl(280 70% 75%), hsl(290 65% 80%));
-    --gradient-music: linear-gradient(135deg, hsl(260 60% 75%), hsl(270 65% 80%));
-    --gradient-sports: linear-gradient(135deg, hsl(275 55% 75%), hsl(285 60% 80%));
-    --gradient-science: linear-gradient(135deg, hsl(265 60% 75%), hsl(275 65% 80%));
-    --gradient-math: linear-gradient(135deg, hsl(285 60% 75%), hsl(295 65% 80%));
-    --gradient-reading: linear-gradient(135deg, hsl(270 65% 75%), hsl(280 70% 80%));
-    --gradient-social: linear-gradient(135deg, hsl(290 60% 75%), hsl(300 65% 80%));
-    --gradient-tech: linear-gradient(135deg, hsl(255 60% 75%), hsl(265 65% 80%));
+    /* Activity gradients - dark purple tones */
+    --gradient-arts: linear-gradient(135deg, hsl(280 65% 50%), hsl(290 60% 60%));
+    --gradient-music: linear-gradient(135deg, hsl(260 60% 45%), hsl(270 65% 55%));
+    --gradient-sports: linear-gradient(135deg, hsl(275 60% 48%), hsl(285 55% 58%));
+    --gradient-science: linear-gradient(135deg, hsl(265 65% 47%), hsl(275 60% 57%));
+    --gradient-math: linear-gradient(135deg, hsl(285 60% 50%), hsl(295 55% 60%));
+    --gradient-reading: linear-gradient(135deg, hsl(270 65% 48%), hsl(280 60% 58%));
+    --gradient-social: linear-gradient(135deg, hsl(290 60% 50%), hsl(300 55% 60%));
+    --gradient-tech: linear-gradient(135deg, hsl(255 65% 45%), hsl(265 60% 55%));
     
-    /* About section gradients - light purple variations */
-    --gradient-vision: linear-gradient(135deg, hsl(270 60% 85%), hsl(280 55% 90%));
-    --gradient-mission: linear-gradient(135deg, hsl(280 55% 85%), hsl(290 50% 90%));
-    --gradient-values: linear-gradient(135deg, hsl(260 55% 85%), hsl(270 50% 90%));
+    /* About section gradients - medium purple variations */
+    --gradient-vision: linear-gradient(135deg, hsl(270 55% 55%), hsl(280 50% 65%));
+    --gradient-mission: linear-gradient(135deg, hsl(280 50% 55%), hsl(290 45% 65%));
+    --gradient-values: linear-gradient(135deg, hsl(260 55% 55%), hsl(270 50% 65%));
     
-    /* White-purple soft gradient for image slider */
-    --gradient-purple-soft: linear-gradient(135deg, hsl(0 0% 100%), hsl(270 40% 92%), hsl(280 35% 88%));
+    /* Purple gradient for image slider */
+    --gradient-purple-soft: linear-gradient(135deg, hsl(270 50% 85%), hsl(270 40% 75%), hsl(280 35% 65%));
     
     /* News section purple gradient background */
-    --gradient-news-bg: linear-gradient(135deg, hsl(270 45% 90%), hsl(0 0% 100%));
+    --gradient-news-bg: linear-gradient(135deg, hsl(270 45% 70%), hsl(280 35% 85%));
     
-    /* Soft purple to white diagonal gradient */
-    --gradient-orange-white: linear-gradient(135deg, hsl(270 50% 80%), hsl(0 0% 100%));
+    /* Dark purple to light gradient */
+    --gradient-orange-white: linear-gradient(135deg, hsl(270 55% 50%), hsl(280 40% 75%));
     
-    --shadow-elegant: 0 10px 30px -10px hsl(270 60% 65% / 0.15);
-    --shadow-glow: 0 0 40px hsl(280 70% 75% / 0.25);
+    --shadow-elegant: 0 10px 30px -10px hsl(270 70% 45% / 0.25);
+    --shadow-glow: 0 0 40px hsl(280 65% 55% / 0.35);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
