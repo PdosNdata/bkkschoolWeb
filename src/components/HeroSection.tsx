@@ -1,27 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BookOpen, Users, Award, Lightbulb, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   
-  const { data: activities = [] } = useQuery({
-    queryKey: ['activities', 'กิจกรรมด้วยรักและห่วงใย'],
+  const { data: allActivities = [] } = useQuery({
+    queryKey: ['activities', 'all'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('activities')
         .select('*')
-        .eq('category', 'กิจกรรมด้วยรักและห่วงใย')
+        .in('category', ['กิจกรรมภายใน', 'กิจกรรมภายนอก'])
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data || [];
     }
   });
+
+  const filteredActivities = useMemo(() => {
+    return allActivities.filter((activity) => {
+      const matchesSearch = activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           activity.content.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || activity.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [allActivities, searchTerm, selectedCategory]);
   return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20" style={{
@@ -46,7 +61,31 @@ const HeroSection = () => {
           {/* Activities Layout */}
           <div className="mb-12">
             <div className="max-w-6xl mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-8 text-center">กิจกรรมโครงการด้วยรักและห่วงใย</h3>
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">กิจกรรมภายในและภายนอกโรงเรียน</h3>
+              
+              {/* Search and Filter */}
+              <div className="flex flex-col md:flex-row gap-4 mb-8 max-w-2xl mx-auto">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="ค้นหากิจกรรม..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-white/90 backdrop-blur"
+                  />
+                </div>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-full md:w-[200px] bg-white/90 backdrop-blur">
+                    <SelectValue placeholder="เลือกประเภท" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">ทั้งหมด</SelectItem>
+                    <SelectItem value="กิจกรรมภายใน">กิจกรรมภายใน</SelectItem>
+                    <SelectItem value="กิจกรรมภายนอก">กิจกรรมภายนอก</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
               {/* Videos Row - แถวบน */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -61,7 +100,7 @@ const HeroSection = () => {
 
               {/* Activity Cards - 4 คอลัมน์ 2 แถว */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {activities.map((activity) => {
+                {filteredActivities.length > 0 ? filteredActivities.map((activity) => {
                   const coverImageUrl = activity.cover_image || (activity.images && activity.images.length > 0 ? activity.images[activity.cover_image_index || 0] : null);
                   
                   return (
@@ -86,7 +125,11 @@ const HeroSection = () => {
                       </div>
                     </div>
                   );
-                })}
+                }) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-white text-lg">ไม่พบกิจกรรมที่ค้นหา</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
