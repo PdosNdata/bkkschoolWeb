@@ -25,7 +25,7 @@ const ActivitiesSection = () => {
         data,
         error
       } = await supabase.from('activities').select('*')
-        .eq('category', 'กิจกรรมด้วยรักและห่วงใย')
+        .in('category', ['กิจกรรมภายใน', 'กิจกรรมภายนอก'])
         .order('created_at', {
           ascending: false
         }).limit(6);
