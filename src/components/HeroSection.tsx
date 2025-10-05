@@ -64,11 +64,13 @@ const HeroSection = () => {
                 {activities.length > 0 ? (
                   activities.map((activity) => (
                     <div key={activity.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer" onClick={() => navigate(`/activities/${activity.id}`)}>
-                      <div className="h-32 bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center overflow-hidden">
+                      <div className="h-32 flex items-center justify-center overflow-hidden relative">
                         {activity.cover_image ? (
                           <img src={activity.cover_image} alt={activity.title} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-white font-medium text-center text-sm px-4">{activity.title}</span>
+                          <div className="w-full h-full bg-gradient-to-t from-blue-300 to-blue-600 flex items-center justify-center">
+                            <span className="text-white font-medium text-center text-sm px-4">{activity.title}</span>
+                          </div>
                         )}
                       </div>
                       <div className="p-4 bg-white">
