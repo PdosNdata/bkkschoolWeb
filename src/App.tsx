@@ -173,7 +173,7 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/activity/:id" element={<ActivityDetailPage />} />
+              <Route path="/activities/:id" element={<ActivityDetailPage />} />
               <Route path="/personinschool" element={<PersonnelInSchool />} />
               <Route 
                 path="/media-form" 
