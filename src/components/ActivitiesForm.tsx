@@ -8,14 +8,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link } from "lucide-react";
+import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, X } from "lucide-react";
 import Swal from "sweetalert2";
 
 interface ActivitiesFormData {
   title: string;
   content: string;
   author_name: string;
-  cover_image?: string;
+  images?: string[];
+  cover_image_index?: number;
 }
 
 interface ActivityItem {
@@ -24,7 +25,8 @@ interface ActivityItem {
   content: string;
   author_name: string;
   created_at: string;
-  cover_image?: string;
+  images?: string[];
+  cover_image_index?: number;
 }
 
 interface ActivitiesFormProps {
@@ -34,17 +36,20 @@ interface ActivitiesFormProps {
 const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [activitiesList, setActivitiesList] = useState<ActivityItem[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<ActivitiesFormData>({
     title: "",
     content: "",
     author_name: "",
+    images: [],
+    cover_image_index: 0,
   });
 
   // Get current user on component mount
@@ -100,46 +105,77 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverImage(file);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Check if total images exceed 10
+    if (selectedFiles.length + files.length > 10) {
+      toast({
+        title: "เกินจำนวนที่กำหนด",
+        description: "สามารถอัพโหลดรูปภาพได้สูงสุด 10 รูปเท่านั้น",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add new files to existing ones
+    setSelectedFiles(prev => [...prev, ...files]);
+
+    // Generate previews for new files
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result as string);
+        setImagePreviews(prev => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    
+    // Adjust cover image index if necessary
+    if (coverImageIndex === index) {
+      setCoverImageIndex(0);
+    } else if (coverImageIndex > index) {
+      setCoverImageIndex(prev => prev - 1);
     }
   };
 
-  const uploadImage = async (file: File): Promise<string | null> => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `activities/${fileName}`;
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+    
+    for (const file of files) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `activities/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('news-images')
+          .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data } = supabase.storage
+          .from('news-images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(data.publicUrl);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: `ไม่สามารถอัพโหลดรูปภาพ ${file.name} ได้`,
+          variant: "destructive",
+        });
       }
-
-      const { data } = supabase.storage
-        .from('news-images')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถอัพโหลดรูปภาพได้",
-        variant: "destructive",
-      });
-      return null;
     }
+    
+    return uploadedUrls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,14 +183,12 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
     setUploading(true);
     
     try {
-      let coverImageUrl = formData.cover_image || "";
+      let imageUrls = formData.images || [];
       
-      // Upload image if selected
-      if (coverImage) {
-        const imageUrl = await uploadImage(coverImage);
-        if (imageUrl) {
-          coverImageUrl = imageUrl;
-        }
+      // Upload new images if selected
+      if (selectedFiles.length > 0) {
+        const uploadedUrls = await uploadImages(selectedFiles);
+        imageUrls = [...imageUrls, ...uploadedUrls];
       }
 
       if (editingId) {
@@ -162,8 +196,11 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
         const { error } = await supabase
           .from('activities')
           .update({
-            ...formData,
-            cover_image: coverImageUrl || null
+            title: formData.title,
+            content: formData.content,
+            author_name: formData.author_name,
+            images: imageUrls,
+            cover_image_index: coverImageIndex
           })
           .eq('id', editingId);
 
@@ -182,8 +219,11 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
         const { error } = await supabase
           .from('activities')
           .insert([{
-            ...formData,
-            cover_image: coverImageUrl || null
+            title: formData.title,
+            content: formData.content,
+            author_name: formData.author_name,
+            images: imageUrls,
+            cover_image_index: coverImageIndex
           }]);
 
         if (error) throw error;
@@ -221,9 +261,12 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
       title: "",
       content: "",
       author_name: formData.author_name, // Keep the current user's name
+      images: [],
+      cover_image_index: 0,
     });
-    setCoverImage(null);
-    setImagePreview("");
+    setSelectedFiles([]);
+    setImagePreviews([]);
+    setCoverImageIndex(0);
     setEditingId(null);
   };
 
@@ -241,13 +284,18 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
       title: activityItem.title,
       content: activityItem.content,
       author_name: activityItem.author_name,
-      cover_image: activityItem.cover_image
+      images: activityItem.images || [],
+      cover_image_index: activityItem.cover_image_index || 0,
     });
     
-    // Set image preview if activity has cover image
-    if (activityItem.cover_image) {
-      setImagePreview(activityItem.cover_image);
+    // Set image previews if activity has images
+    if (activityItem.images && activityItem.images.length > 0) {
+      setImagePreviews(activityItem.images);
+      setCoverImageIndex(activityItem.cover_image_index || 0);
     }
+    
+    // Clear selected files when editing
+    setSelectedFiles([]);
 
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -421,38 +469,65 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cover-image">รูปภาพปก</Label>
+              <Label htmlFor="activity-images">รูปภาพกิจกรรม (สูงสุด 10 รูป)</Label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                 <input
                   type="file"
-                  id="cover-image"
+                  id="activity-images"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  multiple
+                  onChange={handleFileSelect}
                   className="hidden"
                 />
                 <label
-                  htmlFor="cover-image"
+                  htmlFor="activity-images"
                   className="cursor-pointer flex flex-col items-center justify-center space-y-2"
                 >
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="max-w-full h-48 object-cover rounded-lg"
-                      />
-                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded">
-                        <Upload className="h-4 w-4" />
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="h-8 w-8 text-gray-400" />
-                      <p className="text-sm text-gray-500">คลิกเพื่ออัพโหลดรูปภาพปก</p>
-                    </>
-                  )}
+                  <Upload className="h-8 w-8 text-gray-400" />
+                  <p className="text-sm text-gray-500">คลิกเพื่ออัพโหลดรูปภาพกิจกรรม</p>
+                  <p className="text-xs text-gray-400">({imagePreviews.length}/10 รูป)</p>
                 </label>
               </div>
+
+              {/* Image Previews */}
+              {imagePreviews.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className={`w-full h-32 object-cover rounded-lg ${
+                            coverImageIndex === index ? 'ring-4 ring-primary' : ''
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCoverImageIndex(index)}
+                          className={`absolute bottom-2 left-2 px-2 py-1 text-xs rounded ${
+                            coverImageIndex === index
+                              ? 'bg-primary text-white'
+                              : 'bg-black/50 text-white hover:bg-black/70'
+                          }`}
+                        >
+                          {coverImageIndex === index ? '✓ รูปปก' : 'ตั้งเป็นรูปปก'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    * คลิกปุ่ม "ตั้งเป็นรูปปก" เพื่อเลือกรูปภาพที่จะแสดงเป็นปก
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -516,12 +591,19 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                             {activity.content.substring(0, 100)}
                             {activity.content.length > 100 && '...'}
                           </div>
-                          {activity.cover_image && (
-                            <img 
-                              src={activity.cover_image} 
-                              alt="Activity cover" 
-                              className="w-16 h-16 object-cover rounded mt-2"
-                            />
+                          {activity.images && activity.images.length > 0 && (
+                            <div className="flex gap-2 mt-2">
+                              <img 
+                                src={activity.images[activity.cover_image_index || 0]} 
+                                alt="Activity cover" 
+                                className="w-16 h-16 object-cover rounded ring-2 ring-primary"
+                              />
+                              {activity.images.length > 1 && (
+                                <div className="text-xs text-gray-500 flex items-center">
+                                  +{activity.images.length - 1} รูป
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                       </TableCell>
