@@ -63,7 +63,7 @@ const HeroSection = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {activities.length > 0 ? (
                   activities.map((activity) => (
-                    <div key={activity.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer" onClick={() => navigate(`/activities/${activity.id}`)}>
+                    <div key={activity.id} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer hover:scale-105" onClick={() => navigate(`/activities/${activity.id}`)}>
                       <div className="h-32 flex items-center justify-center overflow-hidden relative">
                         {activity.images && activity.images.length > 0 ? (
                           <img 
