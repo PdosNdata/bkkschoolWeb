@@ -126,41 +126,29 @@ const Dashboard = () => {
           return;
         }
 
-        const { data: roles, error: rolesError } = await supabase
+        // Check if user can access dashboard (admin or teacher)
+        const { data: canAccess } = await supabase.rpc('can_access_dashboard');
+        
+        if (!canAccess) {
+          toast({
+            title: "ไม่มีสิทธิ์เข้าถึง",
+            description: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
+        }
+
+        // Fetch user role for display
+        const { data: roleData } = await supabase
           .from('user_roles')
-          .select('role, approved')
-          .eq('user_id', user.id);
-
-        if (rolesError) {
-          console.error('Error fetching user roles:', rolesError);
-          return;
-        }
-
-        if (!roles || roles.length === 0) {
-          toast({
-            title: "ไม่ได้รับอนุญาต",
-            description: "คุณยังไม่ได้รับการอนุมัติเข้าใช้งานระบบ กรุณารอการอนุมัติจากผู้ดูแลระบบ",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
-
-        const hasApprovedRole = roles.some(r => r.approved);
-        if (!hasApprovedRole) {
-          toast({
-            title: "รอการอนุมัติ",
-            description: "บัญชีของคุณยังไม่ได้รับการอนุมัติ กรุณารอการอนุมัติจากผู้ดูแลระบบ",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
-
-        // Get the first approved role for the user
-        const approvedRole = roles.find(r => r.approved);
-        if (approvedRole) {
-          setUserRole(approvedRole.role);
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('approved', true)
+          .single();
+        
+        if (roleData) {
+          setUserRole(roleData.role);
         }
 
         setIsLoading(false);

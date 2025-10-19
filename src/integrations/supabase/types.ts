@@ -195,6 +195,39 @@ export type Database = {
           },
         ]
       }
+      book_surveys: {
+        Row: {
+          created_at: string
+          grade: string
+          id: number
+          name: string
+          price: number
+          quantity: number
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          grade: string
+          id?: number
+          name: string
+          price: number
+          quantity: number
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          grade?: string
+          id?: number
+          name?: string
+          price?: number
+          quantity?: number
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       media_resources: {
         Row: {
           author_name: string
@@ -464,6 +497,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_dashboard: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       check_submission_rate_limit: {
         Args: { p_email: string; p_ip_address: unknown }
         Returns: boolean
