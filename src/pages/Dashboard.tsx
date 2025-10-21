@@ -127,9 +127,22 @@ const Dashboard = () => {
         }
 
         // Check if user can access dashboard (admin or teacher)
-        const { data: canAccess } = await supabase.rpc('can_access_dashboard');
+        const { data: canAccess, error: accessError } = await supabase.rpc('can_access_dashboard');
         
-        if (!canAccess) {
+        console.log('Can access dashboard:', canAccess, 'Error:', accessError);
+        
+        if (accessError) {
+          console.error('Error checking dashboard access:', accessError);
+          toast({
+            title: "เกิดข้อผิดพลาด",
+            description: "ไม่สามารถตรวจสอบสิทธิ์การเข้าถึงได้",
+            variant: "destructive"
+          });
+          navigate('/');
+          return;
+        }
+        
+        if (canAccess !== true) {
           toast({
             title: "ไม่มีสิทธิ์เข้าถึง",
             description: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ",
