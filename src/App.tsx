@@ -33,12 +33,34 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN") {
         // Clean token fragment after Supabase sets the session
         if (window.location.hash && window.location.hash.includes("access_token")) {
           setTimeout(() => {
             window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          }, 0);
+        }
+
+        // Check if user has a role, if not create one (for Google OAuth users)
+        if (session?.user) {
+          setTimeout(async () => {
+            const { data: existingRole } = await supabase
+              .from('user_roles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single();
+
+            if (!existingRole) {
+              // Create default role for Google OAuth users
+              await supabase
+                .from('user_roles')
+                .insert({
+                  user_id: session.user.id,
+                  role: 'teacher',
+                  email: session.user.email
+                });
+            }
           }, 0);
         }
 
