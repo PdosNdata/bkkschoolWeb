@@ -19,6 +19,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [activityForm, setActivityForm] = useState({
     title: "",
     description: "",
@@ -34,7 +35,8 @@ const Dashboard = () => {
     color: "bg-blue-50 border-blue-200",
     iconColor: "text-blue-600",
     href: "/studentall",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "attendance_system"
   }, {
     title: "ระบบงานพัสดุ",
     description: "จัดการพัสดุ วัสดุ อุปกรณ์การศึกษา",
@@ -42,7 +44,8 @@ const Dashboard = () => {
     color: "bg-green-50 border-green-300",
     iconColor: "text-green-600",
     href: "/supplies",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "supplies_system"
    }, {
     title: "ระบบกิจการนักเรียน",
     description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
@@ -50,7 +53,8 @@ const Dashboard = () => {
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/StudentForm",
-    roles: ["student", "teacher", "admin"]
+    roles: ["student", "teacher", "admin"],
+    permissionName: "student_affairs"
   }, 
   {
     title: "กิจกรรมภายใน",
@@ -59,7 +63,8 @@ const Dashboard = () => {
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/activities-form",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "internal_activities"
   },
   {
     title: "กิจกรรมทั้งหมด",
@@ -68,7 +73,8 @@ const Dashboard = () => {
     color: "bg-violet-50 border-violet-200",
     iconColor: "text-violet-600",
     href: "/activity-all-form",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "all_activities"
   },
     {
     title: "ประชาสัมพันธ์",
@@ -77,7 +83,8 @@ const Dashboard = () => {
     color: "bg-pink-50 border-pink-200",
     iconColor: "text-pink-600",
     href: "/NewsForm",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "public_relations"
   }, {
     title: "คลังสื่อออนไลน์",
     description: "จัดการสื่อการเรียนรู้ วิดีโอ เอกสาร และลิงค์ต่างๆ",
@@ -85,7 +92,8 @@ const Dashboard = () => {
     color: "bg-orange-50 border-orange-200",
     iconColor: "text-orange-600",
     href: "/media-form",
-    roles: ["teacher", "admin"]
+    roles: ["teacher", "admin"],
+    permissionName: "media_library"
   }, {
     title: "ระบบบุคลากร",
     description: "จัดการข้อมูลครู อาจารย์ และเจ้าหน้าที่",
@@ -93,7 +101,8 @@ const Dashboard = () => {
     color: "bg-teal-50 border-teal-200",
     iconColor: "text-teal-600",
     href: "/personnel",
-    roles: ["admin"]
+    roles: ["admin"],
+    permissionName: "personnel_system"
   }, {
     title: "จัดการสิทธิ์เมนู",
     description: "กำหนดสิทธิ์การเข้าใช้เมนูต่าง ๆ สำหรับผู้ใช้",
@@ -101,7 +110,8 @@ const Dashboard = () => {
     color: "bg-indigo-50 border-indigo-200",
     iconColor: "text-indigo-600",
     href: "/menu-permissions",
-    roles: ["admin"]
+    roles: ["admin"],
+    permissionName: "menu_permissions"
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",
@@ -109,16 +119,21 @@ const Dashboard = () => {
     color: "bg-red-50 border-red-200",
     iconColor: "text-red-600",
     href: "/admin",
-    roles: ["admin"]
+    roles: ["admin"],
+    permissionName: "admin_panel"
   }];
 
-  // Filter system cards based on user role
-  const systemCards = allSystemCards.filter(card => 
-    card.roles.includes(userRole) || userRole === ""
-  );
+  // Filter system cards based on user role and permissions
+  const systemCards = allSystemCards.filter(card => {
+    // Admin sees everything
+    if (userRole === "admin") return true;
+    
+    // For other roles, check if they have the specific permission
+    return card.permissionName && userPermissions.includes(card.permissionName);
+  });
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetchUserRoleAndPermissions = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -152,7 +167,7 @@ const Dashboard = () => {
           return;
         }
 
-        // Fetch user role for display
+        // Fetch user role
         const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
@@ -162,6 +177,19 @@ const Dashboard = () => {
         
         if (roleData) {
           setUserRole(roleData.role);
+        }
+
+        // Fetch user permissions
+        const { data: permissionsData } = await supabase
+          .from('user_permissions')
+          .select('permission_name')
+          .eq('user_id', user.id)
+          .eq('granted', true);
+        
+        if (permissionsData) {
+          const permissions = permissionsData.map(p => p.permission_name);
+          setUserPermissions(permissions);
+          console.log('User permissions:', permissions);
         }
 
         setIsLoading(false);
@@ -176,7 +204,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchUserRole();
+    fetchUserRoleAndPermissions();
   }, [navigate, toast]);
   const handleActivitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
