@@ -117,15 +117,12 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for auth changes to avoid redirecting away while tokens are being processed
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setChecking(false);
-      }
-    });
+    let mounted = true;
 
-    // Initial session check
+    // Initial session check first
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
       if (session) {
         setChecking(false);
       } else {
@@ -133,19 +130,46 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         const hasCode = !!url.searchParams.get("code");
         const hash = window.location.hash || "";
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
+        
         // If there is no ongoing auth flow, send user home
         if (!hasCode && !hasAuthInHash) {
+          setChecking(false);
           navigate("/", { replace: true });
+        } else {
+          // Wait a bit for auth flow to complete
+          setTimeout(() => {
+            if (mounted) setChecking(false);
+          }, 1000);
         }
       }
     });
 
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      
+      if (session) {
+        setChecking(false);
+      }
+    });
+
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
 
-  if (checking) return null;
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">กำลังตรวจสอบสิทธิ์...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return children;
 };
 
