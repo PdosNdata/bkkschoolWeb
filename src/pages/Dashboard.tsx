@@ -129,7 +129,9 @@ const Dashboard = () => {
     if (userRole === "admin") return true;
     
     // For other roles, check if they have the specific permission
-    return card.permissionName && userPermissions.includes(card.permissionName);
+    const hasPermission = card.permissionName && userPermissions.includes(card.permissionName);
+    console.log('Card:', card.title, 'Permission:', card.permissionName, 'Has permission:', hasPermission, 'User permissions:', userPermissions);
+    return hasPermission;
   });
 
   useEffect(() => {
@@ -180,16 +182,21 @@ const Dashboard = () => {
         }
 
         // Fetch user permissions
-        const { data: permissionsData } = await supabase
+        const { data: permissionsData, error: permissionsError } = await supabase
           .from('user_permissions')
           .select('permission_name')
           .eq('user_id', user.id)
           .eq('granted', true);
         
+        console.log('Permissions query result:', { permissionsData, permissionsError, userId: user.id });
+        
         if (permissionsData) {
           const permissions = permissionsData.map(p => p.permission_name);
           setUserPermissions(permissions);
           console.log('User permissions:', permissions);
+        } else {
+          console.log('No permissions data found or error:', permissionsError);
+          setUserPermissions([]);
         }
 
         setIsLoading(false);
