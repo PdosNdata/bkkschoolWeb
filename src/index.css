@@ -65,6 +65,9 @@ All colors MUST be HSL.
     /* Dark purple to light gradient */
     --gradient-orange-white: linear-gradient(135deg, hsl(270 55% 50%), hsl(280 40% 75%));
     
+    /* Custom pink-purple gradient (top-left to bottom-right) */
+    --gradient-pink-purple: linear-gradient(135deg, hsl(304 73% 64%), hsl(284 100% 39%));
+    
     --shadow-elegant: 0 10px 30px -10px hsl(270 70% 45% / 0.25);
     --shadow-glow: 0 0 40px hsl(280 65% 55% / 0.35);
     
