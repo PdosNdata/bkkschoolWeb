@@ -17,15 +17,84 @@
       .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
     </style>
     
-     <!-- Preload critical LCP images with appropriate sizes -->
+    <!-- Font Face Declarations with font-display: swap -->
+    <style>
+      @font-face {
+        font-family: 'Sarabun';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(/fonts/sarabun-thai-300-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Sarabun';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/sarabun-thai-400-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Sarabun';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url(/fonts/sarabun-thai-500-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Sarabun';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/sarabun-thai-600-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Sarabun';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/fonts/sarabun-thai-700-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(/fonts/k2d-thai-300-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/k2d-thai-400-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url(/fonts/k2d-thai-500-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/k2d-thai-600-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'K2D';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/fonts/k2d-thai-700-normal.woff2) format('woff2');
+      }
+    </style>
+    
+    <!-- Preload critical LCP images with appropriate sizes -->
     <link rel="preload" href="/src/assets/school-logo-optimized.webp" as="image" type="image/webp" media="(max-width: 64px)">
     <link rel="preload" href="/src/assets/activities-image-optimized.webp" as="image" type="image/webp" media="(min-width: 768px)" imagesizes="896px">
     <link rel="preload" href="/src/assets/popup-image-optimized.webp" as="image" type="image/webp" media="(min-width: 320px)" imagesizes="(max-width: 900px) 100vw, 900px">
-    
-    <!-- Thai Font Loading - synchronous for reliable production loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=K2D:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://dhufwdxxfbahovnmjgrc.supabase.co">
