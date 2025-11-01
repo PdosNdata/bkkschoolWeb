@@ -35,7 +35,7 @@ const Footer = () => {
               </li>
               <li className="text-base">
                 <a href="#activities" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">
-                  กิจกรรมภายใน
+                  กิจกรรมสร้างสรรค์สังคม
                 </a>
               </li>
               <li>
