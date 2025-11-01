@@ -39,9 +39,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#news" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">
-                  ข่าวสาร
-                </a>
+                <a href="#news" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">ข่าวสารประชาสัมพันธ์</a>
               </li>
               <li>
                 <a href="#contact" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">
