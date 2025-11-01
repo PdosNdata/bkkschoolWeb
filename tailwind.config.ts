@@ -87,6 +87,7 @@ export default {
         'gradient-purple-soft': 'var(--gradient-purple-soft)',
         'gradient-news-bg': 'var(--gradient-news-bg)',
         'gradient-orange-white': 'var(--gradient-orange-white)',
+        'gradient-rainbow': 'var(--gradient-rainbow)',
         'gradient-pink-purple': 'var(--gradient-pink-purple)',
 			},
 			boxShadow: {
