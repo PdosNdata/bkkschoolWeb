@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield } from "lucide-react";
+import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -112,6 +112,15 @@ const Dashboard = () => {
     href: "/menu-permissions",
     roles: ["admin"],
     permissionName: "menu_permissions"
+  }, {
+    title: "ระบบหนังสือเรียน",
+    description: "จัดการหนังสือเรียน เบิกจ่าย และคืน",
+    icon: Book,
+    color: "bg-amber-50 border-amber-200",
+    iconColor: "text-amber-600",
+    href: "/textbook-dashboard",
+    roles: ["teacher", "admin"],
+    permissionName: "textbook_system"
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",
