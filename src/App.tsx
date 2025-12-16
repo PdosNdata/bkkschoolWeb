@@ -23,6 +23,7 @@ import PersonnelReportPage from "./pages/PersonnelReportPage";
 import PublicPersonnelReport from "./pages/PublicPersonnelReport";
 import PersonnelInSchool from "./pages/PersonnelInSchool";
 import MenuPermissionsPage from "./pages/MenuPermissionsPage";
+import TextbookDashboard from "./pages/TextbookDashboard";
 import NotFound from "./pages/NotFound";
 
 
