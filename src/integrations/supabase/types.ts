@@ -109,7 +109,7 @@ export type Database = {
           action: string
           application_id: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           performed_at: string | null
@@ -120,7 +120,7 @@ export type Database = {
           action: string
           application_id?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           performed_at?: string | null
@@ -131,7 +131,7 @@ export type Database = {
           action?: string
           application_id?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           performed_at?: string | null
@@ -375,7 +375,7 @@ export type Database = {
           accessed_at: string
           application_id: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
         }
@@ -384,7 +384,7 @@ export type Database = {
           accessed_at?: string
           application_id?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -393,7 +393,7 @@ export type Database = {
           accessed_at?: string
           application_id?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -497,10 +497,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_access_dashboard: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      can_access_dashboard: { Args: never; Returns: boolean }
       check_submission_rate_limit: {
         Args: { p_email: string; p_ip_address: unknown }
         Returns: boolean
@@ -514,7 +511,7 @@ export type Database = {
         Returns: string
       }
       get_admission_applications_for_admin: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           birth_date: string
@@ -533,7 +530,7 @@ export type Database = {
         }[]
       }
       get_admission_applications_secure: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           birth_date: string
@@ -555,10 +552,7 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
       log_sensitive_access: {
         Args: { access_type: string; app_id: string }
         Returns: undefined
