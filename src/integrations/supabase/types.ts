@@ -432,6 +432,136 @@ export type Database = {
         }
         Relationships: []
       }
+      textbook_requests: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          quantity: number
+          requested_by: string
+          status: string
+          textbook_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          requested_by: string
+          status?: string
+          textbook_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          requested_by?: string
+          status?: string
+          textbook_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "textbook_requests_textbook_id_fkey"
+            columns: ["textbook_id"]
+            isOneToOne: false
+            referencedRelation: "textbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      textbook_transactions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          notes: string | null
+          quantity: number
+          status: string
+          textbook_id: string | null
+          transaction_id: string
+          updated_at: string
+          user_name: string
+          user_reference: string | null
+          user_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          status?: string
+          textbook_id?: string | null
+          transaction_id: string
+          updated_at?: string
+          user_name: string
+          user_reference?: string | null
+          user_type: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quantity?: number
+          status?: string
+          textbook_id?: string | null
+          transaction_id?: string
+          updated_at?: string
+          user_name?: string
+          user_reference?: string | null
+          user_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "textbook_transactions_textbook_id_fkey"
+            columns: ["textbook_id"]
+            isOneToOne: false
+            referencedRelation: "textbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      textbooks: {
+        Row: {
+          created_at: string
+          grade_level: string
+          id: string
+          low_stock_threshold: number
+          price: number | null
+          quantity: number
+          subject: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          grade_level: string
+          id?: string
+          low_stock_threshold?: number
+          price?: number | null
+          quantity?: number
+          subject: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          grade_level?: string
+          id?: string
+          low_stock_threshold?: number
+          price?: number | null
+          quantity?: number
+          subject?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           created_at: string
