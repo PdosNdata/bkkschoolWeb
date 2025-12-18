@@ -228,6 +228,36 @@ export type Database = {
         }
         Relationships: []
       }
+      kv_store_152a3c10: {
+        Row: {
+          key: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      kv_store_2085a334: {
+        Row: {
+          key: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       media_resources: {
         Row: {
           author_name: string
