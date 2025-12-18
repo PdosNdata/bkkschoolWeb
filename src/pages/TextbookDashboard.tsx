@@ -142,7 +142,7 @@ const TextbookDashboard = () => {
   const pendingRequests = requests.length;
 
   // Prepare chart data
-  const gradeOrder = ['K2', 'K3', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'M1', 'M2', 'M3'];
+  const gradeOrder = ['อ.2', 'อ.3', 'ป.1', 'ป.2', 'ป.3', 'ป.4', 'ป.5', 'ป.6', 'ม.1', 'ม.2', 'ม.3'];
   const chartData = gradeOrder.map(grade => {
     const booksInGrade = textbooks.filter(book => book.grade_level === grade);
     const total = booksInGrade.reduce((sum, book) => sum + book.quantity, 0);
