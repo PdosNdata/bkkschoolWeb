@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -52,6 +53,61 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (email, password, fullName, role = 'teacher') => {
+    try {
+      // สมัครสมาชิกผ่าน Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: role,
+          }
+        }
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      // บันทึกข้อมูลเพิ่มเติมลงตาราง users (ถ้ามี)
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email: email,
+            full_name: fullName,
+            role: role,
+          });
+
+        // ถ้าตาราง users ไม่มีก็ไม่เป็นไร
+        if (profileError) {
+          console.log('Profile insert skipped:', profileError.message);
+        }
+      }
+
+      return {
+        success: true,
+        message: 'สมัครสมาชิกสำเร็จ กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี',
+        user: authData.user
+      };
+    } catch (error) {
+      let errorMessage = 'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่';
+
+      if (error.message?.includes('already registered')) {
+        errorMessage = 'อีเมลนี้ถูกใช้งานแล้ว';
+      } else if (error.message?.includes('invalid email')) {
+        errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง';
+      } else if (error.message?.includes('password')) {
+        errorMessage = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+      }
+
+      return { success: false, message: errorMessage };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -62,6 +118,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    register,
     logout,
     loading,
     isAuthenticated: !!user,

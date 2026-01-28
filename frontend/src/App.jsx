@@ -6,6 +6,7 @@ import DashboardLayout from './layouts/DashboardLayout'
 
 import LandingPage from './pages/public/LandingPage'
 import LoginPage from './pages/public/LoginPage'
+import RegisterPage from './pages/public/RegisterPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import StudentsPage from './pages/dashboard/StudentsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -27,6 +28,7 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Route>
       <Route
         path="/admin/dashboard"

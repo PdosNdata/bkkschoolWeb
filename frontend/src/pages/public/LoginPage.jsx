@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion'
 import { User, Lock, Eye } from 'lucide-react'
@@ -180,12 +180,20 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-sm text-center text-gray-500 mt-6">
-            ติดปัญหาการใช้งาน?{' '}
-            <span className="text-blue-600 cursor-pointer">
-              ติดต่อฝ่ายสนับสนุน
-            </span>
-          </p>
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-sm text-gray-500">
+              ยังไม่มีบัญชี?{' '}
+              <Link to="/register" className="text-blue-600 hover:underline font-medium">
+                สมัครสมาชิก
+              </Link>
+            </p>
+            <p className="text-sm text-gray-500">
+              ติดปัญหาการใช้งาน?{' '}
+              <span className="text-blue-600 cursor-pointer">
+                ติดต่อฝ่ายสนับสนุน
+              </span>
+            </p>
+          </div>
         </div>
       </div>
 
