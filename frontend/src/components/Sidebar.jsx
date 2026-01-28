@@ -3,38 +3,51 @@ import { useAuth } from '../context/AuthContext'
 import { menuConfig } from '../config/menuConfig'
 
 export default function Sidebar({ mobile = false, onClose }) {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   if (!user) return null
 
   const menus = menuConfig[user.role] || []
 
   return (
     <aside className="w-64 bg-white border-r min-h-screen flex flex-col">
-    {/* Logo */}
-    <div className="p-6 flex items-center gap-3">
-      <div className="bg-blue-600 text-white p-2 rounded-lg">🎓</div>
-      <div>
-        <p className="font-bold">ผู้ดูแลระบบหนังสือเรียน</p>
-        <p className="text-xs text-gray-500">ผู้ดูแลระบบ</p>
+      {/* Logo */}
+      <div className="p-6 flex items-center gap-3">
+        <div className="bg-blue-600 text-white p-2 rounded-lg">🎓</div>
+        <div>
+          <p className="font-bold text-sm">{user.name}</p>
+          <p className="text-xs text-gray-500">{user.role}</p>
+        </div>
       </div>
-    </div>
 
-    {/* Menu */}
-    <nav className="flex-1 px-4 space-y-2">
-      <SidebarItem label="แดชบอร์ด" active />
-      <SidebarItem label="คำสั่งซื้อ" badge="12" />
-      <SidebarItem label="คลังสินค้า" />
-      <SidebarItem label="การจัดการผู้ใช้" />
-      <SidebarItem label="การตั้งค่างบประมาณ" />
-      <SidebarItem label="รายงาน" />
-    </nav>
+      {/* Menu */}
+      <nav className="flex-1 px-4 space-y-1">
+        {menus.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            onClick={mobile ? onClose : undefined}
+            className={({ isActive }) =>
+              `block px-4 py-2 rounded-lg text-sm ${
+                isActive
+                  ? 'bg-blue-50 text-blue-600 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
 
-    {/* Logout */}
-    <div className="p-4 border-t">
-      <button className="text-gray-600 hover:text-red-500">
-        ออกจากระบบ
-      </button>
-    </div>
-  </aside>
+      {/* Logout */}
+      <div className="p-4 border-t">
+        <button
+          onClick={logout}
+          className="text-gray-600 hover:text-red-500 text-sm"
+        >
+          ออกจากระบบ
+        </button>
+      </div>
+    </aside>
   )
 }
