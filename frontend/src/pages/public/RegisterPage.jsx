@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import Swal from 'sweetalert2'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -67,6 +68,34 @@ export default function RegisterPage() {
     const isValidConfirmPassword = validate('confirmPassword', form.confirmPassword)
 
     if (!isValidFullName || !isValidEmail || !isValidPassword || !isValidConfirmPassword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+        text: 'ตรวจสอบข้อมูลที่กรอกอีกครั้ง',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#2563eb',
+      })
+      return
+    }
+
+    // ตรวจสอบความรัดกุมของรหัสผ่าน
+    const passwordStrength = checkPasswordStrength(form.password)
+    if (!passwordStrength.isStrong) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'รหัสผ่านไม่รัดกุม',
+        html: `
+          <p class="text-left">รหัสผ่านควรประกอบด้วย:</p>
+          <ul class="text-left mt-2">
+            <li>${passwordStrength.hasMinLength ? '✅' : '❌'} อย่างน้อย 8 ตัวอักษร</li>
+            <li>${passwordStrength.hasUppercase ? '✅' : '❌'} ตัวพิมพ์ใหญ่ (A-Z)</li>
+            <li>${passwordStrength.hasLowercase ? '✅' : '❌'} ตัวพิมพ์เล็ก (a-z)</li>
+            <li>${passwordStrength.hasNumber ? '✅' : '❌'} ตัวเลข (0-9)</li>
+          </ul>
+        `,
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#2563eb',
+      })
       return
     }
 
@@ -77,12 +106,41 @@ export default function RegisterPage() {
     setLoading(false)
 
     if (result.success) {
-      setSuccess(result.message)
-      setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'สมัครสมาชิกสำเร็จ!',
+        text: 'ระบบจะพาคุณไปหน้าเข้าสู่ระบบ',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#16a34a',
+        timer: 2000,
+        timerProgressBar: true,
+      }).then(() => {
         navigate('/login')
-      }, 2000)
+      })
     } else {
-      setError(result.message)
+      Swal.fire({
+        icon: 'error',
+        title: 'สมัครสมาชิกไม่สำเร็จ',
+        text: result.message,
+        confirmButtonText: 'ลองใหม่',
+        confirmButtonColor: '#dc2626',
+      })
+    }
+  }
+
+  // ฟังก์ชันตรวจสอบความรัดกุมของรหัสผ่าน
+  const checkPasswordStrength = (password) => {
+    const hasMinLength = password.length >= 8
+    const hasUppercase = /[A-Z]/.test(password)
+    const hasLowercase = /[a-z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+
+    return {
+      isStrong: hasMinLength && hasUppercase && hasLowercase && hasNumber,
+      hasMinLength,
+      hasUppercase,
+      hasLowercase,
+      hasNumber,
     }
   }
 

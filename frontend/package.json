@@ -23,7 +23,8 @@
     "react-dom": "^18.2.0",
     "react-papaparse": "^4.4.0",
     "react-router-dom": "^6.20.0",
-    "react-to-pdf": "^2.0.3"
+    "react-to-pdf": "^2.0.3",
+    "sweetalert2": "^11.26.17"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
