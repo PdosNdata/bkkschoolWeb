@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { motion } from 'framer-motion'
 import { User, Lock, Eye } from 'lucide-react'
+import Swal from 'sweetalert2'
 
 
 <motion.div
@@ -58,9 +59,25 @@ export default function LoginPage() {
     setLoading(false)
 
     if (result.success) {
-      navigate('/dashboard')
+      Swal.fire({
+        icon: 'success',
+        title: 'เข้าสู่ระบบสำเร็จ!',
+        text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#16a34a',
+        timer: 1500,
+        timerProgressBar: true,
+      }).then(() => {
+        navigate('/dashboard')
+      })
     } else {
-      setError(result.message)
+      Swal.fire({
+        icon: 'error',
+        title: 'เข้าสู่ระบบไม่สำเร็จ',
+        text: result.message,
+        confirmButtonText: 'ลองใหม่',
+        confirmButtonColor: '#dc2626',
+      })
     }
   }
 
