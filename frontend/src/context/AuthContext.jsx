@@ -36,19 +36,40 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await api.post('/auth/login', { username, password });
-      const { token, user: userData } = response.data;
-      
+      // เข้าสู่ระบบผ่าน Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: username,
+        password: password,
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      const userData = {
+        id: authData.user.id,
+        email: authData.user.email,
+        name: authData.user.user_metadata?.full_name || authData.user.email,
+        role: authData.user.user_metadata?.role || 'teacher',
+      };
+
       // บันทึก token และ user data
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', authData.session.access_token);
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       setUser(userData);
-      
+
       return { success: true, user: userData };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 
-                        'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบ username และ password';
+      console.error('Login error:', error);
+      let errorMessage = 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน';
+
+      if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+      }
+
       return { success: false, message: errorMessage };
     }
   };
@@ -113,10 +134,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };
 
