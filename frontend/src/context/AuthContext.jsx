@@ -94,14 +94,19 @@ export const AuthProvider = ({ children }) => {
         user: authData.user
       };
     } catch (error) {
+      console.error('Registration error:', error);
       let errorMessage = 'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่';
 
-      if (error.message?.includes('already registered')) {
+      if (error.message?.includes('already registered') || error.message?.includes('already been registered')) {
         errorMessage = 'อีเมลนี้ถูกใช้งานแล้ว';
-      } else if (error.message?.includes('invalid email')) {
+      } else if (error.message?.includes('invalid email') || error.message?.includes('Invalid email')) {
         errorMessage = 'รูปแบบอีเมลไม่ถูกต้อง';
-      } else if (error.message?.includes('password')) {
+      } else if (error.message?.includes('password') || error.message?.includes('Password')) {
         errorMessage = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+      } else if (error.message?.includes('Email signups are disabled')) {
+        errorMessage = 'ระบบยังไม่เปิดให้สมัครสมาชิกด้วยอีเมล กรุณาติดต่อผู้ดูแลระบบ';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       return { success: false, message: errorMessage };
