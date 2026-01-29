@@ -238,16 +238,30 @@ export default function RegisterPage() {
               <label className="block text-sm font-medium mb-1">
                 ตำแหน่ง
               </label>
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                className="input-field"
-              >
-                <option value="teacher">ครู</option>
-                <option value="staff">เจ้าหน้าที่</option>
-                <option value="warehouse">ฝ่ายคลังสินค้า</option>
-              </select>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, role: 'teacher' }))}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    form.role === 'teacher'
+                      ? 'border-green-600 bg-green-50 text-green-700'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="text-lg">👩‍🏫</span> ครู
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, role: 'admin' }))}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    form.role === 'admin'
+                      ? 'border-green-600 bg-green-50 text-green-700'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="text-lg">🛡️</span> แอดมิน
+                </button>
+              </div>
             </div>
 
             {/* Password */}
