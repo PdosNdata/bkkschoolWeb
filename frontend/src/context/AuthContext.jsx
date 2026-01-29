@@ -17,14 +17,30 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     try {
+      // ตรวจสอบ localStorage ก่อน
       const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
-      
-      if (token && userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+      const savedUser = localStorage.getItem('user');
+
+      if (token && savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+
+      // ตรวจสอบ session จาก Supabase (สำหรับ Google OAuth callback)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const u = session.user;
+        const userData = {
+          id: u.id,
+          email: u.email,
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email,
+          role: u.user_metadata?.role || 'teacher',
+          avatar: u.user_metadata?.avatar_url || null,
+        };
+        localStorage.setItem('token', session.access_token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
       }
     } catch (error) {
       console.error('Error checking auth:', error);
