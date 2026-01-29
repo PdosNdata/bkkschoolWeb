@@ -1,58 +1,92 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import {
-  ShoppingCart, Clock, CheckCircle, Search, Eye
+  ShoppingCart, Clock, CheckCircle, Search, Eye, Loader2
 } from 'lucide-react'
+import { getTeacherOrders } from '../../services/dashboard.service'
 
-const mockOrders = [
-  { id: 'ORD-2567-001', date: '15 พ.ค. 2567', classroom: 'ป.4/2', quantity: 8, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-002', date: '18 พ.ค. 2567', classroom: 'ป.4/2', quantity: 5, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-003', date: '22 พ.ค. 2567', classroom: 'ป.4/2', quantity: 12, status: 'กำลังจัดส่ง' },
-  { id: 'ORD-2567-004', date: '25 พ.ค. 2567', classroom: 'ป.4/2', quantity: 6, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-005', date: '28 พ.ค. 2567', classroom: 'ป.4/2', quantity: 10, status: 'รอดำเนินการ' },
-  { id: 'ORD-2567-006', date: '1 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 3, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-007', date: '5 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 7, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-008', date: '10 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 4, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-009', date: '15 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 9, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-010', date: '18 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 11, status: 'จัดส่งสำเร็จ' },
-  { id: 'ORD-2567-011', date: '20 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 2, status: 'รอดำเนินการ' },
-  { id: 'ORD-2567-012', date: '22 มิ.ย. 2567', classroom: 'ป.4/2', quantity: 8, status: 'จัดส่งสำเร็จ' },
-]
+const statusMap = {
+  pending: 'รอดำเนินการ',
+  approved: 'อนุมัติแล้ว',
+  shipping: 'กำลังจัดส่ง',
+  completed: 'จัดส่งสำเร็จ',
+  cancelled: 'ยกเลิก',
+}
 
 const statusStyles = {
   'รอดำเนินการ': 'bg-yellow-100 text-yellow-700',
-  'กำลังจัดส่ง': 'bg-blue-100 text-blue-700',
+  'อนุมัติแล้ว': 'bg-blue-100 text-blue-700',
+  'กำลังจัดส่ง': 'bg-indigo-100 text-indigo-700',
   'จัดส่งสำเร็จ': 'bg-green-100 text-green-700',
   'ยกเลิก': 'bg-red-100 text-red-700',
 }
 
 const PAGE_SIZE = 5
 
+// ฟอร์แมตวันที่เป็นภาษาไทย
+const formatDate = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+  const buddhistYear = d.getFullYear() + 543
+  return `${d.getDate()} ${months[d.getMonth()]} ${buddhistYear}`
+}
+
 export default function TeacherDashboardPage() {
   const { user } = useAuth()
+  const [orders, setOrders] = useState([])
+  const [loadingData, setLoadingData] = useState(true)
   const [searchText, setSearchText] = useState('')
   const [statusFilter, setStatusFilter] = useState('ทั้งหมด')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const filtered = mockOrders.filter((o) => {
-    const matchSearch = o.id.toLowerCase().includes(searchText.toLowerCase()) ||
-      o.classroom.toLowerCase().includes(searchText.toLowerCase())
-    const matchStatus = statusFilter === 'ทั้งหมด' || o.status === statusFilter
+  useEffect(() => {
+    if (user?.id) {
+      fetchOrders()
+    }
+  }, [user])
+
+  const fetchOrders = async () => {
+    setLoadingData(true)
+    try {
+      const data = await getTeacherOrders(user.id)
+      setOrders(data)
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+    } finally {
+      setLoadingData(false)
+    }
+  }
+
+  const filtered = orders.filter((o) => {
+    const displayStatus = statusMap[o.status] || o.status
+    const matchSearch = (o.order_number || '').toLowerCase().includes(searchText.toLowerCase()) ||
+      (o.classroom || '').toLowerCase().includes(searchText.toLowerCase())
+    const matchStatus = statusFilter === 'ทั้งหมด' || displayStatus === statusFilter
     return matchSearch && matchStatus
   })
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-  const totalOrders = mockOrders.length
-  const pendingOrders = mockOrders.filter(o => o.status === 'รอดำเนินการ').length
-  const completedOrders = mockOrders.filter(o => o.status === 'จัดส่งสำเร็จ').length
+  const totalOrders = orders.length
+  const pendingOrders = orders.filter(o => o.status === 'pending').length
+  const completedOrders = orders.filter(o => o.status === 'completed').length
 
   const stats = [
     { label: 'คำสั่งซื้อทั้งหมด', value: totalOrders, icon: ShoppingCart, iconBg: 'bg-blue-50', iconColor: 'text-blue-600' },
     { label: 'รอดำเนินการ', value: pendingOrders, icon: Clock, iconBg: 'bg-yellow-50', iconColor: 'text-yellow-600' },
     { label: 'จัดส่งสำเร็จ', value: completedOrders, icon: CheckCircle, iconBg: 'bg-green-50', iconColor: 'text-green-600' },
   ]
+
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-blue-600" size={32} />
+        <span className="ml-3 text-gray-500">กำลังโหลดข้อมูล...</span>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -102,6 +136,7 @@ export default function TeacherDashboardPage() {
           >
             <option>ทั้งหมด</option>
             <option>รอดำเนินการ</option>
+            <option>อนุมัติแล้ว</option>
             <option>กำลังจัดส่ง</option>
             <option>จัดส่งสำเร็จ</option>
             <option>ยกเลิก</option>
@@ -122,27 +157,32 @@ export default function TeacherDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {paginated.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-blue-600">{order.id}</td>
-                  <td className="px-4 py-3 text-gray-600">{order.date}</td>
-                  <td className="px-4 py-3 text-gray-600">{order.classroom}</td>
-                  <td className="px-4 py-3 text-center">{order.quantity}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusStyles[order.status] || 'bg-gray-100 text-gray-600'}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm">
-                      <Eye size={15} /> ดูรายละเอียด
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {paginated.map((order) => {
+                const displayStatus = statusMap[order.status] || order.status
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-blue-600">{order.order_number}</td>
+                    <td className="px-4 py-3 text-gray-600">{formatDate(order.created_at)}</td>
+                    <td className="px-4 py-3 text-gray-600">{order.classroom || '-'}</td>
+                    <td className="px-4 py-3 text-center">{order.total_quantity}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusStyles[displayStatus] || 'bg-gray-100 text-gray-600'}`}>
+                        {displayStatus}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm">
+                        <Eye size={15} /> ดูรายละเอียด
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
               {paginated.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">ไม่พบรายการ</td>
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                    {orders.length === 0 ? 'ยังไม่มีคำสั่งซื้อ' : 'ไม่พบรายการที่ค้นหา'}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -150,37 +190,39 @@ export default function TeacherDashboardPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
-          <p className="text-sm text-gray-500">
-            แสดง {filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1} ถึง{' '}
-            {Math.min(currentPage * PAGE_SIZE, filtered.length)} จาก {filtered.length} รายการ
-          </p>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40"
-            >
-              ก่อนหน้า
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {filtered.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
+            <p className="text-sm text-gray-500">
+              แสดง {(currentPage - 1) * PAGE_SIZE + 1} ถึง{' '}
+              {Math.min(currentPage * PAGE_SIZE, filtered.length)} จาก {filtered.length} รายการ
+            </p>
+            <div className="flex gap-1">
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1.5 rounded-lg text-sm ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-gray-200 hover:bg-gray-50'}`}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40"
               >
-                {page}
+                ก่อนหน้า
               </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40"
-            >
-              ถัดไป
-            </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${page === currentPage ? 'bg-blue-600 text-white' : 'border border-gray-200 hover:bg-gray-50'}`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40"
+              >
+                ถัดไป
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
