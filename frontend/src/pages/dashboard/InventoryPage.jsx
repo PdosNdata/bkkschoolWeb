@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { Search, Plus, Edit3, Trash2, AlertTriangle, Package, Loader2, Upload, Download, FileText } from 'lucide-react'
 import Swal from 'sweetalert2'
 import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable/dist/jspdf.plugin.autotable.mjs'
 
 const PAGE_SIZE = 10
 
@@ -178,7 +178,7 @@ export default function InventoryPage() {
       item.inventory?.[0]?.stock_quantity || 0
     ])
 
-    doc.autoTable({
+    autoTable(doc, {
       head: tableHeaders,
       body: tableData,
       startY: 28,
