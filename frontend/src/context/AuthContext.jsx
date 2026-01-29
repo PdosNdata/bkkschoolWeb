@@ -219,6 +219,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    setUser,
     login,
     loginWithGoogle,
     register,

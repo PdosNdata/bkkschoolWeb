@@ -9,6 +9,7 @@ import LoginPage from './pages/public/LoginPage'
 import RegisterPage from './pages/public/RegisterPage'
 import AuthCallbackPage from './pages/public/AuthCallbackPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
+import ProfilePage from './pages/dashboard/ProfilePage'
 import StudentsPage from './pages/dashboard/StudentsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import BudgetPage from './pages/admin/BudgetPage'
@@ -57,6 +58,7 @@ export default function App() {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/students" element={<StudentsPage />} />
 
       </Route>
