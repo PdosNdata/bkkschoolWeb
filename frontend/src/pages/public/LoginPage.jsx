@@ -5,12 +5,6 @@ import { motion } from 'framer-motion'
 import { User, Lock, Eye } from 'lucide-react'
 import Swal from 'sweetalert2'
 
-
-<motion.div
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-></motion.div>
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -18,6 +12,7 @@ export default function LoginPage() {
   const [form, setForm] = useState({
     username: '',
     password: '',
+    role: 'teacher',
     remember: false,
   })
   const [errors, setErrors] = useState({})
@@ -54,7 +49,7 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const result = await login(form.username, form.password)
+    const result = await login(form.username, form.password, form.role)
 
     setLoading(false)
 
@@ -128,17 +123,46 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Role Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2">เข้าสู่ระบบในฐานะ</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, role: 'teacher' }))}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    form.role === 'teacher'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="text-lg">👩‍🏫</span> ครู
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, role: 'admin' }))}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    form.role === 'admin'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="text-lg">🛡️</span> แอดมิน
+                </button>
+              </div>
+            </div>
+
             {/* Username */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                ชื่อผู้ใช้
+                {form.role === 'admin' ? 'อีเมลแอดมิน' : 'อีเมลครู'}
               </label>
               <input
                 type="text"
                 name="username"
                 value={form.username}
                 onChange={handleChange}
-                placeholder="กรอกชื่อผู้ใช้ หรือ อีเมล"
+                placeholder={form.role === 'admin' ? 'กรอกอีเมลแอดมิน' : 'กรอกอีเมลครู'}
                 required
                 className="input-field"
               />

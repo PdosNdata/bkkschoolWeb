@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (username, password) => {
+  const login = async (username, password, selectedRole = null) => {
     try {
       // เข้าสู่ระบบผ่าน Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -46,11 +46,21 @@ export const AuthProvider = ({ children }) => {
         throw authError;
       }
 
+      const userRole = authData.user.user_metadata?.role || 'teacher';
+
+      // ตรวจสอบว่า role ที่เลือกตรงกับ role จริงของผู้ใช้
+      if (selectedRole && selectedRole !== userRole) {
+        // ออกจากระบบทันทีเพราะ role ไม่ตรง
+        await supabase.auth.signOut();
+        const roleLabel = selectedRole === 'admin' ? 'แอดมิน' : 'ครู';
+        throw new Error(`บัญชีนี้ไม่ใช่ตำแหน่ง${roleLabel} กรุณาเลือกตำแหน่งให้ถูกต้อง`);
+      }
+
       const userData = {
         id: authData.user.id,
         email: authData.user.email,
         name: authData.user.user_metadata?.full_name || authData.user.email,
-        role: authData.user.user_metadata?.role || 'teacher',
+        role: userRole,
       };
 
       // บันทึก token และ user data
