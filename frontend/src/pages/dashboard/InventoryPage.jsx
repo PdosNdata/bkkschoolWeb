@@ -3,7 +3,6 @@ import { supabase } from '../../lib/supabase'
 import { Search, Plus, Edit3, Trash2, AlertTriangle, Package, Loader2, Upload, Download, FileText } from 'lucide-react'
 import Swal from 'sweetalert2'
 import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable/dist/jspdf.plugin.autotable.mjs'
 
 const PAGE_SIZE = 10
 
@@ -157,34 +156,59 @@ export default function InventoryPage() {
     URL.revokeObjectURL(url)
   }
 
-  // --- PDF Export ---
+  // --- PDF Export (manual table, no autotable dependency) ---
   const exportPdf = () => {
     const doc = new jsPDF('l', 'mm', 'a4')
-    doc.setFont('Helvetica')
+    const pageW = doc.internal.pageSize.getWidth()
+
+    doc.setFont('Helvetica', 'bold')
     doc.setFontSize(16)
     doc.text('Inventory Report', 14, 15)
+    doc.setFont('Helvetica', 'normal')
     doc.setFontSize(10)
     doc.text(`Date: ${new Date().toLocaleDateString('th-TH')}  |  Total: ${filtered.length} items`, 14, 22)
 
-    const tableHeaders = [['#', 'Title', 'ISBN', 'Grade', 'Subject', 'Publisher', 'Price (THB)', 'Stock']]
-    const tableData = filtered.map((item, idx) => [
-      idx + 1,
-      item.title,
-      item.isbn || '-',
-      gradeLabel[item.grade] || item.grade,
-      item.subject || '-',
-      item.publisher || '-',
-      Number(item.price).toLocaleString(),
-      item.inventory?.[0]?.stock_quantity || 0
-    ])
+    const headers = ['#', 'Title', 'ISBN', 'Grade', 'Subject', 'Publisher', 'Price', 'Stock']
+    const colWidths = [10, 70, 35, 25, 40, 50, 25, 20]
+    const startX = 14
+    let y = 30
+    const rowH = 7
 
-    autoTable(doc, {
-      head: tableHeaders,
-      body: tableData,
-      startY: 28,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [37, 99, 235] },
-      alternateRowStyles: { fillColor: [245, 247, 250] }
+    // Header row
+    doc.setFillColor(37, 99, 235)
+    doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), rowH, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(8)
+    doc.setFont('Helvetica', 'bold')
+    let x = startX
+    headers.forEach((h, i) => { doc.text(h, x + 2, y + 5); x += colWidths[i] })
+    y += rowH
+
+    // Data rows
+    doc.setFont('Helvetica', 'normal')
+    doc.setTextColor(30, 30, 30)
+    filtered.forEach((item, idx) => {
+      if (y > doc.internal.pageSize.getHeight() - 15) {
+        doc.addPage()
+        y = 15
+      }
+      if (idx % 2 === 1) {
+        doc.setFillColor(245, 247, 250)
+        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), rowH, 'F')
+      }
+      const row = [
+        String(idx + 1),
+        (item.title || '').substring(0, 40),
+        item.isbn || '-',
+        gradeLabel[item.grade] || item.grade,
+        (item.subject || '-').substring(0, 22),
+        (item.publisher || '-').substring(0, 28),
+        Number(item.price).toLocaleString(),
+        String(item.inventory?.[0]?.stock_quantity || 0)
+      ]
+      x = startX
+      row.forEach((val, i) => { doc.text(val, x + 2, y + 5); x += colWidths[i] })
+      y += rowH
     })
 
     doc.save(`inventory_${new Date().toISOString().slice(0,10)}.pdf`)
