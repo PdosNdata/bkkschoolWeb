@@ -2,6 +2,7 @@ export const menuConfig = {
   admin: [
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },
     { label: 'คำสั่งซื้อ', path: '/orders', icon: 'ShoppingCart', badge: '12' },
+    { label: 'นักเรียน', path: '/students', icon: 'GraduationCap' },
     { label: 'คลังสินค้า', path: '/inventory', icon: 'Package' },
     { label: 'การจัดการผู้ใช้', path: '/users', icon: 'Users' },
     { label: 'การตั้งค่างบประมาณ', path: '/budget', icon: 'Wallet' },

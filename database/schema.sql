@@ -45,6 +45,23 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- =====================================================
+-- 2.5 STUDENTS TABLE (นักเรียน)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS students (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id TEXT UNIQUE NOT NULL,                  -- รหัสประจำตัวนักเรียน
+  first_name TEXT NOT NULL,                         -- ชื่อ
+  last_name TEXT NOT NULL,                          -- นามสกุล
+  grade grade_level NOT NULL,                       -- ชั้นเรียน
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_students_grade ON students(grade);
+CREATE INDEX idx_students_student_id ON students(student_id);
+
+-- =====================================================
 -- 3. BUDGETS TABLE (งบประมาณ)
 -- =====================================================
 
