@@ -8,6 +8,7 @@ const PAGE_SIZE = 15
 const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
 const gradeOptions = ['kg2','kg3','p1','p2','p3','p4','p5','p6','m1','m2','m3']
 const genderLabel = { male: 'ชาย', female: 'หญิง' }
+const prefixOptions = ['เด็กชาย', 'เด็กหญิง', 'นาย', 'นางสาว']
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([])
@@ -17,7 +18,7 @@ export default function StudentsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [editItem, setEditItem] = useState(null)
-  const [form, setForm] = useState({ student_id: '', first_name: '', last_name: '', grade: 'p1', gender: 'male' })
+  const [form, setForm] = useState({ student_id: '', prefix: 'เด็กชาย', first_name: '', last_name: '', grade: 'p1', classroom: '1', gender: 'male' })
   const [csvUploading, setCsvUploading] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -36,13 +37,13 @@ export default function StudentsPage() {
 
   const openAdd = () => {
     setEditItem(null)
-    setForm({ student_id: '', first_name: '', last_name: '', grade: 'p1', gender: 'male' })
+    setForm({ student_id: '', prefix: 'เด็กชาย', first_name: '', last_name: '', grade: 'p1', classroom: '1', gender: 'male' })
     setShowModal(true)
   }
 
   const openEdit = (item) => {
     setEditItem(item)
-    setForm({ student_id: item.student_id, first_name: item.first_name, last_name: item.last_name, grade: item.grade, gender: item.gender || 'male' })
+    setForm({ student_id: item.student_id, prefix: item.prefix || 'เด็กชาย', first_name: item.first_name, last_name: item.last_name, grade: item.grade, classroom: item.classroom || '1', gender: item.gender || 'male' })
     setShowModal(true)
   }
 
@@ -113,9 +114,11 @@ export default function StudentsPage() {
       if (!row.student_id || !row.first_name || !row.last_name || !row.grade) continue
       rows.push({
         student_id: row.student_id,
+        prefix: row.prefix || 'เด็กชาย',
         first_name: row.first_name,
         last_name: row.last_name,
         grade: row.grade,
+        classroom: row.classroom || '1',
         gender: row.gender || 'male'
       })
     }
@@ -140,13 +143,15 @@ export default function StudentsPage() {
 
   // --- CSV Export ---
   const exportCsv = () => {
-    const csvHeaders = ['student_id', 'first_name', 'last_name', 'grade', 'gender']
+    const csvHeaders = ['student_id', 'prefix', 'first_name', 'last_name', 'gender', 'grade', 'classroom']
     const csvRows = filtered.map(s => [
       s.student_id,
+      `"${(s.prefix || 'เด็กชาย').replace(/"/g, '""')}"`,
       `"${(s.first_name || '').replace(/"/g, '""')}"`,
       `"${(s.last_name || '').replace(/"/g, '""')}"`,
+      s.gender || 'male',
       s.grade,
-      s.gender || 'male'
+      s.classroom || '1'
     ])
     const csvContent = [csvHeaders.join(','), ...csvRows.map(r => r.join(','))].join('\n')
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -220,7 +225,7 @@ export default function StudentsPage() {
       {/* CSV Format hint */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-3">
         <p className="text-sm text-blue-700">
-          <span className="font-medium">รูปแบบ CSV:</span> student_id, first_name, last_name, grade, gender (grade เช่น p1, p2, m1, kg2 | gender: male หรือ female)
+          <span className="font-medium">รูปแบบ CSV:</span> student_id, prefix, first_name, last_name, gender, grade, classroom (prefix: เด็กชาย/เด็กหญิง/นาย/นางสาว | grade: p1, m1, kg2 | gender: male/female)
         </p>
       </div>
 
@@ -243,10 +248,12 @@ export default function StudentsPage() {
               <tr className="bg-gray-50 text-gray-600">
                 <th className="text-left px-4 py-3 font-medium w-12">#</th>
                 <th className="text-left px-4 py-3 font-medium">รหัสนักเรียน</th>
+                <th className="text-left px-4 py-3 font-medium">คำนำหน้า</th>
                 <th className="text-left px-4 py-3 font-medium">ชื่อ</th>
                 <th className="text-left px-4 py-3 font-medium">นามสกุล</th>
                 <th className="text-left px-4 py-3 font-medium">เพศ</th>
-                <th className="text-left px-4 py-3 font-medium">ชั้นเรียน</th>
+                <th className="text-left px-4 py-3 font-medium">ชั้น</th>
+                <th className="text-left px-4 py-3 font-medium">ห้อง</th>
                 <th className="text-center px-4 py-3 font-medium">ดำเนินการ</th>
               </tr>
             </thead>
@@ -255,6 +262,7 @@ export default function StudentsPage() {
                 <tr key={s.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-400">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
                   <td className="px-4 py-3 font-mono text-blue-700 font-medium">{s.student_id}</td>
+                  <td className="px-4 py-3">{s.prefix || '-'}</td>
                   <td className="px-4 py-3">{s.first_name}</td>
                   <td className="px-4 py-3">{s.last_name}</td>
                   <td className="px-4 py-3">
@@ -267,6 +275,7 @@ export default function StudentsPage() {
                       {gradeLabel[s.grade] || s.grade}
                     </span>
                   </td>
+                  <td className="px-4 py-3 text-center">{s.classroom || '-'}</td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => openEdit(s)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit3 size={15} /></button>
@@ -275,7 +284,7 @@ export default function StudentsPage() {
                   </td>
                 </tr>
               ))}
-              {paginated.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">ไม่พบรายการ</td></tr>}
+              {paginated.length === 0 && <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">ไม่พบรายการ</td></tr>}
             </tbody>
           </table>
         </div>
@@ -300,9 +309,17 @@ export default function StudentsPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
             <h3 className="text-lg font-bold mb-4">{editItem ? 'แก้ไขข้อมูลนักเรียน' : 'เพิ่มนักเรียนใหม่'}</h3>
             <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">รหัสประจำตัวนักเรียน *</label>
-                <input type="text" className="input-field mt-1" placeholder="เช่น 12345" value={form.student_id} onChange={e => setForm(p => ({...p, student_id: e.target.value}))} />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">รหัสประจำตัวนักเรียน *</label>
+                  <input type="text" className="input-field mt-1" placeholder="เช่น 12345" value={form.student_id} onChange={e => setForm(p => ({...p, student_id: e.target.value}))} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">คำนำหน้า *</label>
+                  <select className="input-field mt-1" value={form.prefix} onChange={e => setForm(p => ({...p, prefix: e.target.value}))}>
+                    {prefixOptions.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -314,7 +331,7 @@ export default function StudentsPage() {
                   <input type="text" className="input-field mt-1" value={form.last_name} onChange={e => setForm(p => ({...p, last_name: e.target.value}))} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-sm font-medium">เพศ *</label>
                   <select className="input-field mt-1" value={form.gender} onChange={e => setForm(p => ({...p, gender: e.target.value}))}>
@@ -326,6 +343,12 @@ export default function StudentsPage() {
                   <label className="text-sm font-medium">ชั้นเรียน *</label>
                   <select className="input-field mt-1" value={form.grade} onChange={e => setForm(p => ({...p, grade: e.target.value}))}>
                     {gradeOptions.map(g => <option key={g} value={g}>{gradeLabel[g]}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">ห้อง *</label>
+                  <select className="input-field mt-1" value={form.classroom} onChange={e => setForm(p => ({...p, classroom: e.target.value}))}>
+                    {['1','2','3','4','5','6'].map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>

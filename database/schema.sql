@@ -51,10 +51,12 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS students (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id TEXT UNIQUE NOT NULL,                  -- รหัสประจำตัวนักเรียน
+  prefix TEXT NOT NULL DEFAULT 'เด็กชาย',           -- คำนำหน้า: เด็กชาย, เด็กหญิง, นาย, นางสาว
   first_name TEXT NOT NULL,                         -- ชื่อ
   last_name TEXT NOT NULL,                          -- นามสกุล
   gender TEXT NOT NULL DEFAULT 'male',              -- เพศ: male, female
   grade grade_level NOT NULL,                       -- ชั้นเรียน
+  classroom TEXT NOT NULL DEFAULT '1',              -- ห้องเรียน: 1, 2, 3, ...
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
