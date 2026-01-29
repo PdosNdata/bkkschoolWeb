@@ -9,7 +9,9 @@ export const menuConfig = {
   ],
   teacher: [
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },
-    { label: 'หนังสือประจำชั้น', path: '/class-books', icon: 'BookOpen' },
+    { label: 'รายการหนังสือ', path: '/class-books', icon: 'BookOpen' },
+    { label: 'คำสั่งซื้อของฉัน', path: '/my-orders', icon: 'ShoppingCart' },
+    { label: 'โปรไฟล์', path: '/profile', icon: 'User' },
   ],
   staff: [
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },

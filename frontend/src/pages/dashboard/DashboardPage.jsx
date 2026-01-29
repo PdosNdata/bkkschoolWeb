@@ -10,6 +10,7 @@ import {
   CategoryScale, LinearScale, PointElement, LineElement,
   ArcElement, Tooltip, Legend, Filler
 } from 'chart.js'
+import TeacherDashboardPage from './TeacherDashboardPage'
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -18,6 +19,11 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const { user } = useAuth()
+
+  // ถ้าเป็น teacher ให้แสดง TeacherDashboardPage
+  if (user?.role === 'teacher') {
+    return <TeacherDashboardPage />
+  }
   const [showAlert, setShowAlert] = useState(true)
 
   const stats = [
