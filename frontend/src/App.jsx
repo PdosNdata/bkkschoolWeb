@@ -11,6 +11,13 @@ import AuthCallbackPage from './pages/public/AuthCallbackPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import ProfilePage from './pages/dashboard/ProfilePage'
 import StudentsPage from './pages/dashboard/StudentsPage'
+import OrdersPage from './pages/dashboard/OrdersPage'
+import InventoryPage from './pages/dashboard/InventoryPage'
+import UserManagementPage from './pages/dashboard/UserManagementPage'
+import BudgetSettingsPage from './pages/dashboard/BudgetSettingsPage'
+import ReportsPage from './pages/dashboard/ReportsPage'
+import ClassBooksPage from './pages/dashboard/ClassBooksPage'
+import MyOrdersPage from './pages/dashboard/MyOrdersPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import BudgetPage from './pages/admin/BudgetPage'
 
@@ -60,7 +67,13 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/students" element={<StudentsPage />} />
-
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/users" element={<UserManagementPage />} />
+        <Route path="/budget" element={<BudgetSettingsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/class-books" element={<ClassBooksPage />} />
+        <Route path="/my-orders" element={<MyOrdersPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />
