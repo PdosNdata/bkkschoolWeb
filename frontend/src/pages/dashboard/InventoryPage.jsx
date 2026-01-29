@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Search, Plus, Edit3, Trash2, AlertTriangle, Package, Loader2 } from 'lucide-react'
+import { Search, Plus, Edit3, Trash2, AlertTriangle, Package, Loader2, Upload, Download, FileText } from 'lucide-react'
 import Swal from 'sweetalert2'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 
 const PAGE_SIZE = 10
 
@@ -13,6 +15,8 @@ export default function InventoryPage() {
   const [showModal, setShowModal] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [form, setForm] = useState({ title: '', isbn: '', author: '', publisher: '', price: '', level: 'primary', grade: 'p1', subject: '' })
+  const [csvUploading, setCsvUploading] = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => { fetchInventory() }, [])
 
@@ -67,6 +71,125 @@ export default function InventoryPage() {
     fetchInventory()
   }
 
+  // --- CSV Upload ---
+  const handleCsvUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCsvUploading(true)
+
+    const text = await file.text()
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+    if (lines.length < 2) {
+      Swal.fire({ icon: 'warning', title: 'ไฟล์ CSV ไม่ถูกต้อง', text: 'ต้องมีหัวตารางและข้อมูลอย่างน้อย 1 แถว', confirmButtonColor: '#2563eb' })
+      setCsvUploading(false)
+      fileInputRef.current.value = ''
+      return
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+    const requiredCols = ['title', 'price', 'grade']
+    const missing = requiredCols.filter(c => !headers.includes(c))
+    if (missing.length > 0) {
+      Swal.fire({ icon: 'error', title: 'คอลัมน์ไม่ครบ', text: `ต้องมีคอลัมน์: ${requiredCols.join(', ')}`, confirmButtonColor: '#2563eb' })
+      setCsvUploading(false)
+      fileInputRef.current.value = ''
+      return
+    }
+
+    const rows = []
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim())
+      const row = {}
+      headers.forEach((h, idx) => { row[h] = values[idx] || '' })
+      if (!row.title || !row.price || !row.grade) continue
+      rows.push({
+        title: row.title,
+        isbn: row.isbn || null,
+        author: row.author || null,
+        publisher: row.publisher || null,
+        price: Number(row.price) || 0,
+        level: row.level || 'primary',
+        grade: row.grade,
+        subject: row.subject || null,
+        is_active: true
+      })
+    }
+
+    if (rows.length === 0) {
+      Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูล', text: 'ไม่พบแถวข้อมูลที่ถูกต้อง', confirmButtonColor: '#2563eb' })
+      setCsvUploading(false)
+      fileInputRef.current.value = ''
+      return
+    }
+
+    const { error } = await supabase.from('books').insert(rows)
+    if (error) {
+      Swal.fire({ icon: 'error', title: 'อัพโหลดผิดพลาด', text: error.message })
+    } else {
+      Swal.fire({ icon: 'success', title: 'นำเข้าสำเร็จ', text: `เพิ่มหนังสือ ${rows.length} รายการ`, timer: 2000, showConfirmButton: false })
+      fetchInventory()
+    }
+    setCsvUploading(false)
+    fileInputRef.current.value = ''
+  }
+
+  // --- CSV Export ---
+  const exportCsv = () => {
+    const csvHeaders = ['title', 'isbn', 'author', 'publisher', 'price', 'level', 'grade', 'subject', 'stock']
+    const csvRows = filtered.map(item => [
+      `"${(item.title || '').replace(/"/g, '""')}"`,
+      item.isbn || '',
+      `"${(item.author || '').replace(/"/g, '""')}"`,
+      `"${(item.publisher || '').replace(/"/g, '""')}"`,
+      item.price,
+      item.level,
+      item.grade,
+      `"${(item.subject || '').replace(/"/g, '""')}"`,
+      item.inventory?.[0]?.stock_quantity || 0
+    ])
+    const csvContent = [csvHeaders.join(','), ...csvRows.map(r => r.join(','))].join('\n')
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `inventory_${new Date().toISOString().slice(0,10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // --- PDF Export ---
+  const exportPdf = () => {
+    const doc = new jsPDF('l', 'mm', 'a4')
+    doc.setFont('Helvetica')
+    doc.setFontSize(16)
+    doc.text('Inventory Report', 14, 15)
+    doc.setFontSize(10)
+    doc.text(`Date: ${new Date().toLocaleDateString('th-TH')}  |  Total: ${filtered.length} items`, 14, 22)
+
+    const tableHeaders = [['#', 'Title', 'ISBN', 'Grade', 'Subject', 'Publisher', 'Price (THB)', 'Stock']]
+    const tableData = filtered.map((item, idx) => [
+      idx + 1,
+      item.title,
+      item.isbn || '-',
+      gradeLabel[item.grade] || item.grade,
+      item.subject || '-',
+      item.publisher || '-',
+      Number(item.price).toLocaleString(),
+      item.inventory?.[0]?.stock_quantity || 0
+    ])
+
+    doc.autoTable({
+      head: tableHeaders,
+      body: tableData,
+      startY: 28,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [37, 99, 235] },
+      alternateRowStyles: { fillColor: [245, 247, 250] }
+    })
+
+    doc.save(`inventory_${new Date().toISOString().slice(0,10)}.pdf`)
+  }
+
   const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
 
   const filtered = items.filter(i =>
@@ -90,9 +213,21 @@ export default function InventoryPage() {
           <h1 className="text-2xl font-bold">คลังหนังสือเรียน</h1>
           <p className="text-gray-500 text-sm mt-1">จัดการหนังสือเรียนทั้งหมด ({items.length} รายการ)</p>
         </div>
-        <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
-          <Plus size={16} /> เพิ่มหนังสือ
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <input type="file" accept=".csv" ref={fileInputRef} onChange={handleCsvUpload} className="hidden" />
+          <button onClick={() => fileInputRef.current?.click()} disabled={csvUploading} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm hover:bg-green-700 disabled:opacity-50">
+            {csvUploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} นำเข้า CSV
+          </button>
+          <button onClick={exportCsv} className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-sm hover:bg-gray-50">
+            <Download size={16} /> ส่งออก CSV
+          </button>
+          <button onClick={exportPdf} className="flex items-center gap-2 px-4 py-2.5 border border-red-300 text-red-600 rounded-xl text-sm hover:bg-red-50">
+            <FileText size={16} /> ส่งออก PDF
+          </button>
+          <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
+            <Plus size={16} /> เพิ่มหนังสือ
+          </button>
+        </div>
       </div>
 
       {/* Low Stock Warning */}
