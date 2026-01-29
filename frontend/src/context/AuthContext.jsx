@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (username, password, selectedRole = null) => {
+  const login = async (username, password, selectedRole = null, remember = false) => {
     try {
       // เข้าสู่ระบบผ่าน Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -66,6 +66,15 @@ export const AuthProvider = ({ children }) => {
       // บันทึก token และ user data
       localStorage.setItem('token', authData.session.access_token);
       localStorage.setItem('user', JSON.stringify(userData));
+
+      // จดจำการเข้าสู่ระบบ
+      if (remember) {
+        localStorage.setItem('rememberedEmail', username);
+        localStorage.setItem('rememberedRole', selectedRole || userRole);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+        localStorage.removeItem('rememberedRole');
+      }
 
       setUser(userData);
 
@@ -144,6 +153,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/dashboard',
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Google login error:', error);
+      return { success: false, message: 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ' };
+    }
+  };
+
+  // ตรวจสอบ session จาก OAuth callback (Google)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const u = session.user;
+        const userData = {
+          id: u.id,
+          email: u.email,
+          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email,
+          role: u.user_metadata?.role || 'teacher',
+          avatar: u.user_metadata?.avatar_url || null,
+        };
+        localStorage.setItem('token', session.access_token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const logout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('token');
@@ -154,6 +204,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    loginWithGoogle,
     register,
     logout,
     loading,
