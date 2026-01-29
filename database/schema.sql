@@ -8,7 +8,7 @@
 -- 1. ENUM TYPES
 -- =====================================================
 
-CREATE TYPE user_role AS ENUM ('admin', 'teacher', 'staff', 'warehouse');
+CREATE TYPE user_role AS ENUM ('admin', 'teacher');
 
 CREATE TYPE education_level AS ENUM ('kindergarten', 'primary', 'secondary');
 
@@ -229,24 +229,24 @@ CREATE POLICY "Admin can manage users" ON users FOR ALL USING (
 
 -- Budgets: อ่านได้ทุกคน, แก้ไขได้เฉพาะ admin/staff
 CREATE POLICY "Anyone can view budgets" ON budgets FOR SELECT USING (true);
-CREATE POLICY "Admin/Staff can manage budgets" ON budgets FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff'))
+CREATE POLICY "Admin can manage budgets" ON budgets FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Books: อ่านได้ทุกคน, แก้ไขได้เฉพาะ admin/staff
 CREATE POLICY "Anyone can view books" ON books FOR SELECT USING (true);
-CREATE POLICY "Admin/Staff can manage books" ON books FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff'))
+CREATE POLICY "Admin can manage books" ON books FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Orders: ครูเห็นเฉพาะของตัวเอง, admin/staff เห็นทั้งหมด
 CREATE POLICY "Teachers see own orders" ON orders FOR SELECT USING (
   teacher_id = auth.uid() OR
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff', 'warehouse'))
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 CREATE POLICY "Teachers can create orders" ON orders FOR INSERT WITH CHECK (teacher_id = auth.uid());
-CREATE POLICY "Admin/Staff can manage orders" ON orders FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff'))
+CREATE POLICY "Admin can manage orders" ON orders FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Order Items: ตาม order policy
@@ -254,23 +254,23 @@ CREATE POLICY "View order items" ON order_items FOR SELECT USING (
   EXISTS (
     SELECT 1 FROM orders WHERE orders.id = order_items.order_id
     AND (orders.teacher_id = auth.uid() OR
-      EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff', 'warehouse')))
+      EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin')))
   )
 );
-CREATE POLICY "Admin/Staff manage order items" ON order_items FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff'))
+CREATE POLICY "Admin manage order items" ON order_items FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Inventory: อ่านได้ทุกคน, แก้ไขได้เฉพาะ admin/staff/warehouse
 CREATE POLICY "Anyone can view inventory" ON inventory FOR SELECT USING (true);
 CREATE POLICY "Warehouse/Admin can manage inventory" ON inventory FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff', 'warehouse'))
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Inventory Logs: อ่านได้ทุกคน, เขียนได้เฉพาะ admin/staff/warehouse
 CREATE POLICY "Anyone can view inventory logs" ON inventory_logs FOR SELECT USING (true);
 CREATE POLICY "Warehouse/Admin can log inventory" ON inventory_logs FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin', 'staff', 'warehouse'))
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('admin'))
 );
 
 -- Notifications: เห็นเฉพาะของตัวเอง
