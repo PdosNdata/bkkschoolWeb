@@ -155,11 +155,11 @@ export default function BudgetSettingsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">งบประมาณทั้งหมด</p>
-          <p className="text-2xl font-bold mt-1">฿{totalBudget.toLocaleString()}</p>
+          <p className="text-2xl font-bold mt-1"> บาท{totalBudget.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">ใช้ไปแล้ว</p>
-          <p className="text-2xl font-bold mt-1 text-blue-600">฿{totalUsed.toLocaleString()}</p>
+          <p className="text-2xl font-bold mt-1 text-blue-600"> บาท{totalUsed.toLocaleString()}</p>
           <div className="mt-2 w-full bg-gray-100 rounded-full h-1.5">
             <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${usedPct}%` }} />
           </div>
@@ -167,7 +167,7 @@ export default function BudgetSettingsPage() {
         </div>
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">คงเหลือ</p>
-          <p className="text-2xl font-bold mt-1 text-green-600">฿{(totalBudget - totalUsed).toLocaleString()}</p>
+          <p className="text-2xl font-bold mt-1 text-green-600"> บาท{(totalBudget - totalUsed).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl border p-5">
           <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function BudgetSettingsPage() {
           </div>
           <p className="text-2xl font-bold mt-1 text-purple-600">{totalStudents.toLocaleString()} คน</p>
           {totalStudents > 0 && totalBudget > 0 && (
-            <p className="text-xs text-gray-400 mt-1">เฉลี่ย ฿{Math.round(totalBudget / totalStudents).toLocaleString()}/คน</p>
+            <p className="text-xs text-gray-400 mt-1">เฉลี่ย  บาท{Math.round(totalBudget / totalStudents).toLocaleString()}/คน</p>
           )}
         </div>
       </div>
@@ -196,7 +196,7 @@ export default function BudgetSettingsPage() {
               </h3>
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span className="flex items-center gap-1"><Users size={14} /> {levelStudents} คน</span>
-                <span>รวม ฿{levelBudget.toLocaleString()}</span>
+                <span>รวม  บาท{levelBudget.toLocaleString()}</span>
               </div>
             </div>
 
@@ -248,9 +248,9 @@ export default function BudgetSettingsPage() {
                             onChange={e => handleAmountChange(grade, e.target.value)}
                           />
                         </td>
-                        <td className="px-4 py-3 text-right text-blue-600">฿{used.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-blue-600"> บาท{used.toLocaleString()}</td>
                         <td className={`px-4 py-3 text-right font-medium ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          ฿{remaining.toLocaleString()}
+                           บาท{remaining.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <button
@@ -269,12 +269,12 @@ export default function BudgetSettingsPage() {
                     <td className="px-4 py-3">รวม {levelLabel[level]}</td>
                     <td className="px-4 py-3 text-center text-purple-600">{levelStudents} คน</td>
                     <td className="px-4 py-3 text-center text-orange-600">
-                      {levelStudents > 0 ? `฿${Math.round(levelBudget / levelStudents).toLocaleString()}` : '-'}
+                      {levelStudents > 0 ? ` บาท${Math.round(levelBudget / levelStudents).toLocaleString()}` : '-'}
                     </td>
-                    <td className="px-4 py-3 text-center">฿{levelBudget.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-blue-600">฿{levelUsed.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-center"> บาท{levelBudget.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-blue-600"> บาท{levelUsed.toLocaleString()}</td>
                     <td className={`px-4 py-3 text-right ${(levelBudget - levelUsed) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ฿{(levelBudget - levelUsed).toLocaleString()}
+                       บาท{(levelBudget - levelUsed).toLocaleString()}
                     </td>
                     <td className="px-4 py-3"></td>
                   </tr>
