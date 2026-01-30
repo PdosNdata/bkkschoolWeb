@@ -49,6 +49,9 @@ export default function UserManagementPage() {
       return
     }
 
+    // บันทึก session ของ admin ก่อน
+    const { data: { session: adminSession } } = await supabase.auth.getSession()
+
     // สร้าง user ผ่าน Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: addForm.email,
@@ -73,6 +76,14 @@ export default function UserManagementPage() {
         homeroom_grade: addForm.homeroom_grade || null,
         homeroom_room: addForm.homeroom_room || null,
         is_active: true
+      })
+    }
+
+    // restore session ของ admin กลับ
+    if (adminSession) {
+      await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token,
       })
     }
 
