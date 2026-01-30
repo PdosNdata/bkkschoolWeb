@@ -242,7 +242,6 @@ export default function RegisterPage() {
                 <span className="text-lg">👩‍🏫</span> ครู
               </div>
             </div>
-            </div>
 
             {/* Password */}
             <div>
