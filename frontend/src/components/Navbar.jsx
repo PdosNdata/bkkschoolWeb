@@ -46,7 +46,7 @@ export default function Navbar() {
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">{user.name}</p>
                 <p className="text-xs text-gray-400">
-                  {user.role === 'admin' ? 'หัวหน้าวิชาการ' : user.role}
+                  {user.role === 'admin' ? 'ผู้ดูแลระบบ' : user.role === 'teacher' ? 'ครู' : user.role}
                 </p>
               </div>
               <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
