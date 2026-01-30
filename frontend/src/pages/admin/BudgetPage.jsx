@@ -13,9 +13,9 @@ export default function BudgetPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card title="งบประมาณทั้งหมด" value=" บาท5,000,000" />
-        <Card title="ใช้ไปแล้ว" value=" บาท1,200,000" />
-        <Card title="งบประมาณคงเหลือ" value=" บาท3,800,000" />
+        <Card title="งบประมาณทั้งหมด" value="5,000,000 บาท" />
+        <Card title="ใช้ไปแล้ว" value="1,200,000 บาท" />
+        <Card title="งบประมาณคงเหลือ" value="3,800,000 บาท" />
       </div>
 
       {/* Progress */}

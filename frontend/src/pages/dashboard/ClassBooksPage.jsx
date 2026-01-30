@@ -54,7 +54,7 @@ export default function ClassBooksPage() {
     }
     const result = await Swal.fire({
       title: 'ยืนยันการสั่งซื้อ?',
-      html: `<p>จำนวน ${totalQuantity} เล่ม</p><p>ยอดรวม  บาท${totalAmount.toLocaleString()}</p>`,
+      html: `<p>จำนวน ${totalQuantity} เล่ม</p><p>ยอดรวม ${totalAmount.toLocaleString()} บาท</p>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'สั่งซื้อ',
@@ -115,7 +115,7 @@ export default function ClassBooksPage() {
         {totalQuantity > 0 && (
           <button onClick={handleOrder} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
             <ShoppingCart size={16} />
-            สั่งซื้อ ({totalQuantity} เล่ม —  บาท{totalAmount.toLocaleString()})
+            สั่งซื้อ ({totalQuantity} เล่ม — {totalAmount.toLocaleString()} บาท)
           </button>
         )}
       </div>
@@ -152,7 +152,7 @@ export default function ClassBooksPage() {
 
               <div className="flex items-center justify-between mt-4">
                 <div>
-                  <p className="text-lg font-bold text-blue-600"> บาท{Number(book.price).toLocaleString()}</p>
+                  <p className="text-lg font-bold text-blue-600">{Number(book.price).toLocaleString()} บาท</p>
                   <p className={`text-xs ${stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
                     คงเหลือ: {stock} เล่ม
                   </p>
