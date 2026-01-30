@@ -79,6 +79,15 @@ export const AuthProvider = ({ children }) => {
         role: userRole,
       };
 
+      // upsert ลงตาราง users เผื่อยังไม่มี
+      await supabase.from('users').upsert({
+        id: authData.user.id,
+        email: authData.user.email,
+        full_name: authData.user.user_metadata?.full_name || authData.user.email,
+        role: userRole,
+        is_active: true,
+      }, { onConflict: 'id' });
+
       // บันทึก token และ user data
       localStorage.setItem('token', authData.session.access_token);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -127,21 +136,17 @@ export const AuthProvider = ({ children }) => {
         throw authError;
       }
 
-      // บันทึกข้อมูลเพิ่มเติมลงตาราง users (ถ้ามี)
+      // บันทึกข้อมูลลงตาราง users
       if (authData.user) {
-        const { error: profileError } = await supabase
+        await supabase
           .from('users')
-          .insert({
+          .upsert({
             id: authData.user.id,
             email: email,
             full_name: fullName,
             role: role,
-          });
-
-        // ถ้าตาราง users ไม่มีก็ไม่เป็นไร
-        if (profileError) {
-          console.log('Profile insert skipped:', profileError.message);
-        }
+            is_active: true,
+          }, { onConflict: 'id' });
       }
 
       return {
