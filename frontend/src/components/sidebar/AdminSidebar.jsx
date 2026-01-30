@@ -16,7 +16,7 @@ export default function Sidebar() {
           🎓
         </div>
         <div>
-          <p className="font-bold">ผู้ดูแลระบบหนังสือเรียน</p>
+          <p className="font-bold">ระบบบริหารจัดการหนังสือเรียน</p>
           <p className="text-xs text-gray-500">ผู้ดูแลระบบ</p>
         </div>
       </div>

@@ -31,7 +31,7 @@ export default function Sidebar({ mobile = false, onClose }) {
           <Package size={20} />
         </div>
         <div>
-          <p className="font-bold text-sm">ผู้ดูแลระบบหนังสือเรียน</p>
+          <p className="font-bold text-sm">ระบบบริหารจัดการหนังสือเรียน</p>
           <p className="text-xs text-gray-400">{user.role === 'admin' ? 'ผู้ดูแลระบบ' : user.role}</p>
         </div>
       </div>
