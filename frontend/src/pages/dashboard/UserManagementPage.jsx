@@ -4,7 +4,8 @@ import { Search, Edit3, Trash2, UserPlus, Shield, Loader2, User } from 'lucide-r
 import Swal from 'sweetalert2'
 
 const roleLabels = { admin: 'ผู้ดูแลระบบ', teacher: 'ครู' }
-const roleStyles = { admin: 'bg-purple-100 text-purple-700', teacher: 'bg-blue-100 text-blue-700' }
+const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
+const gradeOptions = ['', 'kg2','kg3','p1','p2','p3','p4','p5','p6','m1','m2','m3']
 
 const PAGE_SIZE = 10
 
@@ -15,7 +16,8 @@ export default function UserManagementPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [showModal, setShowModal] = useState(false)
-  const [addForm, setAddForm] = useState({ email: '', password: '', full_name: '', role: 'teacher' })
+  const [editUser, setEditUser] = useState(null)
+  const [addForm, setAddForm] = useState({ email: '', password: '', full_name: '', role: 'teacher', homeroom_grade: '', homeroom_room: '' })
 
   useEffect(() => { fetchUsers() }, [])
 
@@ -57,13 +59,15 @@ export default function UserManagementPage() {
         email: addForm.email,
         full_name: addForm.full_name,
         role: addForm.role,
+        homeroom_grade: addForm.homeroom_grade || null,
+        homeroom_room: addForm.homeroom_room || null,
         is_active: true
       })
     }
 
     Swal.fire({ icon: 'success', title: 'เพิ่มผู้ใช้สำเร็จ', timer: 1500, showConfirmButton: false })
     setShowModal(false)
-    setAddForm({ email: '', password: '', full_name: '', role: 'teacher' })
+    setAddForm({ email: '', password: '', full_name: '', role: 'teacher', homeroom_grade: '', homeroom_room: '' })
     fetchUsers()
   }
 
@@ -104,6 +108,26 @@ export default function UserManagementPage() {
       Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message })
     } else {
       Swal.fire({ icon: 'success', title: `${action}สำเร็จ`, timer: 1200, showConfirmButton: false })
+      fetchUsers()
+    }
+  }
+
+  const openEditUser = (u) => {
+    setEditUser({ id: u.id, full_name: u.full_name, homeroom_grade: u.homeroom_grade || '', homeroom_room: u.homeroom_room || '' })
+  }
+
+  const handleUpdateUser = async () => {
+    if (!editUser) return
+    const { error } = await supabase.from('users').update({
+      homeroom_grade: editUser.homeroom_grade || null,
+      homeroom_room: editUser.homeroom_room || null,
+    }).eq('id', editUser.id)
+
+    if (error) {
+      Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message })
+    } else {
+      Swal.fire({ icon: 'success', title: 'อัพเดทสำเร็จ', timer: 1200, showConfirmButton: false })
+      setEditUser(null)
       fetchUsers()
     }
   }
@@ -175,6 +199,7 @@ export default function UserManagementPage() {
                 <th className="text-left px-4 py-3 font-medium">ผู้ใช้</th>
                 <th className="text-left px-4 py-3 font-medium">อีเมล</th>
                 <th className="text-center px-4 py-3 font-medium">ตำแหน่ง</th>
+                <th className="text-center px-4 py-3 font-medium">ครูประจำชั้น</th>
                 <th className="text-center px-4 py-3 font-medium">สถานะ</th>
                 <th className="text-left px-4 py-3 font-medium">วันที่สมัคร</th>
                 <th className="text-center px-4 py-3 font-medium">ดำเนินการ</th>
@@ -202,22 +227,42 @@ export default function UserManagementPage() {
                     </select>
                   </td>
                   <td className="px-4 py-3 text-center">
+                    {u.role === 'teacher' ? (
+                      u.homeroom_grade ? (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          {gradeLabel[u.homeroom_grade] || u.homeroom_grade}{u.homeroom_room ? `/${u.homeroom_room}` : ''}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400">ยังไม่กำหนด</span>
+                      )
+                    ) : (
+                      <span className="text-xs text-gray-300">-</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${u.is_active !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {u.is_active !== false ? 'ใช้งาน' : 'ระงับ'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{formatDate(u.created_at)}</td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => toggleActive(u.id, u.is_active !== false, u.full_name)}
-                      className={`text-xs px-3 py-1.5 rounded-lg border ${u.is_active !== false ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}`}
-                    >
-                      {u.is_active !== false ? 'ระงับ' : 'เปิดใช้งาน'}
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      {u.role === 'teacher' && (
+                        <button onClick={() => openEditUser(u)} className="text-xs px-3 py-1.5 rounded-lg border text-blue-600 border-blue-200 hover:bg-blue-50">
+                          <Edit3 size={13} className="inline mr-1" />กำหนดชั้น
+                        </button>
+                      )}
+                      <button
+                        onClick={() => toggleActive(u.id, u.is_active !== false, u.full_name)}
+                        className={`text-xs px-3 py-1.5 rounded-lg border ${u.is_active !== false ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}`}
+                      >
+                        {u.is_active !== false ? 'ระงับ' : 'เปิดใช้งาน'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
-              {paginated.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">ไม่พบผู้ใช้</td></tr>}
+              {paginated.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">ไม่พบผู้ใช้</td></tr>}
             </tbody>
           </table>
         </div>
@@ -261,10 +306,58 @@ export default function UserManagementPage() {
                   <option value="admin">ผู้ดูแลระบบ</option>
                 </select>
               </div>
+              {addForm.role === 'teacher' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium">ครูประจำชั้น</label>
+                    <select className="input-field mt-1" value={addForm.homeroom_grade} onChange={e => setAddForm(p => ({...p, homeroom_grade: e.target.value}))}>
+                      <option value="">ไม่ระบุ</option>
+                      {gradeOptions.filter(g => g).map(g => <option key={g} value={g}>{gradeLabel[g]}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">ห้อง</label>
+                    <select className="input-field mt-1" value={addForm.homeroom_room} onChange={e => setAddForm(p => ({...p, homeroom_room: e.target.value}))}>
+                      <option value="">ไม่ระบุ</option>
+                      {['1','2','3','4','5','6'].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowModal(false)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ยกเลิก</button>
               <button onClick={handleAddTeacher} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">เพิ่มผู้ใช้</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Homeroom Modal */}
+      {editUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 mx-4">
+            <h3 className="text-lg font-bold mb-4">กำหนดครูประจำชั้น</h3>
+            <p className="text-sm text-gray-500 mb-4">{editUser.full_name}</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">ชั้นเรียน</label>
+                <select className="input-field mt-1" value={editUser.homeroom_grade} onChange={e => setEditUser(p => ({...p, homeroom_grade: e.target.value}))}>
+                  <option value="">ไม่ระบุ</option>
+                  {gradeOptions.filter(g => g).map(g => <option key={g} value={g}>{gradeLabel[g]}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">ห้อง</label>
+                <select className="input-field mt-1" value={editUser.homeroom_room} onChange={e => setEditUser(p => ({...p, homeroom_room: e.target.value}))}>
+                  <option value="">ไม่ระบุ</option>
+                  {['1','2','3','4','5','6'].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditUser(null)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ยกเลิก</button>
+              <button onClick={handleUpdateUser} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">บันทึก</button>
             </div>
           </div>
         </div>
