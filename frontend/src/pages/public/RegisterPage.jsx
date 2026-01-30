@@ -233,35 +233,15 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Role */}
+            {/* Role - ครูเท่านั้น */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 ตำแหน่ง
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setForm(prev => ({ ...prev, role: 'teacher' }))}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                    form.role === 'teacher'
-                      ? 'border-green-600 bg-green-50 text-green-700'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="text-lg">👩‍🏫</span> ครู
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm(prev => ({ ...prev, role: 'admin' }))}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                    form.role === 'admin'
-                      ? 'border-green-600 bg-green-50 text-green-700'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="text-lg">🛡️</span> แอดมิน
-                </button>
+              <div className="flex items-center gap-2 py-3 px-4 rounded-xl border-2 border-green-600 bg-green-50 text-green-700 text-sm font-medium">
+                <span className="text-lg">👩‍🏫</span> ครู
               </div>
+            </div>
             </div>
 
             {/* Password */}
