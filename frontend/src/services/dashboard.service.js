@@ -141,9 +141,9 @@ export const getTeacherOrders = async (teacherId) => {
 // ฟอร์แมตจำนวนเงิน
 export const formatCurrency = (amount) => {
   if (amount >= 1000000) {
-    return ` บาท${(amount / 1000000).toFixed(1)}M`
+    return `${(amount / 1000000).toFixed(1)}M บาท`
   } else if (amount >= 1000) {
-    return ` บาท${(amount / 1000).toFixed(0)}K`
+    return `${(amount / 1000).toFixed(0)}K บาท`
   }
-  return ` บาท${amount.toLocaleString()}`
+  return `${amount.toLocaleString()} บาท`
 }
