@@ -23,12 +23,19 @@ export default function UserManagementPage() {
 
   const fetchUsers = async () => {
     setLoading(true)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('users')
       .select('*')
-      .in('role', ['admin', 'teacher'])
       .order('created_at', { ascending: false })
-    setUsers(data || [])
+
+    if (error) {
+      console.error('fetchUsers error:', error)
+      setUsers([])
+    } else {
+      // แสดงเฉพาะครูและแอดมิน
+      const filtered = (data || []).filter(u => u.role === 'admin' || u.role === 'teacher')
+      setUsers(filtered)
+    }
     setLoading(false)
   }
 
