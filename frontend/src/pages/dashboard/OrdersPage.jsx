@@ -128,7 +128,7 @@ export default function OrdersPage() {
                   <td className="px-4 py-3 text-gray-600">{order.users?.full_name || '-'}</td>
                   <td className="px-4 py-3 text-gray-600">{order.classroom || '-'}</td>
                   <td className="px-4 py-3 text-center">{order.total_quantity} เล่ม</td>
-                  <td className="px-4 py-3 text-right">฿{Number(order.total_amount || 0).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right"> บาท{Number(order.total_amount || 0).toLocaleString()}</td>
                   <td className="px-4 py-3 text-gray-600">{formatDate(order.created_at)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusMap[order.status]?.style || 'bg-gray-100'}`}>

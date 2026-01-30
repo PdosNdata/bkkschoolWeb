@@ -312,7 +312,7 @@ export default function InventoryPage() {
                     <td className="px-4 py-3 text-gray-600 text-xs">{item.isbn || '-'}</td>
                     <td className="px-4 py-3 text-gray-600">{gradeLabel[item.grade] || item.grade}</td>
                     <td className="px-4 py-3 text-gray-600">{item.subject || '-'}</td>
-                    <td className="px-4 py-3 text-right">฿{Number(item.price).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right"> บาท{Number(item.price).toLocaleString()}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${isLow ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                         {stock}

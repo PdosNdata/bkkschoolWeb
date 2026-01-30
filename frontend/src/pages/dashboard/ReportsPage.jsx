@@ -93,11 +93,11 @@ export default function ReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">งบประมาณทั้งหมด</p>
-          <p className="text-xl font-bold mt-1">฿{totalBudget.toLocaleString()}</p>
+          <p className="text-xl font-bold mt-1"> บาท{totalBudget.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">ใช้ไปแล้ว</p>
-          <p className="text-xl font-bold mt-1 text-blue-600">฿{totalUsed.toLocaleString()}</p>
+          <p className="text-xl font-bold mt-1 text-blue-600"> บาท{totalUsed.toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">คำสั่งซื้อทั้งหมด</p>
@@ -105,7 +105,7 @@ export default function ReportsPage() {
         </div>
         <div className="bg-white rounded-xl border p-5">
           <p className="text-sm text-gray-500">ยอดสั่งซื้อรวม</p>
-          <p className="text-xl font-bold mt-1 text-green-600">฿{totalOrderAmount.toLocaleString()}</p>
+          <p className="text-xl font-bold mt-1 text-green-600"> บาท{totalOrderAmount.toLocaleString()}</p>
         </div>
       </div>
 
@@ -155,9 +155,9 @@ export default function ReportsPage() {
                 return (
                   <tr key={b.id}>
                     <td className="px-4 py-3 font-medium">{gradeLabel[b.grade]}</td>
-                    <td className="px-4 py-3 text-right">฿{amount.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-blue-600">฿{used.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-green-600">฿{(amount - used).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right"> บาท{amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-blue-600"> บาท{used.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-green-600"> บาท{(amount - used).toLocaleString()}</td>
                     <td className="px-4 py-3 text-center">{pct}%</td>
                   </tr>
                 )
@@ -166,9 +166,9 @@ export default function ReportsPage() {
               {budgets.length > 0 && (
                 <tr className="bg-gray-50 font-semibold">
                   <td className="px-4 py-3">รวมทั้งหมด</td>
-                  <td className="px-4 py-3 text-right">฿{totalBudget.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-blue-600">฿{totalUsed.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-green-600">฿{(totalBudget - totalUsed).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right"> บาท{totalBudget.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right text-blue-600"> บาท{totalUsed.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-right text-green-600"> บาท{(totalBudget - totalUsed).toLocaleString()}</td>
                   <td className="px-4 py-3 text-center">{totalBudget > 0 ? Math.round((totalUsed / totalBudget) * 100) : 0}%</td>
                 </tr>
               )}

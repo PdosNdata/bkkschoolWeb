@@ -139,7 +139,7 @@ export default function MyOrdersPage() {
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${st.style}`}>{st.label}</span>
                     <span className="text-sm font-medium">{order.total_quantity} เล่ม</span>
-                    <span className="text-sm font-bold">฿{Number(order.total_amount || 0).toLocaleString()}</span>
+                    <span className="text-sm font-bold"> บาท{Number(order.total_amount || 0).toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-3">
@@ -176,7 +176,7 @@ export default function MyOrdersPage() {
               <div><span className="text-gray-500">วันที่:</span> {formatDate(selectedOrder.created_at)}</div>
               <div><span className="text-gray-500">ชั้นเรียน:</span> {selectedOrder.classroom || '-'}</div>
               <div><span className="text-gray-500">สถานะ:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${statusMap[selectedOrder.status]?.style}`}>{statusMap[selectedOrder.status]?.label}</span></div>
-              <div><span className="text-gray-500">ยอดรวม:</span> ฿{Number(selectedOrder.total_amount || 0).toLocaleString()}</div>
+              <div><span className="text-gray-500">ยอดรวม:</span>  บาท{Number(selectedOrder.total_amount || 0).toLocaleString()}</div>
             </div>
 
             <h4 className="font-medium text-sm mb-2">รายการหนังสือ</h4>
@@ -185,9 +185,9 @@ export default function MyOrdersPage() {
                 <div key={item.id} className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2 text-sm">
                   <div>
                     <p className="font-medium">{item.books?.title || '-'}</p>
-                    <p className="text-xs text-gray-400">฿{Number(item.unit_price).toLocaleString()} x {item.quantity}</p>
+                    <p className="text-xs text-gray-400"> บาท{Number(item.unit_price).toLocaleString()} x {item.quantity}</p>
                   </div>
-                  <p className="font-medium">฿{Number(item.total_price).toLocaleString()}</p>
+                  <p className="font-medium"> บาท{Number(item.total_price).toLocaleString()}</p>
                 </div>
               ))}
               {orderItems.length === 0 && <p className="text-center text-gray-400 text-sm py-4">ไม่มีรายการ</p>}
