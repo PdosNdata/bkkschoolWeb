@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Plus, Edit3, Trash2, Wallet, Loader2, Save, Users, Calculator } from 'lucide-react'
+import { Wallet, Loader2, Save, Users, Calculator } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
@@ -12,13 +12,14 @@ const gradesByLevel = {
 }
 
 export default function BudgetSettingsPage() {
-  const [budgets, setBudgets] = useState([])
+  const [budgets, setBudgets] = useState({}) // { grade: { id, amount, used_amount } }
   const [studentCounts, setStudentCounts] = useState({})
   const [loading, setLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [editItem, setEditItem] = useState(null)
+  const [saving, setSaving] = useState(false)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543)
-  const [form, setForm] = useState({ year: selectedYear, level: 'primary', grade: 'p1', per_head: '', amount: '' })
+  // perHead state แยกต่างหาก เพื่อให้กรอก per_head แล้วคำนวณ amount ได้
+  const [perHeads, setPerHeads] = useState({})
+  const [amounts, setAmounts] = useState({})
 
   useEffect(() => { fetchData() }, [selectedYear])
 
@@ -29,81 +30,105 @@ export default function BudgetSettingsPage() {
       supabase.from('students').select('grade')
     ])
 
-    setBudgets(budgetRes.data || [])
+    // จัดเก็บ budgets เป็น map by grade
+    const budgetMap = {}
+    const amountMap = {}
+    const perHeadMap = {}
+    ;(budgetRes.data || []).forEach(b => {
+      budgetMap[b.grade] = b
+      amountMap[b.grade] = Number(b.amount || 0)
+    })
 
     // นับจำนวนนักเรียนแต่ละชั้น
     const counts = {}
     ;(studentRes.data || []).forEach(s => {
       counts[s.grade] = (counts[s.grade] || 0) + 1
     })
+
+    // คำนวณ per_head จาก amount / count
+    Object.keys(amountMap).forEach(grade => {
+      const count = counts[grade] || 0
+      perHeadMap[grade] = count > 0 ? Math.round(amountMap[grade] / count) : 0
+    })
+
+    setBudgets(budgetMap)
     setStudentCounts(counts)
+    setAmounts(amountMap)
+    setPerHeads(perHeadMap)
     setLoading(false)
   }
 
-  const openAdd = () => {
-    setEditItem(null)
-    setForm({ year: selectedYear, level: 'primary', grade: 'p1', per_head: '', amount: '' })
-    setShowModal(true)
-  }
-
-  const openEdit = (item) => {
-    const count = studentCounts[item.grade] || 0
-    const perHead = count > 0 ? Math.round(Number(item.amount) / count) : Number(item.amount)
-    setEditItem(item)
-    setForm({ year: item.year, level: item.level, grade: item.grade, per_head: perHead, amount: item.amount })
-    setShowModal(true)
-  }
-
-  // คำนวณงบเมื่อเปลี่ยน per_head หรือ grade
-  const updatePerHead = (perHead, grade) => {
+  const handlePerHeadChange = (grade, value) => {
+    const val = Number(value) || 0
     const count = studentCounts[grade] || 0
-    const total = count > 0 ? Number(perHead) * count : Number(perHead)
-    setForm(p => ({ ...p, per_head: perHead, amount: total }))
+    setPerHeads(p => ({ ...p, [grade]: val }))
+    setAmounts(p => ({ ...p, [grade]: count > 0 ? val * count : val }))
   }
 
-  const handleSave = async () => {
-    if (!form.amount || Number(form.amount) <= 0) {
-      Swal.fire({ icon: 'warning', title: 'กรุณากรอกจำนวนเงิน', confirmButtonColor: '#2563eb' })
-      return
-    }
-    const payload = { year: form.year, level: form.level, grade: form.grade, amount: Number(form.amount) }
+  const handleAmountChange = (grade, value) => {
+    const val = Number(value) || 0
+    const count = studentCounts[grade] || 0
+    setAmounts(p => ({ ...p, [grade]: val }))
+    setPerHeads(p => ({ ...p, [grade]: count > 0 ? Math.round(val / count) : 0 }))
+  }
 
-    if (editItem) {
-      const { error } = await supabase.from('budgets').update(payload).eq('id', editItem.id)
-      if (error) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message }); return }
-      Swal.fire({ icon: 'success', title: 'แก้ไขสำเร็จ', timer: 1200, showConfirmButton: false })
-    } else {
-      const { error } = await supabase.from('budgets').insert(payload)
-      if (error) {
-        if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
-          Swal.fire({ icon: 'error', title: 'มีงบประมาณชั้นนี้แล้ว', text: 'ชั้นเรียนนี้มีงบประมาณอยู่แล้วในปีนี้' })
-        } else {
-          Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message })
-        }
-        return
+  // บันทึกทั้งหมดทุกชั้น
+  const handleSaveAll = async () => {
+    setSaving(true)
+    const allGrades = [...gradesByLevel.kindergarten, ...gradesByLevel.primary, ...gradesByLevel.secondary]
+    const errors = []
+
+    for (const grade of allGrades) {
+      const amount = amounts[grade] || 0
+      if (amount <= 0 && !budgets[grade]) continue // ข้ามถ้ายังไม่มีข้อมูลและไม่ได้กรอก
+
+      const level = gradesByLevel.kindergarten.includes(grade) ? 'kindergarten'
+        : gradesByLevel.primary.includes(grade) ? 'primary' : 'secondary'
+
+      if (budgets[grade]) {
+        // update
+        const { error } = await supabase.from('budgets')
+          .update({ amount })
+          .eq('id', budgets[grade].id)
+        if (error) errors.push(`${gradeLabel[grade]}: ${error.message}`)
+      } else if (amount > 0) {
+        // insert
+        const { error } = await supabase.from('budgets')
+          .insert({ year: selectedYear, level, grade, amount })
+        if (error) errors.push(`${gradeLabel[grade]}: ${error.message}`)
       }
-      Swal.fire({ icon: 'success', title: 'เพิ่มสำเร็จ', timer: 1200, showConfirmButton: false })
     }
-    setShowModal(false)
+
+    setSaving(false)
+    if (errors.length > 0) {
+      Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จบางรายการ', html: errors.join('<br>') })
+    } else {
+      Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false })
+    }
     fetchData()
   }
 
-  const handleDelete = async (id, grade) => {
-    const result = await Swal.fire({ title: `ลบงบประมาณ "${gradeLabel[grade]}"?`, icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#dc2626' })
-    if (!result.isConfirmed) return
-    await supabase.from('budgets').delete().eq('id', id)
-    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1200, showConfirmButton: false })
+  // บันทึกทีละชั้น
+  const handleSaveGrade = async (grade) => {
+    const amount = amounts[grade] || 0
+    const level = gradesByLevel.kindergarten.includes(grade) ? 'kindergarten'
+      : gradesByLevel.primary.includes(grade) ? 'primary' : 'secondary'
+
+    if (budgets[grade]) {
+      const { error } = await supabase.from('budgets').update({ amount }).eq('id', budgets[grade].id)
+      if (error) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message }); return }
+    } else if (amount > 0) {
+      const { error } = await supabase.from('budgets').insert({ year: selectedYear, level, grade, amount })
+      if (error) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message }); return }
+    }
+    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1000, showConfirmButton: false })
     fetchData()
   }
 
-  const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount || 0), 0)
-  const totalUsed = budgets.reduce((sum, b) => sum + Number(b.used_amount || 0), 0)
+  const totalBudget = Object.values(amounts).reduce((sum, a) => sum + (a || 0), 0)
+  const totalUsed = Object.values(budgets).reduce((sum, b) => sum + Number(b?.used_amount || 0), 0)
   const totalStudents = Object.values(studentCounts).reduce((sum, c) => sum + c, 0)
   const usedPct = totalBudget > 0 ? Math.round((totalUsed / totalBudget) * 100) : 0
-
-  // จัดกลุ่มตามระดับ
-  const grouped = { kindergarten: [], primary: [], secondary: [] }
-  budgets.forEach(b => { if (grouped[b.level]) grouped[b.level].push(b) })
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-600" size={32} /><span className="ml-3 text-gray-500">กำลังโหลด...</span></div>
@@ -114,14 +139,14 @@ export default function BudgetSettingsPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">การตั้งค่างบประมาณ</h1>
-          <p className="text-gray-500 text-sm mt-1">จัดการงบประมาณหนังสือเรียนตามระดับชั้น (คำนวณรายหัวนักเรียน)</p>
+          <p className="text-gray-500 text-sm mt-1">กำหนดงบประมาณรายชั้นเรียน (กรอกงบรายหัวหรืองบรวมได้)</p>
         </div>
         <div className="flex gap-3">
           <select className="border rounded-xl px-4 py-2.5 text-sm" value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
             {[0, -1, -2, 1].map(d => { const y = new Date().getFullYear() + 543 + d; return <option key={y} value={y}>{y}</option> })}
           </select>
-          <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
-            <Plus size={16} /> เพิ่มงบประมาณ
+          <button onClick={handleSaveAll} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 disabled:opacity-50">
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} บันทึกทั้งหมด
           </button>
         </div>
       </div>
@@ -156,10 +181,11 @@ export default function BudgetSettingsPage() {
         </div>
       </div>
 
-      {/* Budget by Level */}
-      {Object.entries(grouped).map(([level, items]) => {
-        const levelGrades = gradesByLevel[level]
-        const levelStudents = levelGrades.reduce((sum, g) => sum + (studentCounts[g] || 0), 0)
+      {/* Budget by Level - แสดงทุกชั้นให้กรอกได้เลย */}
+      {Object.entries(gradesByLevel).map(([level, grades]) => {
+        const levelStudents = grades.reduce((sum, g) => sum + (studentCounts[g] || 0), 0)
+        const levelBudget = grades.reduce((sum, g) => sum + (amounts[g] || 0), 0)
+        const levelUsed = grades.reduce((sum, g) => sum + Number(budgets[g]?.used_amount || 0), 0)
 
         return (
           <div key={level} className="bg-white rounded-xl border p-5">
@@ -168,138 +194,96 @@ export default function BudgetSettingsPage() {
                 <Wallet size={20} className="text-blue-600" />
                 {levelLabel[level]}
               </h3>
-              <span className="text-sm text-gray-500 flex items-center gap-1">
-                <Users size={14} /> {levelStudents} คน
-              </span>
-            </div>
-            {items.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-4">ยังไม่มีข้อมูลงบประมาณ</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="text-left px-4 py-3 font-medium">ระดับชั้น</th>
-                      <th className="text-right px-4 py-3 font-medium">จำนวนนักเรียน</th>
-                      <th className="text-right px-4 py-3 font-medium">งบ/คน (บาท)</th>
-                      <th className="text-right px-4 py-3 font-medium">งบประมาณรวม (บาท)</th>
-                      <th className="text-right px-4 py-3 font-medium">ใช้ไปแล้ว</th>
-                      <th className="text-right px-4 py-3 font-medium">คงเหลือ</th>
-                      <th className="text-center px-4 py-3 font-medium">%</th>
-                      <th className="text-center px-4 py-3 font-medium">ดำเนินการ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {items.map(b => {
-                      const used = Number(b.used_amount || 0)
-                      const amount = Number(b.amount)
-                      const count = studentCounts[b.grade] || 0
-                      const perHead = count > 0 ? Math.round(amount / count) : '-'
-                      const pct = amount > 0 ? Math.round((used / amount) * 100) : 0
-                      return (
-                        <tr key={b.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium">{gradeLabel[b.grade]}</td>
-                          <td className="px-4 py-3 text-right">
-                            <span className="inline-flex items-center gap-1 text-purple-600">
-                              <Users size={13} /> {count} คน
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right text-orange-600 font-medium">
-                            {perHead === '-' ? '-' : `฿${perHead.toLocaleString()}`}
-                          </td>
-                          <td className="px-4 py-3 text-right font-medium">฿{amount.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-right text-blue-600">฿{used.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-right text-green-600">฿{(amount - used).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-center">
-                            <div className="flex items-center gap-2 justify-center">
-                              <div className="w-16 bg-gray-100 rounded-full h-1.5"><div className={`h-1.5 rounded-full ${pct > 80 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${pct}%` }} /></div>
-                              <span className="text-xs text-gray-500">{pct}%</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <button onClick={() => openEdit(b)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit3 size={15} /></button>
-                              <button onClick={() => handleDelete(b.id, b.grade)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={15} /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <span className="flex items-center gap-1"><Users size={14} /> {levelStudents} คน</span>
+                <span>รวม ฿{levelBudget.toLocaleString()}</span>
               </div>
-            )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left px-4 py-3 font-medium w-28">ระดับชั้น</th>
+                    <th className="text-center px-4 py-3 font-medium w-24">นักเรียน</th>
+                    <th className="text-center px-4 py-3 font-medium w-40">
+                      <span className="flex items-center justify-center gap-1"><Calculator size={13} /> งบ/คน (บาท)</span>
+                    </th>
+                    <th className="text-center px-4 py-3 font-medium w-44">งบประมาณรวม (บาท)</th>
+                    <th className="text-right px-4 py-3 font-medium w-28">ใช้ไปแล้ว</th>
+                    <th className="text-right px-4 py-3 font-medium w-28">คงเหลือ</th>
+                    <th className="text-center px-4 py-3 font-medium w-20">บันทึก</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {grades.map(grade => {
+                    const count = studentCounts[grade] || 0
+                    const amount = amounts[grade] || 0
+                    const used = Number(budgets[grade]?.used_amount || 0)
+                    const remaining = amount - used
+
+                    return (
+                      <tr key={grade} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium">{gradeLabel[grade]}</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="inline-flex items-center gap-1 text-purple-600 font-medium">
+                            <Users size={13} /> {count}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            className="w-full text-center border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="0"
+                            value={perHeads[grade] || ''}
+                            onChange={e => handlePerHeadChange(grade, e.target.value)}
+                          />
+                        </td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="number"
+                            className="w-full text-center border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="0"
+                            value={amount || ''}
+                            onChange={e => handleAmountChange(grade, e.target.value)}
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-right text-blue-600">฿{used.toLocaleString()}</td>
+                        <td className={`px-4 py-3 text-right font-medium ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          ฿{remaining.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => handleSaveGrade(grade)}
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                            title="บันทึก"
+                          >
+                            <Save size={15} />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {/* แถวรวม */}
+                  <tr className="bg-blue-50 font-medium">
+                    <td className="px-4 py-3">รวม {levelLabel[level]}</td>
+                    <td className="px-4 py-3 text-center text-purple-600">{levelStudents} คน</td>
+                    <td className="px-4 py-3 text-center text-orange-600">
+                      {levelStudents > 0 ? `฿${Math.round(levelBudget / levelStudents).toLocaleString()}` : '-'}
+                    </td>
+                    <td className="px-4 py-3 text-center">฿{levelBudget.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-blue-600">฿{levelUsed.toLocaleString()}</td>
+                    <td className={`px-4 py-3 text-right ${(levelBudget - levelUsed) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      ฿{(levelBudget - levelUsed).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         )
       })}
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
-            <h3 className="text-lg font-bold mb-4">{editItem ? 'แก้ไขงบประมาณ' : 'เพิ่มงบประมาณใหม่'}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">ปีการศึกษา</label>
-                <input type="number" className="input-field mt-1" value={form.year} onChange={e => setForm(p => ({...p, year: Number(e.target.value)}))} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">ระดับการศึกษา</label>
-                <select className="input-field mt-1" value={form.level} onChange={e => { const lv = e.target.value; const g = gradesByLevel[lv][0]; setForm(p => ({...p, level: lv, grade: g, per_head: '', amount: ''})) }}>
-                  {Object.entries(levelLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">ระดับชั้น</label>
-                <select className="input-field mt-1" value={form.grade} onChange={e => { const g = e.target.value; setForm(p => ({...p, grade: g})); if (form.per_head) updatePerHead(form.per_head, g) }}>
-                  {(gradesByLevel[form.level] || []).map(g => <option key={g} value={g}>{gradeLabel[g]} ({studentCounts[g] || 0} คน)</option>)}
-                </select>
-              </div>
-
-              {/* จำนวนนักเรียนในชั้นที่เลือก */}
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-3">
-                <Users size={18} className="text-purple-600" />
-                <div>
-                  <p className="text-sm font-medium text-purple-700">นักเรียนชั้น {gradeLabel[form.grade]}</p>
-                  <p className="text-lg font-bold text-purple-600">{studentCounts[form.grade] || 0} คน</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium flex items-center gap-1">
-                  <Calculator size={14} /> งบประมาณต่อหัว (บาท/คน)
-                </label>
-                <input
-                  type="number"
-                  className="input-field mt-1"
-                  placeholder="เช่น 500"
-                  value={form.per_head}
-                  onChange={e => updatePerHead(e.target.value, form.grade)}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">งบประมาณรวม (บาท)</label>
-                <input
-                  type="number"
-                  className="input-field mt-1"
-                  placeholder="เช่น 50000"
-                  value={form.amount}
-                  onChange={e => setForm(p => ({...p, amount: e.target.value, per_head: ''}))}
-                />
-                {form.per_head && (studentCounts[form.grade] || 0) > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    = ฿{Number(form.per_head).toLocaleString()} × {studentCounts[form.grade]} คน = ฿{Number(form.amount).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ยกเลิก</button>
-              <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 flex items-center gap-2"><Save size={16} /> บันทึก</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
