@@ -30,7 +30,8 @@ export default function UserManagementPage() {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('fetchUsers error:', error)
+        console.error('fetchUsers error:', JSON.stringify(error, null, 2))
+        alert('fetchUsers error: ' + (error.message || error.code || JSON.stringify(error)))
         setUsers([])
       } else {
         const filtered = (data || []).filter(u => u.role === 'admin' || u.role === 'teacher')
