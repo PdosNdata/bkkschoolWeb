@@ -29,41 +29,12 @@ export default function UserManagementPage() {
         .select('*')
         .order('created_at', { ascending: false })
 
-      console.log('fetchUsers result:', { data, error })
-
       if (error) {
         console.error('fetchUsers error:', error)
-      }
-
-      if (data && data.length > 0) {
-        const filtered = data.filter(u => u.role === 'admin' || u.role === 'teacher')
-        setUsers(filtered)
+        setUsers([])
       } else {
-        // ถ้าตาราง users ว่าง หรือถูก RLS บล็อก - ดึงจาก session ปัจจุบัน
-        console.warn('ตาราง users ว่างหรือถูก RLS บล็อก - ลอง sync ข้อมูลจาก auth')
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          // upsert ผู้ใช้ปัจจุบันเข้าตาราง users
-          await supabase.from('users').upsert({
-            id: session.user.id,
-            email: session.user.email,
-            full_name: session.user.user_metadata?.full_name || session.user.email,
-            role: session.user.user_metadata?.role || 'teacher',
-            is_active: true,
-          }, { onConflict: 'id' })
-
-          // ลองดึงอีกครั้ง
-          const { data: retryData } = await supabase
-            .from('users')
-            .select('*')
-            .order('created_at', { ascending: false })
-
-          console.log('fetchUsers retry result:', retryData)
-          const filtered = (retryData || []).filter(u => u.role === 'admin' || u.role === 'teacher')
-          setUsers(filtered)
-        } else {
-          setUsers([])
-        }
+        const filtered = (data || []).filter(u => u.role === 'admin' || u.role === 'teacher')
+        setUsers(filtered)
       }
     } catch (err) {
       console.error('fetchUsers exception:', err)
