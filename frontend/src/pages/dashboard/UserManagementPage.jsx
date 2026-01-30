@@ -3,8 +3,8 @@ import { supabase } from '../../lib/supabase'
 import { Search, Edit3, Trash2, UserPlus, Shield, Loader2, User } from 'lucide-react'
 import Swal from 'sweetalert2'
 
-const roleLabels = { admin: 'ผู้ดูแลระบบ', teacher: 'ครู', staff: 'เจ้าหน้าที่', warehouse: 'ฝ่ายคลังสินค้า' }
-const roleStyles = { admin: 'bg-purple-100 text-purple-700', teacher: 'bg-blue-100 text-blue-700', staff: 'bg-green-100 text-green-700', warehouse: 'bg-orange-100 text-orange-700' }
+const roleLabels = { admin: 'ผู้ดูแลระบบ', teacher: 'ครู' }
+const roleStyles = { admin: 'bg-purple-100 text-purple-700', teacher: 'bg-blue-100 text-blue-700' }
 
 const PAGE_SIZE = 10
 
@@ -14,6 +14,8 @@ export default function UserManagementPage() {
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [showModal, setShowModal] = useState(false)
+  const [addForm, setAddForm] = useState({ email: '', password: '', full_name: '', role: 'teacher' })
 
   useEffect(() => { fetchUsers() }, [])
 
@@ -22,9 +24,47 @@ export default function UserManagementPage() {
     const { data } = await supabase
       .from('users')
       .select('*')
+      .in('role', ['admin', 'teacher'])
       .order('created_at', { ascending: false })
     setUsers(data || [])
     setLoading(false)
+  }
+
+  const handleAddTeacher = async () => {
+    if (!addForm.email || !addForm.password || !addForm.full_name) {
+      Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลให้ครบ', confirmButtonColor: '#2563eb' })
+      return
+    }
+
+    // สร้าง user ผ่าน Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: addForm.email,
+      password: addForm.password,
+      options: {
+        data: { full_name: addForm.full_name, role: addForm.role }
+      }
+    })
+
+    if (authError) {
+      Swal.fire({ icon: 'error', title: 'สร้างบัญชีไม่สำเร็จ', text: authError.message })
+      return
+    }
+
+    // เพิ่มข้อมูลในตาราง users
+    if (authData.user) {
+      await supabase.from('users').upsert({
+        id: authData.user.id,
+        email: addForm.email,
+        full_name: addForm.full_name,
+        role: addForm.role,
+        is_active: true
+      })
+    }
+
+    Swal.fire({ icon: 'success', title: 'เพิ่มผู้ใช้สำเร็จ', timer: 1500, showConfirmButton: false })
+    setShowModal(false)
+    setAddForm({ email: '', password: '', full_name: '', role: 'teacher' })
+    fetchUsers()
   }
 
   const updateRole = async (id, newRole) => {
@@ -89,17 +129,22 @@ export default function UserManagementPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">การจัดการผู้ใช้</h1>
-        <p className="text-gray-500 text-sm mt-1">จัดการบัญชีผู้ใช้ทั้งหมดในระบบ ({users.length} คน)</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">การจัดการผู้ใช้</h1>
+          <p className="text-gray-500 text-sm mt-1">จัดการบัญชีผู้ใช้ทั้งหมดในระบบ ({users.length} คน)</p>
+        </div>
+        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
+          <UserPlus size={16} /> เพิ่มครู
+        </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {Object.entries(roleLabels).map(([role, label]) => (
           <div key={role} className="bg-white rounded-xl border p-4 flex items-center gap-3">
-            <div className={`p-2.5 rounded-xl ${roleStyles[role]?.replace('text-', 'bg-').split(' ')[0]}`}>
-              <User size={20} className={roleStyles[role]?.split(' ')[1]} />
+            <div className={`p-2.5 rounded-xl ${role === 'admin' ? 'bg-purple-50' : 'bg-blue-50'}`}>
+              <User size={20} className={role === 'admin' ? 'text-purple-600' : 'text-blue-600'} />
             </div>
             <div>
               <p className="text-xs text-gray-500">{label}</p>
@@ -190,6 +235,40 @@ export default function UserManagementPage() {
           </div>
         )}
       </div>
+
+      {/* Add Teacher Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
+            <h3 className="text-lg font-bold mb-4">เพิ่มผู้ใช้ใหม่</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">ชื่อ-นามสกุล *</label>
+                <input type="text" className="input-field mt-1" placeholder="เช่น สมชาย ใจดี" value={addForm.full_name} onChange={e => setAddForm(p => ({...p, full_name: e.target.value}))} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">อีเมล *</label>
+                <input type="email" className="input-field mt-1" placeholder="example@email.com" value={addForm.email} onChange={e => setAddForm(p => ({...p, email: e.target.value}))} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">รหัสผ่าน *</label>
+                <input type="password" className="input-field mt-1" placeholder="อย่างน้อย 6 ตัวอักษร" value={addForm.password} onChange={e => setAddForm(p => ({...p, password: e.target.value}))} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">ตำแหน่ง *</label>
+                <select className="input-field mt-1" value={addForm.role} onChange={e => setAddForm(p => ({...p, role: e.target.value}))}>
+                  <option value="teacher">ครู</option>
+                  <option value="admin">ผู้ดูแลระบบ</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ยกเลิก</button>
+              <button onClick={handleAddTeacher} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">เพิ่มผู้ใช้</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
