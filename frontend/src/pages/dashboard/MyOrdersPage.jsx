@@ -164,26 +164,64 @@ export default function MyOrdersPage() {
 
     setSaving(true)
 
-    // สร้าง order
     const classroom = teacherGrade ? `${gradeLabel[teacherGrade]}/${teacherRoom || '1'}` : '-'
-    const { data: orderData, error: orderError } = await supabase.from('orders').insert({
-      teacher_id: user.id,
-      classroom,
-      grade: teacherGrade || 'p1',
-      year: selectedYear,
-      total_quantity: totalNewBooks,
-      total_amount: totalAmount,
-    }).select().single()
 
-    if (orderError) {
-      Swal.fire({ icon: 'error', title: 'สร้างคำสั่งซื้อไม่สำเร็จ', text: orderError.message })
-      setSaving(false)
-      return
+    // ตรวจสอบว่ามี order เดิมของครูคนนี้ในปีนี้หรือไม่
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('id, order_number')
+      .eq('teacher_id', user.id)
+      .eq('year', selectedYear)
+      .eq('grade', teacherGrade || 'p1')
+      .single()
+
+    let orderId = null
+    let orderNumber = null
+
+    if (existingOrder) {
+      // อัพเดท order เดิม
+      const { error: updateError } = await supabase.from('orders').update({
+        classroom,
+        total_quantity: totalNewBooks,
+        total_amount: totalAmount,
+        updated_at: new Date().toISOString(),
+      }).eq('id', existingOrder.id)
+
+      if (updateError) {
+        Swal.fire({ icon: 'error', title: 'อัพเดทคำสั่งซื้อไม่สำเร็จ', text: updateError.message })
+        setSaving(false)
+        return
+      }
+
+      // ลบ order_items เดิม
+      await supabase.from('order_items').delete().eq('order_id', existingOrder.id)
+
+      orderId = existingOrder.id
+      orderNumber = existingOrder.order_number
+    } else {
+      // สร้าง order ใหม่
+      const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+        teacher_id: user.id,
+        classroom,
+        grade: teacherGrade || 'p1',
+        year: selectedYear,
+        total_quantity: totalNewBooks,
+        total_amount: totalAmount,
+      }).select().single()
+
+      if (orderError) {
+        Swal.fire({ icon: 'error', title: 'สร้างคำสั่งซื้อไม่สำเร็จ', text: orderError.message })
+        setSaving(false)
+        return
+      }
+
+      orderId = orderData.id
+      orderNumber = orderData.order_number
     }
 
-    // สร้าง order items
+    // สร้าง order items ใหม่
     const items = summaryItems.map(b => ({
-      order_id: orderData.id,
+      order_id: orderId,
       book_id: b.id,
       quantity: newOrders[b.id] || 0,
       unit_price: Number(b.price),
@@ -193,7 +231,12 @@ export default function MyOrdersPage() {
     if (itemError) {
       Swal.fire({ icon: 'error', title: 'เพิ่มรายการไม่สำเร็จ', text: itemError.message })
     } else {
-      Swal.fire({ icon: 'success', title: 'สั่งซื้อสำเร็จ', text: `เลขที่: ${orderData.order_number}`, confirmButtonColor: '#2563eb' })
+      Swal.fire({
+        icon: 'success',
+        title: existingOrder ? 'อัพเดทคำสั่งซื้อสำเร็จ' : 'สั่งซื้อสำเร็จ',
+        text: `เลขที่: ${orderNumber}`,
+        confirmButtonColor: '#2563eb'
+      })
     }
 
     setSaving(false)
