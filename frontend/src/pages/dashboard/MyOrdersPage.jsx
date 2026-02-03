@@ -113,7 +113,6 @@ export default function MyOrdersPage() {
   const filtered = useMemo(() => {
     return books.filter(b => {
       const matchSearch = b.title.toLowerCase().includes(search.toLowerCase()) ||
-        (b.isbn || '').toLowerCase().includes(search.toLowerCase()) ||
         (b.subject || '').toLowerCase().includes(search.toLowerCase())
       const matchSubject = subjectFilter === 'all' || b.subject === subjectFilter
       return matchSearch && matchSubject
@@ -345,7 +344,7 @@ export default function MyOrdersPage() {
                 <thead>
                   <tr className="bg-gray-50 text-gray-600">
                     <th className="text-center px-3 py-3 font-medium w-10">#</th>
-                    <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา / รหัสวิชา</th>
+                    <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา</th>
                     <th className="text-left px-3 py-3 font-medium w-32">กลุ่มสาระ</th>
                     <th className="text-center px-3 py-3 font-medium w-20">ระดับชั้น</th>
                     <th className="text-right px-3 py-3 font-medium w-24">ราคา/เล่ม</th>
@@ -371,7 +370,6 @@ export default function MyOrdersPage() {
                         <td className="px-3 py-3 text-center text-gray-400">{globalIdx}</td>
                         <td className="px-3 py-3">
                           <p className="font-medium">{book.title}</p>
-                          <p className="text-xs text-gray-400">{book.isbn || '-'}</p>
                         </td>
                         <td className="px-3 py-3 text-sm text-gray-600">{book.subject || '-'}</td>
                         <td className="px-3 py-3 text-center">{gradeLabel[book.grade]}</td>
