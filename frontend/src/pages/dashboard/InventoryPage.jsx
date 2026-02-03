@@ -17,7 +17,7 @@ export default function InventoryPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [editItem, setEditItem] = useState(null)
-  const [form, setForm] = useState({ title: '', isbn: '', author: '', publisher: '', price: '', level: 'primary', grade: 'p1', subject: '' })
+  const [form, setForm] = useState({ title: '', author: '', publisher: '', price: '', level: 'primary', grade: 'p1', subject: '' })
   const [csvUploading, setCsvUploading] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -36,13 +36,13 @@ export default function InventoryPage() {
 
   const openAdd = () => {
     setEditItem(null)
-    setForm({ title: '', isbn: '', author: '', publisher: '', price: '', level: 'primary', grade: 'p1', subject: '' })
+    setForm({ title: '', author: '', publisher: '', price: '', level: 'primary', grade: 'p1', subject: '' })
     setShowModal(true)
   }
 
   const openEdit = (item) => {
     setEditItem(item)
-    setForm({ title: item.title, isbn: item.isbn || '', author: item.author || '', publisher: item.publisher || '', price: item.price, level: item.level, grade: item.grade, subject: item.subject || '' })
+    setForm({ title: item.title, author: item.author || '', publisher: item.publisher || '', price: item.price, level: item.level, grade: item.grade, subject: item.subject || '' })
     setShowModal(true)
   }
 
@@ -107,7 +107,6 @@ export default function InventoryPage() {
       if (!row.title || !row.price || !row.grade) continue
       rows.push({
         title: row.title,
-        isbn: row.isbn || null,
         author: row.author || null,
         publisher: row.publisher || null,
         price: Number(row.price) || 0,
@@ -138,10 +137,9 @@ export default function InventoryPage() {
 
   // --- CSV Export ---
   const exportCsv = () => {
-    const csvHeaders = ['title', 'isbn', 'author', 'publisher', 'price', 'level', 'grade', 'subject', 'stock']
+    const csvHeaders = ['title', 'author', 'publisher', 'price', 'level', 'grade', 'subject', 'stock']
     const csvRows = filtered.map(item => [
       `"${(item.title || '').replace(/"/g, '""')}"`,
-      item.isbn || '',
       `"${(item.author || '').replace(/"/g, '""')}"`,
       `"${(item.publisher || '').replace(/"/g, '""')}"`,
       item.price,
@@ -172,8 +170,8 @@ export default function InventoryPage() {
     doc.setFontSize(10)
     doc.text(`Date: ${new Date().toLocaleDateString('th-TH')}  |  Total: ${filtered.length} items`, 14, 22)
 
-    const headers = ['#', 'Title', 'ISBN', 'Grade', 'Subject', 'Publisher', 'Price', 'Stock']
-    const colWidths = [10, 70, 35, 25, 40, 50, 25, 20]
+    const headers = ['#', 'Title', 'Grade', 'Subject', 'Publisher', 'Price', 'Stock']
+    const colWidths = [10, 80, 25, 45, 55, 25, 20]
     const startX = 14
     let y = 30
     const rowH = 7
@@ -203,7 +201,6 @@ export default function InventoryPage() {
       const row = [
         String(idx + 1),
         (item.title || '').substring(0, 40),
-        item.isbn || '-',
         gradeLabel[item.grade] || item.grade,
         (item.subject || '-').substring(0, 22),
         (item.publisher || '-').substring(0, 28),
@@ -222,7 +219,6 @@ export default function InventoryPage() {
 
   const filtered = items.filter(i =>
     i.title.toLowerCase().includes(search.toLowerCase()) ||
-    (i.isbn || '').toLowerCase().includes(search.toLowerCase()) ||
     (i.subject || '').toLowerCase().includes(search.toLowerCase())
   )
 
@@ -238,7 +234,7 @@ export default function InventoryPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">คลังหนังสือเรียน</h1>
+          <h1 className="text-2xl font-bold">จัดการหนังสือเรียน</h1>
           <p className="text-gray-500 text-sm mt-1">จัดการหนังสือเรียนทั้งหมด ({items.length} รายการ)</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -286,7 +282,7 @@ export default function InventoryPage() {
       <div className="bg-white rounded-xl border p-5">
         <div className="relative mb-5">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="ค้นหาชื่อหนังสือ, ISBN, วิชา..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
+          <input type="text" placeholder="ค้นหาชื่อหนังสือ, กลุ่มสาระ..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
         </div>
 
         <div className="overflow-x-auto">
@@ -294,9 +290,8 @@ export default function InventoryPage() {
             <thead>
               <tr className="bg-gray-50 text-gray-600">
                 <th className="text-left px-4 py-3 font-medium">ชื่อหนังสือ</th>
-                <th className="text-left px-4 py-3 font-medium">ISBN</th>
                 <th className="text-left px-4 py-3 font-medium">ระดับชั้น</th>
-                <th className="text-left px-4 py-3 font-medium">วิชา</th>
+                <th className="text-left px-4 py-3 font-medium">กลุ่มสาระ</th>
                 <th className="text-right px-4 py-3 font-medium">ราคา</th>
                 <th className="text-center px-4 py-3 font-medium">สต็อก</th>
                 <th className="text-center px-4 py-3 font-medium">ดำเนินการ</th>
@@ -313,7 +308,6 @@ export default function InventoryPage() {
                       <p className="font-medium">{item.title}</p>
                       <p className="text-xs text-gray-400">{item.publisher || '-'}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{item.isbn || '-'}</td>
                     <td className="px-4 py-3 text-gray-600">{gradeLabel[item.grade] || item.grade}</td>
                     <td className="px-4 py-3 text-gray-600">{item.subject || '-'}</td>
                     <td className="px-4 py-3 text-right">{Number(item.price).toLocaleString()} บาท</td>
@@ -331,7 +325,7 @@ export default function InventoryPage() {
                   </tr>
                 )
               })}
-              {paginated.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">ไม่พบรายการ</td></tr>}
+              {paginated.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">ไม่พบรายการ</td></tr>}
             </tbody>
           </table>
         </div>
@@ -360,15 +354,9 @@ export default function InventoryPage() {
                 <label className="text-sm font-medium">ชื่อหนังสือ *</label>
                 <input type="text" className="input-field mt-1" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm font-medium">ISBN</label>
-                  <input type="text" className="input-field mt-1" value={form.isbn} onChange={e => setForm(p => ({...p, isbn: e.target.value}))} />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">ราคา (บาท) *</label>
-                  <input type="number" className="input-field mt-1" value={form.price} onChange={e => setForm(p => ({...p, price: e.target.value}))} />
-                </div>
+              <div>
+                <label className="text-sm font-medium">ราคา (บาท) *</label>
+                <input type="number" className="input-field mt-1" value={form.price} onChange={e => setForm(p => ({...p, price: e.target.value}))} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

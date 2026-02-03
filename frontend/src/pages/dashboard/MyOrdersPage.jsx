@@ -28,10 +28,31 @@ export default function MyOrdersPage() {
   const [newOrders, setNewOrders] = useState({})
 
   // ครูประจำชั้น
-  const teacherGrade = user?.homeroom_grade || user?.user_metadata?.homeroom_grade || ''
-  const teacherRoom = user?.homeroom_room || user?.user_metadata?.homeroom_room || ''
+  const [teacherGrade, setTeacherGrade] = useState('')
+  const [teacherRoom, setTeacherRoom] = useState('')
 
-  useEffect(() => { fetchData() }, [selectedYear, teacherGrade])
+  // ดึงข้อมูลชั้นครูจาก users table
+  useEffect(() => {
+    const fetchTeacherInfo = async () => {
+      if (!user?.id) return
+      // ลองจาก user object ก่อน
+      let grade = user?.homeroom_grade || user?.user_metadata?.homeroom_grade || ''
+      let room = user?.homeroom_room || user?.user_metadata?.homeroom_room || ''
+      // ถ้าไม่มี ดึงจาก users table
+      if (!grade) {
+        const { data } = await supabase.from('users').select('homeroom_grade, homeroom_room').eq('id', user.id).single()
+        if (data) {
+          grade = data.homeroom_grade || ''
+          room = data.homeroom_room || ''
+        }
+      }
+      setTeacherGrade(grade)
+      setTeacherRoom(room)
+    }
+    fetchTeacherInfo()
+  }, [user])
+
+  useEffect(() => { if (teacherGrade) fetchData() }, [selectedYear, teacherGrade])
 
   const fetchData = async () => {
     setLoading(true)
@@ -92,7 +113,6 @@ export default function MyOrdersPage() {
   const filtered = useMemo(() => {
     return books.filter(b => {
       const matchSearch = b.title.toLowerCase().includes(search.toLowerCase()) ||
-        (b.isbn || '').toLowerCase().includes(search.toLowerCase()) ||
         (b.subject || '').toLowerCase().includes(search.toLowerCase())
       const matchSubject = subjectFilter === 'all' || b.subject === subjectFilter
       return matchSearch && matchSubject
@@ -196,6 +216,16 @@ export default function MyOrdersPage() {
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-600" size={32} /><span className="ml-3 text-gray-500">กำลังโหลด...</span></div>
+  }
+
+  if (!teacherGrade) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <Info size={48} className="text-yellow-500 mb-4" />
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">ยังไม่ได้กำหนดชั้นเรียน</h2>
+        <p className="text-gray-500">กรุณาติดต่อผู้ดูแลระบบเพื่อกำหนดชั้นเรียนที่รับผิดชอบ</p>
+      </div>
+    )
   }
 
   return (
@@ -314,7 +344,7 @@ export default function MyOrdersPage() {
                 <thead>
                   <tr className="bg-gray-50 text-gray-600">
                     <th className="text-center px-3 py-3 font-medium w-10">#</th>
-                    <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา / รหัสวิชา</th>
+                    <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา</th>
                     <th className="text-left px-3 py-3 font-medium w-32">กลุ่มสาระ</th>
                     <th className="text-center px-3 py-3 font-medium w-20">ระดับชั้น</th>
                     <th className="text-right px-3 py-3 font-medium w-24">ราคา/เล่ม</th>
@@ -340,7 +370,6 @@ export default function MyOrdersPage() {
                         <td className="px-3 py-3 text-center text-gray-400">{globalIdx}</td>
                         <td className="px-3 py-3">
                           <p className="font-medium">{book.title}</p>
-                          <p className="text-xs text-gray-400">{book.isbn || '-'}</p>
                         </td>
                         <td className="px-3 py-3 text-sm text-gray-600">{book.subject || '-'}</td>
                         <td className="px-3 py-3 text-center">{gradeLabel[book.grade]}</td>
