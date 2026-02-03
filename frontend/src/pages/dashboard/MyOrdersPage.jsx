@@ -1,85 +1,194 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { Search, Eye, Clock, CheckCircle, ShoppingCart, XCircle, Loader2 } from 'lucide-react'
+import { Search, Save, Filter, Download, Calendar, BookOpen, Info, Loader2, CheckCircle } from 'lucide-react'
 import Swal from 'sweetalert2'
 
-const statusMap = {
-  pending: { label: 'รอดำเนินการ', style: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  approved: { label: 'อนุมัติแล้ว', style: 'bg-blue-100 text-blue-700', icon: CheckCircle },
-  shipping: { label: 'กำลังจัดส่ง', style: 'bg-indigo-100 text-indigo-700', icon: ShoppingCart },
-  completed: { label: 'จัดส่งสำเร็จ', style: 'bg-green-100 text-green-700', icon: CheckCircle },
-  cancelled: { label: 'ยกเลิก', style: 'bg-red-100 text-red-700', icon: XCircle },
-}
-
-const formatDate = (d) => {
-  if (!d) return '-'
-  const date = new Date(d)
-  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear() + 543}`
-}
-
-const PAGE_SIZE = 8
+const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
+const PAGE_SIZE = 10
 
 export default function MyOrdersPage() {
   const { user } = useAuth()
-  const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [books, setBooks] = useState([])
+  const [students, setStudents] = useState([])
+  const [budgets, setBudgets] = useState([])
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [gradeFilter, setGradeFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [orderItems, setOrderItems] = useState([])
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543)
 
-  useEffect(() => { if (user?.id) fetchOrders() }, [user])
+  // oldBooks = จำนวนหนังสือเก่า, newOrder = จำนวนสั่งซื้อใหม่ (per book)
+  const [oldBooks, setOldBooks] = useState({})
+  const [newOrders, setNewOrders] = useState({})
 
-  const fetchOrders = async () => {
+  // ครูประจำชั้น
+  const teacherGrade = user?.homeroom_grade || user?.user_metadata?.homeroom_grade || ''
+  const teacherRoom = user?.homeroom_room || user?.user_metadata?.homeroom_room || ''
+
+  useEffect(() => { fetchData() }, [selectedYear, teacherGrade])
+
+  const fetchData = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('teacher_id', user.id)
-      .order('created_at', { ascending: false })
-    setOrders(data || [])
+
+    // ดึงหนังสือตามชั้นของครู (ถ้ามี)
+    let bookQuery = supabase.from('books').select('*').eq('is_active', true).order('grade').order('title')
+    if (teacherGrade) {
+      bookQuery = bookQuery.eq('grade', teacherGrade)
+    }
+
+    const [bookRes, studentRes, budgetRes] = await Promise.all([
+      bookQuery,
+      supabase.from('students').select('grade, classroom'),
+      supabase.from('budgets').select('*').eq('year', selectedYear),
+    ])
+
+    setBooks(bookRes.data || [])
+    setStudents(studentRes.data || [])
+    setBudgets(budgetRes.data || [])
+
+    // ตั้งค่าเริ่มต้น newOrders
+    const initOld = {}
+    const initNew = {}
+    ;(bookRes.data || []).forEach(b => {
+      initOld[b.id] = 0
+      // คำนวณนักเรียนทั้งหมดในชั้นนั้น
+      const studentCount = (studentRes.data || []).filter(s => {
+        if (teacherGrade && teacherRoom) return s.grade === b.grade && s.classroom === teacherRoom
+        return s.grade === b.grade
+      }).length
+      initNew[b.id] = studentCount
+    })
+    setOldBooks(initOld)
+    setNewOrders(initNew)
     setLoading(false)
   }
 
-  const viewDetail = async (order) => {
-    setSelectedOrder(order)
-    const { data } = await supabase
-      .from('order_items')
-      .select('*, books(title, isbn, price)')
-      .eq('order_id', order.id)
-    setOrderItems(data || [])
+  const handleOldChange = (bookId, value) => {
+    const val = Math.max(0, Number(value) || 0)
+    setOldBooks(p => ({ ...p, [bookId]: val }))
+    // คำนวณสั่งซื้อใหม่ = นร.ทั้งหมด - หนังสือเก่า
+    const book = books.find(b => b.id === bookId)
+    if (book) {
+      const studentCount = students.filter(s => {
+        if (teacherGrade && teacherRoom) return s.grade === book.grade && s.classroom === teacherRoom
+        return s.grade === book.grade
+      }).length
+      const newCount = Math.max(0, studentCount - val)
+      setNewOrders(p => ({ ...p, [bookId]: newCount }))
+    }
   }
 
-  const cancelOrder = async (id) => {
-    const result = await Swal.fire({
-      title: 'ยกเลิกคำสั่งซื้อ?',
-      text: 'เมื่อยกเลิกแล้วจะไม่สามารถแก้ไขได้',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'ยกเลิกคำสั่งซื้อ',
-      cancelButtonText: 'ปิด',
-      confirmButtonColor: '#dc2626',
+  const handleNewChange = (bookId, value) => {
+    setNewOrders(p => ({ ...p, [bookId]: Math.max(0, Number(value) || 0) }))
+  }
+
+  // กรอง
+  const filtered = useMemo(() => {
+    return books.filter(b => {
+      const matchSearch = b.title.toLowerCase().includes(search.toLowerCase()) ||
+        (b.isbn || '').toLowerCase().includes(search.toLowerCase())
+      const matchGrade = gradeFilter === 'all' || b.grade === gradeFilter
+      return matchSearch && matchGrade
     })
-    if (!result.isConfirmed) return
-
-    const { error } = await supabase.from('orders').update({ status: 'cancelled', cancelled_at: new Date().toISOString() }).eq('id', id)
-    if (error) { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: error.message }); return }
-    Swal.fire({ icon: 'success', title: 'ยกเลิกสำเร็จ', timer: 1200, showConfirmButton: false })
-    fetchOrders()
-    setSelectedOrder(null)
-  }
-
-  const filtered = orders.filter(o => {
-    const matchSearch = (o.order_number || '').toLowerCase().includes(search.toLowerCase()) || (o.classroom || '').toLowerCase().includes(search.toLowerCase())
-    const matchStatus = statusFilter === 'all' || o.status === statusFilter
-    return matchSearch && matchStatus
-  })
+  }, [books, search, gradeFilter])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  // สรุป
+  const summaryItems = filtered.filter(b => (newOrders[b.id] || 0) > 0)
+  const totalSubjects = summaryItems.length
+  const totalNewBooks = summaryItems.reduce((sum, b) => sum + (newOrders[b.id] || 0), 0)
+  const totalAmount = summaryItems.reduce((sum, b) => sum + (newOrders[b.id] || 0) * Number(b.price || 0), 0)
+
+  // งบประมาณ
+  const gradeBudget = budgets.find(bg => bg.grade === (teacherGrade || filtered[0]?.grade))
+  const budgetAmount = gradeBudget ? Number(gradeBudget.amount) : 0
+  const remaining = budgetAmount - totalAmount
+  const usedPct = budgetAmount > 0 ? Math.round((totalAmount / budgetAmount) * 100) : 0
+
+  // นร.ในชั้น
+  const gradeStudentCount = students.filter(s => {
+    if (teacherGrade && teacherRoom) return s.grade === teacherGrade && s.classroom === teacherRoom
+    if (teacherGrade) return s.grade === teacherGrade
+    return false
+  }).length
+
+  const handleSaveDraft = async () => {
+    Swal.fire({ icon: 'success', title: 'บันทึกร่างสำเร็จ', timer: 1200, showConfirmButton: false })
+  }
+
+  const handleSubmitOrder = async () => {
+    if (totalNewBooks === 0) {
+      Swal.fire({ icon: 'warning', title: 'ไม่มีรายการสั่งซื้อ', text: 'กรุณาระบุจำนวนหนังสือที่ต้องสั่งซื้อ', confirmButtonColor: '#2563eb' })
+      return
+    }
+
+    const result = await Swal.fire({
+      title: 'ยืนยันการสั่งซื้อ?',
+      html: `<p>รายการวิชาที่สั่ง: <b>${totalSubjects}</b> รายการ</p><p>จำนวนเล่มใหม่: <b>${totalNewBooks}</b> เล่ม</p><p>ยอดรวม: <b>${totalAmount.toLocaleString()} บาท</b></p>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยันการสั่งซื้อ',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#2563eb',
+    })
+    if (!result.isConfirmed) return
+
+    setSaving(true)
+
+    // สร้าง order
+    const classroom = teacherGrade ? `${gradeLabel[teacherGrade]}/${teacherRoom || '1'}` : '-'
+    const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+      teacher_id: user.id,
+      classroom,
+      grade: teacherGrade || 'p1',
+      year: selectedYear,
+      total_quantity: totalNewBooks,
+      total_amount: totalAmount,
+    }).select().single()
+
+    if (orderError) {
+      Swal.fire({ icon: 'error', title: 'สร้างคำสั่งซื้อไม่สำเร็จ', text: orderError.message })
+      setSaving(false)
+      return
+    }
+
+    // สร้าง order items
+    const items = summaryItems.map(b => ({
+      order_id: orderData.id,
+      book_id: b.id,
+      quantity: newOrders[b.id] || 0,
+      unit_price: Number(b.price),
+      total_price: (newOrders[b.id] || 0) * Number(b.price),
+    }))
+
+    const { error: itemError } = await supabase.from('order_items').insert(items)
+    if (itemError) {
+      Swal.fire({ icon: 'error', title: 'เพิ่มรายการไม่สำเร็จ', text: itemError.message })
+    } else {
+      Swal.fire({ icon: 'success', title: 'สั่งซื้อสำเร็จ', text: `เลขที่: ${orderData.order_number}`, confirmButtonColor: '#2563eb' })
+    }
+
+    setSaving(false)
+  }
+
+  const exportExcel = () => {
+    const header = ['#', 'ชื่อรายวิชา', 'รหัสวิชา', 'ระดับชั้น', 'ราคา/เล่ม', 'นร.ทั้งหมด', 'หนังสือเก่า', 'สั่งซื้อใหม่', 'รวมเป็นเงิน']
+    const rows = filtered.map((b, i) => {
+      const count = students.filter(s => s.grade === b.grade).length
+      return [i + 1, b.title, b.isbn || '-', gradeLabel[b.grade], Number(b.price).toFixed(2), count, oldBooks[b.id] || 0, newOrders[b.id] || 0, ((newOrders[b.id] || 0) * Number(b.price)).toFixed(2)]
+    })
+    const csv = '\uFEFF' + [header.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `สำรวจหนังสือ_${gradeLabel[teacherGrade] || 'ทั้งหมด'}_${selectedYear}.csv`
+    a.click()
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-blue-600" size={32} /><span className="ml-3 text-gray-500">กำลังโหลด...</span></div>
@@ -87,118 +196,209 @@ export default function MyOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">คำสั่งซื้อของฉัน</h1>
-        <p className="text-gray-500 text-sm mt-1">ติดตามสถานะคำสั่งซื้อหนังสือเรียนของคุณ</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border p-4 text-center">
-          <p className="text-2xl font-bold">{orders.length}</p>
-          <p className="text-xs text-gray-500 mt-1">ทั้งหมด</p>
-        </div>
-        <div className="bg-white rounded-xl border p-4 text-center">
-          <p className="text-2xl font-bold text-yellow-600">{orders.filter(o => o.status === 'pending').length}</p>
-          <p className="text-xs text-gray-500 mt-1">รอดำเนินการ</p>
-        </div>
-        <div className="bg-white rounded-xl border p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">{orders.filter(o => o.status === 'completed').length}</p>
-          <p className="text-xs text-gray-500 mt-1">สำเร็จ</p>
-        </div>
-        <div className="bg-white rounded-xl border p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">{orders.filter(o => o.status === 'cancelled').length}</p>
-          <p className="text-xs text-gray-500 mt-1">ยกเลิก</p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl border p-5">
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-3 mb-5">
-          <div className="relative flex-1">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="ค้นหารหัสคำสั่งซื้อ..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">บันทึกความต้องการสั่งซื้อหนังสือเรียน</h1>
+          <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+            <span className="flex items-center gap-1"><Calendar size={14} /> ปีการศึกษา {selectedYear}</span>
+            {teacherGrade && <span>• <BookOpen size={14} className="inline" /> ภาคเรียนที่ 1</span>}
           </div>
-          <select className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1) }}>
-            <option value="all">ทุกสถานะ</option>
-            {Object.entries(statusMap).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-          </select>
         </div>
+        <div className="flex items-center gap-3">
+          <div className="bg-white border rounded-xl px-4 py-2.5 text-sm">
+            <span className="text-gray-500">งบประมาณคงเหลือ</span>
+            <p className={`text-lg font-bold ${remaining >= 0 ? 'text-blue-600' : 'text-red-600'}`}>{remaining.toLocaleString()} บาท</p>
+          </div>
+          <button onClick={handleSaveDraft} className="flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm hover:bg-gray-50">
+            <Save size={16} /> บันทึกร่าง
+          </button>
+          <button onClick={handleSubmitOrder} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 disabled:opacity-50">
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} ยืนยันการสั่งซื้อ
+          </button>
+        </div>
+      </div>
 
-        {/* Order List */}
-        <div className="space-y-3">
-          {paginated.map(order => {
-            const st = statusMap[order.status] || statusMap.pending
-            return (
-              <div key={order.id} className="border border-gray-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-blue-600">{order.order_number}</p>
-                    <p className="text-xs text-gray-400 mt-1">{formatDate(order.created_at)} | {order.classroom || '-'}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${st.style}`}>{st.label}</span>
-                    <span className="text-sm font-medium">{order.total_quantity} เล่ม</span>
-                    <span className="text-sm font-bold">{Number(order.total_amount || 0).toLocaleString()} บาท</span>
-                  </div>
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar - ข้อมูลพื้นฐาน */}
+        <div className="w-full lg:w-72 space-y-4">
+          <div className="bg-white rounded-xl border p-5">
+            <h3 className="font-semibold flex items-center gap-2 mb-4">
+              <BookOpen size={18} className="text-blue-600" /> ข้อมูลพื้นฐาน
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500">ปีการศึกษา</label>
+                <select className="input-field mt-1" value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
+                  {[0, -1, 1].map(d => { const y = new Date().getFullYear() + 543 + d; return <option key={y} value={y}>{y}</option> })}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">งบประมาณที่ได้รับ (บาท)</label>
+                <div className="input-field mt-1 bg-gray-50 text-center font-semibold">{budgetAmount.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* สรุปรายการ */}
+          <div className="bg-white rounded-xl border p-5">
+            <h3 className="font-semibold mb-3">สรุปรายการ</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">รายการวิชาที่สั่ง</span>
+                <span className="font-medium">{totalSubjects} รายการ</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">จำนวนเล่มใหม่</span>
+                <span className="font-medium">{totalNewBooks.toLocaleString()} เล่ม</span>
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between">
+                <span className="font-medium">ยอดรวมสุทธิ</span>
+                <span className={`text-lg font-bold ${totalAmount > budgetAmount && budgetAmount > 0 ? 'text-red-600' : 'text-blue-600'}`}>{totalAmount.toLocaleString()} บาท</span>
+              </div>
+            </div>
+
+            {budgetAmount > 0 && (
+              <div className="mt-3">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className={usedPct > 100 ? 'text-red-600' : 'text-green-600'}>ใช้ไป {usedPct}%</span>
+                  <span className="text-gray-400">เหลือ {remaining.toLocaleString()} บาท</span>
                 </div>
-                <div className="flex gap-2 mt-3">
-                  <button onClick={() => viewDetail(order)} className="text-xs text-blue-600 hover:underline flex items-center gap-1"><Eye size={13} /> ดูรายละเอียด</button>
-                  {order.status === 'pending' && (
-                    <button onClick={() => cancelOrder(order.id)} className="text-xs text-red-600 hover:underline flex items-center gap-1"><XCircle size={13} /> ยกเลิก</button>
-                  )}
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div className={`h-2 rounded-full transition-all ${usedPct > 100 ? 'bg-red-500' : usedPct > 80 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${Math.min(usedPct, 100)}%` }} />
                 </div>
               </div>
-            )
-          })}
-          {paginated.length === 0 && <p className="text-center py-8 text-gray-400">{orders.length === 0 ? 'ยังไม่มีคำสั่งซื้อ' : 'ไม่พบรายการ'}</p>}
+            )}
+          </div>
         </div>
 
-        {filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-gray-500">แสดง {(currentPage-1)*PAGE_SIZE+1}-{Math.min(currentPage*PAGE_SIZE, filtered.length)} จาก {filtered.length}</p>
-            <div className="flex gap-1">
-              <button onClick={() => setCurrentPage(p => Math.max(1, p-1))} disabled={currentPage === 1} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">ก่อนหน้า</button>
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p+1))} disabled={currentPage === totalPages} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">ถัดไป</button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Detail Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 mx-4 max-h-[80vh] overflow-y-auto">
-            <h3 className="text-lg font-bold mb-1">รายละเอียดคำสั่งซื้อ</h3>
-            <p className="text-sm text-blue-600 mb-4">{selectedOrder.order_number}</p>
-
-            <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-              <div><span className="text-gray-500">วันที่:</span> {formatDate(selectedOrder.created_at)}</div>
-              <div><span className="text-gray-500">ชั้นเรียน:</span> {selectedOrder.classroom || '-'}</div>
-              <div><span className="text-gray-500">สถานะ:</span> <span className={`px-2 py-0.5 rounded-full text-xs ${statusMap[selectedOrder.status]?.style}`}>{statusMap[selectedOrder.status]?.label}</span></div>
-              <div><span className="text-gray-500">ยอดรวม:</span> {Number(selectedOrder.total_amount || 0).toLocaleString()} บาท</div>
+        {/* Main - ตารางหนังสือ */}
+        <div className="flex-1">
+          <div className="bg-white rounded-xl border p-5">
+            {/* Filters */}
+            <div className="flex flex-col md:flex-row gap-3 mb-4">
+              <div className="relative flex-1">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="text" placeholder="ค้นหารายวิชา..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-500">แสดง:</span>
+                <select className="border rounded-lg px-3 py-2.5 text-sm" value={gradeFilter} onChange={e => { setGradeFilter(e.target.value); setCurrentPage(1) }}>
+                  <option value="all">ทั้งหมด</option>
+                  {Object.entries(gradeLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <button className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Filter size={14} /> กรอง</button>
+                <button onClick={exportExcel} className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Download size={14} /> Excel</button>
+              </div>
             </div>
 
-            <h4 className="font-medium text-sm mb-2">รายการหนังสือ</h4>
-            <div className="space-y-2">
-              {orderItems.map(item => (
-                <div key={item.id} className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2 text-sm">
-                  <div>
-                    <p className="font-medium">{item.books?.title || '-'}</p>
-                    <p className="text-xs text-gray-400">{Number(item.unit_price).toLocaleString()} บาท x {item.quantity}</p>
-                  </div>
-                  <p className="font-medium">{Number(item.total_price).toLocaleString()} บาท</p>
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-600">
+                    <th className="text-center px-3 py-3 font-medium w-10">#</th>
+                    <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา / รหัสวิชา</th>
+                    <th className="text-center px-3 py-3 font-medium w-20">ระดับชั้น</th>
+                    <th className="text-right px-3 py-3 font-medium w-24">ราคา/เล่ม</th>
+                    <th className="text-center px-3 py-3 font-medium w-20">นร. ทั้งหมด</th>
+                    <th className="text-center px-3 py-3 font-medium w-24">หนังสือเก่า</th>
+                    <th className="text-center px-3 py-3 font-medium w-24">สั่งซื้อใหม่</th>
+                    <th className="text-right px-3 py-3 font-medium w-28">รวมเป็นเงิน</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {paginated.map((book, idx) => {
+                    const globalIdx = (currentPage - 1) * PAGE_SIZE + idx + 1
+                    const studentCount = students.filter(s => {
+                      if (teacherGrade && teacherRoom) return s.grade === book.grade && s.classroom === teacherRoom
+                      return s.grade === book.grade
+                    }).length
+                    const oldCount = oldBooks[book.id] || 0
+                    const newCount = newOrders[book.id] || 0
+                    const rowTotal = newCount * Number(book.price || 0)
+
+                    return (
+                      <tr key={book.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-3 text-center text-gray-400">{globalIdx}</td>
+                        <td className="px-3 py-3">
+                          <p className="font-medium">{book.title}</p>
+                          <p className="text-xs text-gray-400">{book.isbn || '-'}</p>
+                        </td>
+                        <td className="px-3 py-3 text-center">{gradeLabel[book.grade]}</td>
+                        <td className="px-3 py-3 text-right">{Number(book.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                        <td className="px-3 py-3 text-center font-medium">{studentCount}</td>
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="number"
+                            min="0"
+                            className="w-16 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={oldCount}
+                            onChange={e => handleOldChange(book.id, e.target.value)}
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="number"
+                            min="0"
+                            className="w-16 text-center border border-blue-300 bg-blue-50 rounded-lg px-2 py-1.5 text-sm font-medium text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={newCount}
+                            onChange={e => handleNewChange(book.id, e.target.value)}
+                          />
+                        </td>
+                        <td className="px-3 py-3 text-right font-medium">{rowTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      </tr>
+                    )
+                  })}
+                  {paginated.length === 0 && (
+                    <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">ไม่พบรายการหนังสือ</td></tr>
+                  )}
+                </tbody>
+                {paginated.length > 0 && (
+                  <tfoot>
+                    <tr className="bg-gray-50 font-medium">
+                      <td colSpan={4}></td>
+                      <td className="px-3 py-3 text-center">รวมทั้งหมด (เล่ม)</td>
+                      <td></td>
+                      <td className="px-3 py-3 text-center text-blue-600 font-bold">{totalNewBooks.toLocaleString()}</td>
+                      <td className="px-3 py-3 text-right text-blue-600 font-bold">{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} บาท</td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {filtered.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-gray-500">แสดง {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filtered.length)} จาก {filtered.length} รายการ</p>
+                <div className="flex gap-1">
+                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">&lt;</button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button key={p} onClick={() => setCurrentPage(p)} className={`px-3 py-1.5 rounded-lg text-sm ${p === currentPage ? 'bg-blue-600 text-white' : 'border hover:bg-gray-50'}`}>{p}</button>
+                  ))}
+                  <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40">&gt;</button>
                 </div>
-              ))}
-              {orderItems.length === 0 && <p className="text-center text-gray-400 text-sm py-4">ไม่มีรายการ</p>}
-            </div>
+              </div>
+            )}
+          </div>
 
-            <div className="flex justify-end mt-6">
-              <button onClick={() => setSelectedOrder(null)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ปิด</button>
-            </div>
+          {/* คำแนะนำ */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
+            <h4 className="font-medium flex items-center gap-2 text-blue-800 mb-2">
+              <Info size={16} /> คำแนะนำการใช้งาน
+            </h4>
+            <ul className="text-sm text-blue-700 space-y-1 list-disc pl-5">
+              <li>กรอกจำนวน <b>"หนังสือเก่า"</b> ที่มีอยู่แล้วในท้องสมุดหรือคลังโรงเรียน</li>
+              <li>ระบบจะคำนวณยอดที่ต้อง <b>"สั่งซื้อใหม่"</b> ให้โดยอัตโนมัติ (จำนวนนักเรียนทั้งหมด – หนังสือเก่า)</li>
+              <li>ตรวจสอบยอดรวมเงินเทียบกับงบประมาณที่มุมซ้ายบน</li>
+            </ul>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

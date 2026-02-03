@@ -12,7 +12,7 @@ export const menuConfig = {
   teacher: [
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },
     { label: 'รายการหนังสือ', path: '/class-books', icon: 'BookOpen' },
-    { label: 'คำสั่งซื้อของฉัน', path: '/my-orders', icon: 'ShoppingCart' },
+    { label: 'สำรวจและสั่งหนังสือเรียน', path: '/my-orders', icon: 'ClipboardList' },
     { label: 'ตั้งค่าผู้ใช้', path: '/profile', icon: 'Settings' },
   ],
   staff: [
