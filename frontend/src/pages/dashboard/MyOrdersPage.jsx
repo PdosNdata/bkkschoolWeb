@@ -63,27 +63,45 @@ export default function MyOrdersPage() {
       bookQuery = bookQuery.eq('grade', teacherGrade)
     }
 
-    const [bookRes, studentRes, budgetRes] = await Promise.all([
+    const [bookRes, studentRes, budgetRes, existingOrderRes] = await Promise.all([
       bookQuery,
       supabase.from('students').select('grade, classroom'),
       supabase.from('budgets').select('*').eq('year', selectedYear),
+      // ดึง order เดิมของครูในปีนี้ (ถ้ามี)
+      supabase.from('orders')
+        .select('id, order_items(book_id, quantity, old_quantity)')
+        .eq('teacher_id', user.id)
+        .eq('year', selectedYear)
+        .eq('grade', teacherGrade || 'p1')
+        .single()
     ])
 
     setBooks(bookRes.data || [])
     setStudents(studentRes.data || [])
     setBudgets(budgetRes.data || [])
 
-    // ตั้งค่าเริ่มต้น newOrders
+    // ตั้งค่า oldBooks และ newOrders
     const initOld = {}
     const initNew = {}
+    const existingItems = existingOrderRes.data?.order_items || []
+
     ;(bookRes.data || []).forEach(b => {
-      initOld[b.id] = 0
-      // คำนวณนักเรียนทั้งหมดในชั้นนั้น
-      const studentCount = (studentRes.data || []).filter(s => {
-        if (teacherGrade && teacherRoom) return s.grade === b.grade && s.classroom === teacherRoom
-        return s.grade === b.grade
-      }).length
-      initNew[b.id] = studentCount
+      // หาข้อมูลเดิมจาก order_items (ถ้ามี)
+      const savedItem = existingItems.find(item => item.book_id === b.id)
+
+      if (savedItem) {
+        // มีข้อมูลเดิม ใช้ค่าที่บันทึกไว้
+        initOld[b.id] = savedItem.old_quantity || 0
+        initNew[b.id] = savedItem.quantity || 0
+      } else {
+        // ไม่มีข้อมูลเดิม คำนวณใหม่
+        initOld[b.id] = 0
+        const studentCount = (studentRes.data || []).filter(s => {
+          if (teacherGrade && teacherRoom) return s.grade === b.grade && s.classroom === teacherRoom
+          return s.grade === b.grade
+        }).length
+        initNew[b.id] = studentCount
+      }
     })
     setOldBooks(initOld)
     setNewOrders(initNew)
@@ -159,7 +177,68 @@ export default function MyOrdersPage() {
   }).length
 
   const handleSaveDraft = async () => {
+    setSaving(true)
+    const classroom = teacherGrade ? `${gradeLabel[teacherGrade]}/${teacherRoom || '1'}` : '-'
+
+    // ตรวจสอบว่ามี order เดิมหรือไม่
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('teacher_id', user.id)
+      .eq('year', selectedYear)
+      .eq('grade', teacherGrade || 'p1')
+      .single()
+
+    let orderId = null
+
+    if (existingOrder) {
+      // อัพเดท order เดิม
+      await supabase.from('orders').update({
+        classroom,
+        total_quantity: totalNewBooks,
+        total_amount: totalAmount,
+        status: 'draft',
+        updated_at: new Date().toISOString(),
+      }).eq('id', existingOrder.id)
+
+      // ลบ order_items เดิม
+      await supabase.from('order_items').delete().eq('order_id', existingOrder.id)
+      orderId = existingOrder.id
+    } else {
+      // สร้าง order ใหม่เป็น draft
+      const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+        teacher_id: user.id,
+        classroom,
+        grade: teacherGrade || 'p1',
+        year: selectedYear,
+        total_quantity: totalNewBooks,
+        total_amount: totalAmount,
+        status: 'draft',
+      }).select().single()
+
+      if (orderError) {
+        Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: orderError.message })
+        setSaving(false)
+        return
+      }
+      orderId = orderData.id
+    }
+
+    // บันทึก order items (รวมทุกหนังสือที่มีการกรอกข้อมูล)
+    const items = books.filter(b => (newOrders[b.id] || 0) > 0 || (oldBooks[b.id] || 0) > 0).map(b => ({
+      order_id: orderId,
+      book_id: b.id,
+      quantity: newOrders[b.id] || 0,
+      old_quantity: oldBooks[b.id] || 0,
+      unit_price: Number(b.price),
+    }))
+
+    if (items.length > 0) {
+      await supabase.from('order_items').insert(items)
+    }
+
     Swal.fire({ icon: 'success', title: 'บันทึกร่างสำเร็จ', timer: 1200, showConfirmButton: false })
+    setSaving(false)
   }
 
   const handleSubmitOrder = async () => {
@@ -236,11 +315,12 @@ export default function MyOrdersPage() {
       orderNumber = orderData.order_number
     }
 
-    // สร้าง order items ใหม่
-    const items = summaryItems.map(b => ({
+    // สร้าง order items ใหม่ (รวมทุกหนังสือที่มีการกรอกข้อมูล)
+    const items = books.filter(b => (newOrders[b.id] || 0) > 0 || (oldBooks[b.id] || 0) > 0).map(b => ({
       order_id: orderId,
       book_id: b.id,
       quantity: newOrders[b.id] || 0,
+      old_quantity: oldBooks[b.id] || 0,
       unit_price: Number(b.price),
     }))
 
