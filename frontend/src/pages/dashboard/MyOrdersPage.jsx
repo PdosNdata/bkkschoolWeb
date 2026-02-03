@@ -121,6 +121,11 @@ export default function MyOrdersPage() {
     }
   }
 
+  // เลือกข้อความทั้งหมดเมื่อ focus เพื่อพิมพ์ทับได้เลย
+  const handleFocus = (e) => {
+    e.target.select()
+  }
+
   // กรอง (หนังสือถูกกรองตามชั้นครูแล้วตอน fetch)
   const filtered = useMemo(() => {
     return books.filter(b => {
@@ -439,6 +444,7 @@ export default function MyOrdersPage() {
                             value={oldCount}
                             onChange={e => handleOldChange(book.id, e.target.value)}
                             onKeyDown={e => handleKeyDown(e, idx, 'oldBooks')}
+                            onFocus={handleFocus}
                           />
                         </td>
                         <td className="px-3 py-2 text-center">
@@ -450,6 +456,7 @@ export default function MyOrdersPage() {
                             value={newCount}
                             onChange={e => handleNewChange(book.id, e.target.value)}
                             onKeyDown={e => handleKeyDown(e, idx, 'newOrders')}
+                            onFocus={handleFocus}
                           />
                         </td>
                         <td className="px-3 py-3 text-right font-medium">{rowTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
