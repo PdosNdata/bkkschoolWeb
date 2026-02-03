@@ -109,6 +109,18 @@ export default function MyOrdersPage() {
     setNewOrders(p => ({ ...p, [bookId]: Math.max(0, Number(value) || 0) }))
   }
 
+  // กด Enter เพื่อย้ายไปแถวถัดไป
+  const handleKeyDown = (e, idx, field) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const nextIdx = idx + 1
+      if (nextIdx < paginated.length) {
+        const nextInput = document.getElementById(`${field}-${nextIdx}`)
+        if (nextInput) nextInput.focus()
+      }
+    }
+  }
+
   // กรอง (หนังสือถูกกรองตามชั้นครูแล้วตอน fetch)
   const filtered = useMemo(() => {
     return books.filter(b => {
@@ -420,20 +432,24 @@ export default function MyOrdersPage() {
                         <td className="px-3 py-3 text-center font-medium">{studentCount}</td>
                         <td className="px-3 py-2 text-center">
                           <input
+                            id={`oldBooks-${idx}`}
                             type="number"
                             min="0"
                             className="w-16 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={oldCount}
                             onChange={e => handleOldChange(book.id, e.target.value)}
+                            onKeyDown={e => handleKeyDown(e, idx, 'oldBooks')}
                           />
                         </td>
                         <td className="px-3 py-2 text-center">
                           <input
+                            id={`newOrders-${idx}`}
                             type="number"
                             min="0"
                             className="w-16 text-center border border-blue-300 bg-blue-50 rounded-lg px-2 py-1.5 text-sm font-medium text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={newCount}
                             onChange={e => handleNewChange(book.id, e.target.value)}
+                            onKeyDown={e => handleKeyDown(e, idx, 'newOrders')}
                           />
                         </td>
                         <td className="px-3 py-3 text-right font-medium">{rowTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
