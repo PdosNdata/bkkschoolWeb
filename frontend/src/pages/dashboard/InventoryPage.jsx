@@ -5,6 +5,10 @@ import Swal from 'sweetalert2'
 import jsPDF from 'jspdf'
 
 const PAGE_SIZE = 10
+const subjectGroupOptions = [
+  'ภาษาไทย', 'คณิตศาสตร์', 'วิทยาศาสตร์และเทคโนโลยี', 'สังคมศึกษา ศาสนาและวัฒนธรรม',
+  'สุขศึกษาและพลศึกษา', 'ศิลปะ', 'การงานอาชีพ', 'ภาษาต่างประเทศ',
+]
 
 export default function InventoryPage() {
   const [items, setItems] = useState([])
@@ -387,7 +391,7 @@ export default function InventoryPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-sm font-medium">ผู้แต่ง</label><input type="text" className="input-field mt-1" value={form.author} onChange={e => setForm(p => ({...p, author: e.target.value}))} /></div>
-                <div><label className="text-sm font-medium">วิชา</label><input type="text" className="input-field mt-1" value={form.subject} onChange={e => setForm(p => ({...p, subject: e.target.value}))} /></div>
+                <div><label className="text-sm font-medium">กลุ่มสาระการเรียนรู้</label><select className="input-field mt-1" value={form.subject} onChange={e => setForm(p => ({...p, subject: e.target.value}))}><option value="">-- เลือกกลุ่มสาระ --</option>{subjectGroupOptions.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
               </div>
               <div><label className="text-sm font-medium">สำนักพิมพ์</label><input type="text" className="input-field mt-1" value={form.publisher} onChange={e => setForm(p => ({...p, publisher: e.target.value}))} /></div>
             </div>

@@ -1,11 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { Search, Save, Filter, Download, Calendar, BookOpen, Info, Loader2, CheckCircle } from 'lucide-react'
+import { Search, Save, Download, Calendar, BookOpen, Info, Loader2, CheckCircle } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
 const PAGE_SIZE = 10
+const subjectGroupOptions = [
+  'ภาษาไทย', 'คณิตศาสตร์', 'วิทยาศาสตร์และเทคโนโลยี', 'สังคมศึกษา ศาสนาและวัฒนธรรม',
+  'สุขศึกษาและพลศึกษา', 'ศิลปะ', 'การงานอาชีพ', 'ภาษาต่างประเทศ',
+]
 
 export default function MyOrdersPage() {
   const { user } = useAuth()
@@ -15,7 +19,6 @@ export default function MyOrdersPage() {
   const [students, setStudents] = useState([])
   const [budgets, setBudgets] = useState([])
   const [search, setSearch] = useState('')
-  const [gradeFilter, setGradeFilter] = useState('all')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543)
@@ -85,23 +88,16 @@ export default function MyOrdersPage() {
     setNewOrders(p => ({ ...p, [bookId]: Math.max(0, Number(value) || 0) }))
   }
 
-  // กรอง
-  // รายการกลุ่มสาระที่มีในหนังสือ
-  const subjectGroups = useMemo(() => {
-    const groups = [...new Set(books.map(b => b.subject).filter(Boolean))].sort()
-    return groups
-  }, [books])
-
+  // กรอง (หนังสือถูกกรองตามชั้นครูแล้วตอน fetch)
   const filtered = useMemo(() => {
     return books.filter(b => {
       const matchSearch = b.title.toLowerCase().includes(search.toLowerCase()) ||
         (b.isbn || '').toLowerCase().includes(search.toLowerCase()) ||
         (b.subject || '').toLowerCase().includes(search.toLowerCase())
-      const matchGrade = gradeFilter === 'all' || b.grade === gradeFilter
       const matchSubject = subjectFilter === 'all' || b.subject === subjectFilter
-      return matchSearch && matchGrade && matchSubject
+      return matchSearch && matchSubject
     })
-  }, [books, search, gradeFilter, subjectFilter])
+  }, [books, search, subjectFilter])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -296,18 +292,17 @@ export default function MyOrdersPage() {
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input type="text" placeholder="ค้นหารายวิชา..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-500">ชั้น:</span>
-                <select className="border rounded-lg px-3 py-2.5 text-sm" value={gradeFilter} onChange={e => { setGradeFilter(e.target.value); setCurrentPage(1) }}>
-                  <option value="all">ทั้งหมด</option>
-                  {Object.entries(gradeLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
+              {teacherGrade && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-500">ชั้น:</span>
+                  <div className="border rounded-lg px-3 py-2.5 text-sm bg-blue-50 text-blue-700 font-medium">{gradeLabel[teacherGrade]}{teacherRoom ? `/${teacherRoom}` : ''}</div>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-gray-500">กลุ่มสาระ:</span>
                 <select className="border rounded-lg px-3 py-2.5 text-sm" value={subjectFilter} onChange={e => { setSubjectFilter(e.target.value); setCurrentPage(1) }}>
                   <option value="all">ทั้งหมด</option>
-                  {subjectGroups.map(s => <option key={s} value={s}>{s}</option>)}
+                  {subjectGroupOptions.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <button onClick={exportExcel} className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Download size={14} /> Excel</button>
