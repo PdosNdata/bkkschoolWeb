@@ -3,12 +3,12 @@ import { useAuth } from '../context/AuthContext'
 import { menuConfig } from '../config/menuConfig'
 import {
   LayoutDashboard, ShoppingCart, Package, Users,
-  Wallet, FileText, BookOpen, LogOut, Settings, GraduationCap
+  Wallet, FileText, BookOpen, LogOut, Settings, GraduationCap, ClipboardList
 } from 'lucide-react'
 
 const iconMap = {
   LayoutDashboard, ShoppingCart, Package, Users,
-  Wallet, FileText, BookOpen, Settings, GraduationCap,
+  Wallet, FileText, BookOpen, Settings, GraduationCap, ClipboardList,
 }
 
 export default function Sidebar({ mobile = false, onClose }) {
