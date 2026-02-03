@@ -16,6 +16,7 @@ export default function MyOrdersPage() {
   const [budgets, setBudgets] = useState([])
   const [search, setSearch] = useState('')
   const [gradeFilter, setGradeFilter] = useState('all')
+  const [subjectFilter, setSubjectFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543)
 
@@ -85,14 +86,22 @@ export default function MyOrdersPage() {
   }
 
   // กรอง
+  // รายการกลุ่มสาระที่มีในหนังสือ
+  const subjectGroups = useMemo(() => {
+    const groups = [...new Set(books.map(b => b.subject).filter(Boolean))].sort()
+    return groups
+  }, [books])
+
   const filtered = useMemo(() => {
     return books.filter(b => {
       const matchSearch = b.title.toLowerCase().includes(search.toLowerCase()) ||
-        (b.isbn || '').toLowerCase().includes(search.toLowerCase())
+        (b.isbn || '').toLowerCase().includes(search.toLowerCase()) ||
+        (b.subject || '').toLowerCase().includes(search.toLowerCase())
       const matchGrade = gradeFilter === 'all' || b.grade === gradeFilter
-      return matchSearch && matchGrade
+      const matchSubject = subjectFilter === 'all' || b.subject === subjectFilter
+      return matchSearch && matchGrade && matchSubject
     })
-  }, [books, search, gradeFilter])
+  }, [books, search, gradeFilter, subjectFilter])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -162,7 +171,6 @@ export default function MyOrdersPage() {
       book_id: b.id,
       quantity: newOrders[b.id] || 0,
       unit_price: Number(b.price),
-      total_price: (newOrders[b.id] || 0) * Number(b.price),
     }))
 
     const { error: itemError } = await supabase.from('order_items').insert(items)
@@ -233,6 +241,12 @@ export default function MyOrdersPage() {
                   {[0, -1, 1].map(d => { const y = new Date().getFullYear() + 543 + d; return <option key={y} value={y}>{y}</option> })}
                 </select>
               </div>
+              {teacherGrade && (
+                <div>
+                  <label className="text-xs text-gray-500">ชั้นที่รับผิดชอบ</label>
+                  <div className="input-field mt-1 bg-blue-50 text-center font-semibold text-blue-700">{gradeLabel[teacherGrade]}{teacherRoom ? `/${teacherRoom}` : ''} ({gradeStudentCount} คน)</div>
+                </div>
+              )}
               <div>
                 <label className="text-xs text-gray-500">งบประมาณที่ได้รับ (บาท)</label>
                 <div className="input-field mt-1 bg-gray-50 text-center font-semibold">{budgetAmount.toLocaleString()}</div>
@@ -283,16 +297,20 @@ export default function MyOrdersPage() {
                 <input type="text" placeholder="ค้นหารายวิชา..." className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1) }} />
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-500">แสดง:</span>
+                <span className="text-gray-500">ชั้น:</span>
                 <select className="border rounded-lg px-3 py-2.5 text-sm" value={gradeFilter} onChange={e => { setGradeFilter(e.target.value); setCurrentPage(1) }}>
                   <option value="all">ทั้งหมด</option>
                   {Object.entries(gradeLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
               </div>
-              <div className="flex gap-2">
-                <button className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Filter size={14} /> กรอง</button>
-                <button onClick={exportExcel} className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Download size={14} /> Excel</button>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-500">กลุ่มสาระ:</span>
+                <select className="border rounded-lg px-3 py-2.5 text-sm" value={subjectFilter} onChange={e => { setSubjectFilter(e.target.value); setCurrentPage(1) }}>
+                  <option value="all">ทั้งหมด</option>
+                  {subjectGroups.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
               </div>
+              <button onClick={exportExcel} className="flex items-center gap-1 px-3 py-2.5 border rounded-lg text-sm hover:bg-gray-50"><Download size={14} /> Excel</button>
             </div>
 
             {/* Table */}
@@ -302,6 +320,7 @@ export default function MyOrdersPage() {
                   <tr className="bg-gray-50 text-gray-600">
                     <th className="text-center px-3 py-3 font-medium w-10">#</th>
                     <th className="text-left px-3 py-3 font-medium">ชื่อรายวิชา / รหัสวิชา</th>
+                    <th className="text-left px-3 py-3 font-medium w-32">กลุ่มสาระ</th>
                     <th className="text-center px-3 py-3 font-medium w-20">ระดับชั้น</th>
                     <th className="text-right px-3 py-3 font-medium w-24">ราคา/เล่ม</th>
                     <th className="text-center px-3 py-3 font-medium w-20">นร. ทั้งหมด</th>
@@ -328,6 +347,7 @@ export default function MyOrdersPage() {
                           <p className="font-medium">{book.title}</p>
                           <p className="text-xs text-gray-400">{book.isbn || '-'}</p>
                         </td>
+                        <td className="px-3 py-3 text-sm text-gray-600">{book.subject || '-'}</td>
                         <td className="px-3 py-3 text-center">{gradeLabel[book.grade]}</td>
                         <td className="px-3 py-3 text-right">{Number(book.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                         <td className="px-3 py-3 text-center font-medium">{studentCount}</td>
@@ -354,13 +374,13 @@ export default function MyOrdersPage() {
                     )
                   })}
                   {paginated.length === 0 && (
-                    <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">ไม่พบรายการหนังสือ</td></tr>
+                    <tr><td colSpan={9} className="px-3 py-8 text-center text-gray-400">ไม่พบรายการหนังสือ</td></tr>
                   )}
                 </tbody>
                 {paginated.length > 0 && (
                   <tfoot>
                     <tr className="bg-gray-50 font-medium">
-                      <td colSpan={4}></td>
+                      <td colSpan={5}></td>
                       <td className="px-3 py-3 text-center">รวมทั้งหมด (เล่ม)</td>
                       <td></td>
                       <td className="px-3 py-3 text-center text-blue-600 font-bold">{totalNewBooks.toLocaleString()}</td>
