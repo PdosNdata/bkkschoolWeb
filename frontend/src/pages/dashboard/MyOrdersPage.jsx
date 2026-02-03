@@ -288,6 +288,32 @@ export default function MyOrdersPage() {
     )
   }
 
+  if (budgetAmount === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">บันทึกความต้องการสั่งซื้อหนังสือเรียน</h1>
+          <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+            <span className="flex items-center gap-1"><Calendar size={14} /> ปีการศึกษา {selectedYear}</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border p-5">
+          <div className="mb-4">
+            <label className="text-xs text-gray-500">ปีการศึกษา</label>
+            <select className="input-field mt-1" value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
+              {[0, -1, 1].map(d => { const y = new Date().getFullYear() + 543 + d; return <option key={y} value={y}>{y}</option> })}
+            </select>
+          </div>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Info size={48} className="text-yellow-500 mb-4" />
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">ไม่พบงบประมาณสำหรับปีการศึกษา {selectedYear}</h2>
+            <p className="text-gray-500">กรุณาติดต่อผู้ดูแลระบบเพื่อกำหนดงบประมาณ หรือเลือกปีการศึกษาอื่น</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
