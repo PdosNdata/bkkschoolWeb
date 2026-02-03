@@ -162,7 +162,6 @@ export default function MyOrdersPage() {
       book_id: b.id,
       quantity: newOrders[b.id] || 0,
       unit_price: Number(b.price),
-      total_price: (newOrders[b.id] || 0) * Number(b.price),
     }))
 
     const { error: itemError } = await supabase.from('order_items').insert(items)
