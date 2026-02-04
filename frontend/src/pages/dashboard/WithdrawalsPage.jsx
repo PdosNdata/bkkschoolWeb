@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Search, Plus, Eye, Printer, Upload, CheckCircle, Clock, Loader2, FileText, User } from 'lucide-react'
+import { Search, Plus, Eye, Printer, Upload, CheckCircle, Clock, Loader2, FileText, User, Check, Square, CheckSquare } from 'lucide-react'
 import Swal from 'sweetalert2'
 import jsPDF from 'jspdf'
 
 const gradeLabel = { kg2: 'อนุบาล 2', kg3: 'อนุบาล 3', p1: 'ป.1', p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6', m1: 'ม.1', m2: 'ม.2', m3: 'ม.3' }
+const gradeOptions = ['kg2', 'kg3', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'm1', 'm2', 'm3']
 const PAGE_SIZE = 10
 
 export default function WithdrawalsPage() {
@@ -22,7 +23,65 @@ export default function WithdrawalsPage() {
   const [saving, setSaving] = useState(false)
   const fileInputRef = useRef(null)
 
-  useEffect(() => { fetchData() }, [])
+  // New modal state
+  const [showNewWithdrawalModal, setShowNewWithdrawalModal] = useState(false)
+  const [teachers, setTeachers] = useState([])
+  const [selectedTeacher, setSelectedTeacher] = useState('')
+  const [selectedGrade, setSelectedGrade] = useState('')
+  const [availableBooks, setAvailableBooks] = useState([])
+  const [selectedBooks, setSelectedBooks] = useState({})
+  const [loadingBooks, setLoadingBooks] = useState(false)
+
+  useEffect(() => { fetchData(); fetchTeachers() }, [])
+
+  // Fetch teachers when teacher or grade changes
+  useEffect(() => {
+    if (selectedTeacher && selectedGrade) {
+      fetchAvailableBooks()
+    } else {
+      setAvailableBooks([])
+      setSelectedBooks({})
+    }
+  }, [selectedTeacher, selectedGrade])
+
+  const fetchTeachers = async () => {
+    const { data } = await supabase
+      .from('users')
+      .select('id, full_name, grade')
+      .eq('role', 'teacher')
+      .order('full_name')
+    setTeachers(data || [])
+  }
+
+  const fetchAvailableBooks = async () => {
+    setLoadingBooks(true)
+    // ดึง order_items ที่มี received_quantity > 0 สำหรับครูและชั้นที่เลือก
+    const { data } = await supabase
+      .from('orders')
+      .select(`
+        id, order_number, classroom,
+        order_items(book_id, quantity, received_quantity, books(title, price))
+      `)
+      .eq('teacher_id', selectedTeacher)
+      .eq('grade', selectedGrade)
+      .not('status', 'eq', 'draft')
+      .single()
+
+    if (data?.order_items) {
+      // กรองเฉพาะรายการที่มี received_quantity > 0
+      const booksWithReceived = data.order_items.filter(item => (item.received_quantity || 0) > 0)
+      setAvailableBooks(booksWithReceived.map(item => ({
+        ...item,
+        order_id: data.id,
+        order_number: data.order_number,
+        classroom: data.classroom
+      })))
+    } else {
+      setAvailableBooks([])
+    }
+    setSelectedBooks({})
+    setLoadingBooks(false)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -155,6 +214,82 @@ export default function WithdrawalsPage() {
     fetchData()
   }
 
+  // Toggle book selection
+  const toggleBookSelection = (bookId, receivedQty) => {
+    setSelectedBooks(prev => {
+      if (prev[bookId]) {
+        const newState = { ...prev }
+        delete newState[bookId]
+        return newState
+      } else {
+        return { ...prev, [bookId]: receivedQty }
+      }
+    })
+  }
+
+  // Select all books
+  const toggleSelectAll = () => {
+    if (Object.keys(selectedBooks).length === availableBooks.length) {
+      setSelectedBooks({})
+    } else {
+      const allSelected = {}
+      availableBooks.forEach(item => {
+        allSelected[item.book_id] = item.received_quantity
+      })
+      setSelectedBooks(allSelected)
+    }
+  }
+
+  // Create new withdrawal from selected books
+  const handleCreateNewWithdrawal = async () => {
+    if (Object.keys(selectedBooks).length === 0) {
+      Swal.fire({ icon: 'warning', title: 'กรุณาเลือกรายการหนังสือ' })
+      return
+    }
+
+    setSaving(true)
+    const orderInfo = availableBooks[0]
+
+    // สร้างใบเบิก
+    const withdrawalNumber = `WD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+
+    const { data: wData, error: wError } = await supabase.from('withdrawals').insert({
+      order_id: orderInfo.order_id,
+      withdrawal_number: withdrawalNumber,
+      status: 'pending',
+      requested_by: selectedTeacher,
+    }).select().single()
+
+    if (wError) {
+      Swal.fire({ icon: 'error', title: 'สร้างใบเบิกไม่สำเร็จ', text: wError.message })
+      setSaving(false)
+      return
+    }
+
+    // สร้างรายการในใบเบิก
+    const items = Object.entries(selectedBooks).map(([bookId, qty]) => ({
+      withdrawal_id: wData.id,
+      book_id: bookId,
+      requested_qty: qty,
+      approved_qty: qty,
+    }))
+
+    const { error: itemError } = await supabase.from('withdrawal_items').insert(items)
+
+    if (itemError) {
+      Swal.fire({ icon: 'error', title: 'เพิ่มรายการไม่สำเร็จ', text: itemError.message })
+    } else {
+      Swal.fire({ icon: 'success', title: 'สร้างใบเบิกสำเร็จ', text: `เลขที่: ${withdrawalNumber}`, confirmButtonColor: '#2563eb' })
+      setShowNewWithdrawalModal(false)
+      setSelectedTeacher('')
+      setSelectedGrade('')
+      setAvailableBooks([])
+      setSelectedBooks({})
+      fetchData()
+    }
+    setSaving(false)
+  }
+
   const exportPDF = (withdrawal) => {
     const doc = new jsPDF('p', 'mm', 'a4')
     const pageW = doc.internal.pageSize.getWidth()
@@ -248,6 +383,12 @@ export default function WithdrawalsPage() {
           <h1 className="text-2xl font-bold">เบิกหนังสือ</h1>
           <p className="text-gray-500 text-sm mt-1">จัดการใบเบิกหนังสือเรียน</p>
         </div>
+        <button
+          onClick={() => setShowNewWithdrawalModal(true)}
+          className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus size={18} /> เพิ่มใบเบิกพัสดุ
+        </button>
       </div>
 
       {/* Stats */}
@@ -466,6 +607,149 @@ export default function WithdrawalsPage() {
               <button onClick={() => setShowDetailModal(false)} className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50">ปิด</button>
               <button onClick={() => exportPDF(selectedWithdrawal)} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700">
                 <Printer size={16} className="inline mr-2" /> พิมพ์ใบเบิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Withdrawal Modal - เลือกครู/ชั้น */}
+      {showNewWithdrawalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4">เพิ่มใบเบิกพัสดุ</h3>
+
+            {/* Teacher and Grade Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">เลือกครู</label>
+                <select
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedTeacher}
+                  onChange={e => setSelectedTeacher(e.target.value)}
+                >
+                  <option value="">-- เลือกครู --</option>
+                  {teachers.map(t => (
+                    <option key={t.id} value={t.id}>{t.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">เลือกชั้นเรียน</label>
+                <select
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedGrade}
+                  onChange={e => setSelectedGrade(e.target.value)}
+                >
+                  <option value="">-- เลือกชั้นเรียน --</option>
+                  {gradeOptions.map(g => (
+                    <option key={g} value={g}>{gradeLabel[g]}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Loading state */}
+            {loadingBooks && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="animate-spin text-blue-600" size={24} />
+                <span className="ml-2 text-gray-500">กำลังโหลดรายการหนังสือ...</span>
+              </div>
+            )}
+
+            {/* Books List */}
+            {!loadingBooks && selectedTeacher && selectedGrade && (
+              <>
+                {availableBooks.length > 0 ? (
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-b">
+                      <span className="font-medium text-sm">รายการหนังสือที่ได้รับจากสำนักพิมพ์</span>
+                      <button
+                        onClick={toggleSelectAll}
+                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      >
+                        {Object.keys(selectedBooks).length === availableBooks.length ? (
+                          <><CheckSquare size={16} /> ยกเลิกทั้งหมด</>
+                        ) : (
+                          <><Square size={16} /> เลือกทั้งหมด</>
+                        )}
+                      </button>
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="w-10 px-3 py-2"></th>
+                          <th className="text-left px-3 py-2">รายการ</th>
+                          <th className="text-center px-3 py-2 w-32">จำนวนที่ได้รับ</th>
+                          <th className="text-right px-3 py-2 w-28">ราคา</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {availableBooks.map(item => (
+                          <tr
+                            key={item.book_id}
+                            className={`border-b cursor-pointer hover:bg-blue-50 ${selectedBooks[item.book_id] ? 'bg-blue-50' : ''}`}
+                            onClick={() => toggleBookSelection(item.book_id, item.received_quantity)}
+                          >
+                            <td className="px-3 py-3 text-center">
+                              {selectedBooks[item.book_id] ? (
+                                <CheckSquare size={18} className="text-blue-600 mx-auto" />
+                              ) : (
+                                <Square size={18} className="text-gray-400 mx-auto" />
+                              )}
+                            </td>
+                            <td className="px-3 py-3">{item.books?.title}</td>
+                            <td className="px-3 py-3 text-center font-medium">{item.received_quantity}</td>
+                            <td className="px-3 py-3 text-right">{item.books?.price?.toLocaleString()} บาท</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="bg-gray-50 px-4 py-3 border-t">
+                      <p className="text-sm text-gray-600">
+                        เลือกแล้ว <span className="font-medium text-blue-600">{Object.keys(selectedBooks).length}</span> รายการ
+                        จากทั้งหมด {availableBooks.length} รายการ
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <FileText size={40} className="text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">ไม่พบรายการหนังสือที่ได้รับจากสำนักพิมพ์</p>
+                    <p className="text-sm text-gray-400 mt-1">กรุณาเพิ่มจำนวน "ได้รับแล้ว" ในหน้าจัดการคำสั่งซื้อ</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Empty state when not selected */}
+            {!loadingBooks && (!selectedTeacher || !selectedGrade) && (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <User size={40} className="text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">กรุณาเลือกครูและชั้นเรียน</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowNewWithdrawalModal(false)
+                  setSelectedTeacher('')
+                  setSelectedGrade('')
+                  setAvailableBooks([])
+                  setSelectedBooks({})
+                }}
+                className="px-4 py-2 border rounded-xl text-sm hover:bg-gray-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleCreateNewWithdrawal}
+                disabled={saving || Object.keys(selectedBooks).length === 0}
+                className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 disabled:opacity-50"
+              >
+                {saving ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Plus size={16} className="inline mr-1" />}
+                สร้างใบเบิก ({Object.keys(selectedBooks).length})
               </button>
             </div>
           </div>
