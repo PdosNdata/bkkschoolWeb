@@ -4,6 +4,7 @@ export const menuConfig = {
     { label: 'คำสั่งซื้อ', path: '/orders', icon: 'ShoppingCart', badge: '12' },
     { label: 'นักเรียน', path: '/students', icon: 'GraduationCap' },
     { label: 'จัดการหนังสือเรียน', path: '/inventory', icon: 'Package' },
+    { label: 'รับหนังสือจากสำนักพิมพ์', path: '/book-receipts', icon: 'Truck' },
     { label: 'เบิกหนังสือ', path: '/withdrawals', icon: 'FileOutput' },
     { label: 'การจัดการผู้ใช้', path: '/users', icon: 'Users' },
     { label: 'การตั้งค่างบประมาณ', path: '/budget', icon: 'Wallet' },
@@ -20,6 +21,7 @@ export const menuConfig = {
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },
     { label: 'คำสั่งซื้อ', path: '/orders', icon: 'ShoppingCart', badge: '12' },
     { label: 'จัดการหนังสือเรียน', path: '/inventory', icon: 'Package' },
+    { label: 'รับหนังสือจากสำนักพิมพ์', path: '/book-receipts', icon: 'Truck' },
     { label: 'เบิกหนังสือ', path: '/withdrawals', icon: 'FileOutput' },
     { label: 'การจัดการผู้ใช้', path: '/users', icon: 'Users' },
     { label: 'การตั้งค่างบประมาณ', path: '/budget', icon: 'Wallet' },
@@ -29,6 +31,7 @@ export const menuConfig = {
   warehouse: [
     { label: 'แดชบอร์ด', path: '/dashboard', icon: 'LayoutDashboard' },
     { label: 'คลังหนังสือ', path: '/inventory', icon: 'Package' },
+    { label: 'รับหนังสือจากสำนักพิมพ์', path: '/book-receipts', icon: 'Truck' },
     { label: 'ตั้งค่าผู้ใช้', path: '/profile', icon: 'Settings' },
   ],
 }

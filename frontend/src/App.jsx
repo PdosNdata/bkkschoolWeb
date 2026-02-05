@@ -19,6 +19,7 @@ import ReportsPage from './pages/dashboard/ReportsPage'
 import ClassBooksPage from './pages/dashboard/ClassBooksPage'
 import MyOrdersPage from './pages/dashboard/MyOrdersPage'
 import WithdrawalsPage from './pages/dashboard/WithdrawalsPage'
+import BookReceiptsPage from './pages/dashboard/BookReceiptsPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import BudgetPage from './pages/admin/BudgetPage'
 
@@ -76,6 +77,7 @@ export default function App() {
         <Route path="/class-books" element={<ClassBooksPage />} />
         <Route path="/my-orders" element={<MyOrdersPage />} />
         <Route path="/withdrawals" element={<WithdrawalsPage />} />
+        <Route path="/book-receipts" element={<BookReceiptsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />
