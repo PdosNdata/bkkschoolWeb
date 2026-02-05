@@ -73,34 +73,42 @@ export default function BookReceiptsPage() {
     setLoadingBooks(true)
 
     try {
-      // ดึง orders ที่ตรงกับชั้นที่เลือกก่อน
+      // ดึง orders ที่ตรงกับชั้นที่เลือกก่อน (ไม่ filter status ที่ query)
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select('id')
+        .select('id, status')
         .eq('grade', selectedGrade)
-        .not('status', 'eq', 'draft')
 
-      console.log('Orders for grade', selectedGrade, ':', ordersData, ordersError)
+      console.log('All orders for grade', selectedGrade, ':', ordersData, ordersError)
 
-      if (ordersError || !ordersData || ordersData.length === 0) {
-        console.log('No orders found for grade:', selectedGrade)
+      if (ordersError) {
+        console.error('Orders error:', ordersError)
         setFilteredBooks([])
         setLoadingBooks(false)
         return
       }
 
-      const orderIds = ordersData.map(o => o.id)
+      // Filter เอา draft ออกใน JavaScript
+      const validOrders = (ordersData || []).filter(o => o.status !== 'draft')
+      console.log('Valid orders (not draft):', validOrders)
+
+      if (validOrders.length === 0) {
+        console.log('No valid orders found for grade:', selectedGrade)
+        setFilteredBooks([])
+        setLoadingBooks(false)
+        return
+      }
+
+      const orderIds = validOrders.map(o => o.id)
 
       // ดึง order_items สำหรับ orders เหล่านั้น
-      let query = supabase
+      const { data: orderItemsData, error: itemsError } = await supabase
         .from('order_items')
         .select(`
           id, book_id, quantity, received_quantity, order_id,
           books(id, title, price, subject_group)
         `)
         .in('order_id', orderIds)
-
-      const { data: orderItemsData, error: itemsError } = await query
 
       console.log('Order items:', orderItemsData, itemsError)
 
