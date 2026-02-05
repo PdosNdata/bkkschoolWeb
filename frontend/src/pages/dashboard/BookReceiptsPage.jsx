@@ -45,13 +45,13 @@ export default function BookReceiptsPage() {
 
   // Fetch books when grade or subject changes
   useEffect(() => {
-    if (selectedGrade) {
+    if (selectedGrade && showReceiveModal) {
       fetchFilteredBooks()
     } else {
       setFilteredBooks([])
       setReceiveItems({})
     }
-  }, [selectedGrade, selectedSubject])
+  }, [selectedGrade, selectedSubject, showReceiveModal])
 
   const fetchData = async () => {
     setLoading(true)
@@ -65,34 +65,41 @@ export default function BookReceiptsPage() {
       `)
       .order('receipt_date', { ascending: false })
 
-    // ดึง order_items ทั้งหมดที่ยืนยันแล้ว พร้อมข้อมูลหนังสือ
-    const { data: orderItemsData } = await supabase
-      .from('order_items')
-      .select(`
-        id, book_id, quantity, received_quantity,
-        orders!inner(id, grade, year, status),
-        books(id, title, price, subject_group)
-      `)
-      .not('orders.status', 'eq', 'draft')
-
     setReceipts(receiptsData || [])
-    setAllOrderItems(orderItemsData || [])
     setLoading(false)
   }
 
   const fetchFilteredBooks = async () => {
     setLoadingBooks(true)
 
-    // กรองตามชั้นและกลุ่มสาระ
-    let filtered = allOrderItems.filter(item => item.orders?.grade === selectedGrade)
+    // ดึงหนังสือจาก order_items ตามชั้นที่เลือก
+    let query = supabase
+      .from('order_items')
+      .select(`
+        id, book_id, quantity, received_quantity,
+        orders!inner(id, grade, year, status),
+        books!inner(id, title, price, subject_group)
+      `)
+      .eq('orders.grade', selectedGrade)
+      .neq('orders.status', 'draft')
 
+    // กรองตามกลุ่มสาระ (ถ้าเลือก)
     if (selectedSubject) {
-      filtered = filtered.filter(item => item.books?.subject_group === selectedSubject)
+      query = query.eq('books.subject_group', selectedSubject)
+    }
+
+    const { data: orderItemsData, error } = await query
+
+    if (error) {
+      console.error('Error fetching books:', error)
+      setFilteredBooks([])
+      setLoadingBooks(false)
+      return
     }
 
     // รวมจำนวนหนังสือที่เหมือนกัน (group by book_id)
     const bookMap = {}
-    filtered.forEach(item => {
+    ;(orderItemsData || []).forEach(item => {
       const bookId = item.book_id
       if (!bookMap[bookId]) {
         bookMap[bookId] = {
@@ -112,6 +119,7 @@ export default function BookReceiptsPage() {
 
     const books = Object.values(bookMap)
     setFilteredBooks(books)
+    setAllOrderItems(orderItemsData || [])
 
     // ตั้งค่าเริ่มต้นเป็น 0
     const items = {}
