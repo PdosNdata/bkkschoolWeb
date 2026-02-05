@@ -78,7 +78,7 @@ export default function BookReceiptsPage() {
         .from('orders')
         .select('id')
         .eq('grade', selectedGrade)
-        .neq('status', 'draft')
+        .not('status', 'eq', 'draft')
 
       console.log('Orders for grade', selectedGrade, ':', ordersData, ordersError)
 
