@@ -72,65 +72,93 @@ export default function BookReceiptsPage() {
   const fetchFilteredBooks = async () => {
     setLoadingBooks(true)
 
-    // ดึงหนังสือจาก order_items ตามชั้นที่เลือก
-    let query = supabase
-      .from('order_items')
-      .select(`
-        id, book_id, quantity, received_quantity,
-        orders!inner(id, grade, year, status),
-        books!inner(id, title, price, subject_group)
-      `)
-      .eq('orders.grade', selectedGrade)
-      .neq('orders.status', 'draft')
+    try {
+      // ดึง orders ที่ตรงกับชั้นที่เลือกก่อน
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('grade', selectedGrade)
+        .neq('status', 'draft')
 
-    // กรองตามกลุ่มสาระ (ถ้าเลือก)
-    if (selectedSubject) {
-      query = query.eq('books.subject_group', selectedSubject)
-    }
+      console.log('Orders for grade', selectedGrade, ':', ordersData, ordersError)
 
-    const { data: orderItemsData, error } = await query
-
-    if (error) {
-      console.error('Error fetching books:', error)
-      setFilteredBooks([])
-      setLoadingBooks(false)
-      return
-    }
-
-    // รวมจำนวนหนังสือที่เหมือนกัน (group by book_id)
-    const bookMap = {}
-    ;(orderItemsData || []).forEach(item => {
-      const bookId = item.book_id
-      if (!bookMap[bookId]) {
-        bookMap[bookId] = {
-          book_id: bookId,
-          title: item.books?.title,
-          subject_group: item.books?.subject_group,
-          price: item.books?.price,
-          total_ordered: 0,
-          total_received: 0,
-          order_item_ids: []
-        }
+      if (ordersError || !ordersData || ordersData.length === 0) {
+        console.log('No orders found for grade:', selectedGrade)
+        setFilteredBooks([])
+        setLoadingBooks(false)
+        return
       }
-      bookMap[bookId].total_ordered += item.quantity || 0
-      bookMap[bookId].total_received += item.received_quantity || 0
-      bookMap[bookId].order_item_ids.push(item.id)
-    })
 
-    const books = Object.values(bookMap)
-    setFilteredBooks(books)
-    setAllOrderItems(orderItemsData || [])
+      const orderIds = ordersData.map(o => o.id)
 
-    // ตั้งค่าเริ่มต้นเป็น 0
-    const items = {}
-    books.forEach(book => {
-      items[book.book_id] = 0
-    })
-    setReceiveItems(items)
+      // ดึง order_items สำหรับ orders เหล่านั้น
+      let query = supabase
+        .from('order_items')
+        .select(`
+          id, book_id, quantity, received_quantity, order_id,
+          books(id, title, price, subject_group)
+        `)
+        .in('order_id', orderIds)
 
-    // หาครั้งที่รับสำหรับชั้นนี้
-    const gradeReceipts = receipts.filter(r => r.grade === selectedGrade)
-    setDeliveryNumber(gradeReceipts.length + 1)
+      const { data: orderItemsData, error: itemsError } = await query
+
+      console.log('Order items:', orderItemsData, itemsError)
+
+      if (itemsError || !orderItemsData) {
+        console.error('Error fetching order items:', itemsError)
+        setFilteredBooks([])
+        setLoadingBooks(false)
+        return
+      }
+
+      // กรองตามกลุ่มสาระ (ถ้าเลือก)
+      let filteredItems = orderItemsData
+      if (selectedSubject) {
+        filteredItems = orderItemsData.filter(item => item.books?.subject_group === selectedSubject)
+      }
+
+      console.log('Filtered items:', filteredItems)
+
+      // รวมจำนวนหนังสือที่เหมือนกัน (group by book_id)
+      const bookMap = {}
+      filteredItems.forEach(item => {
+        const bookId = item.book_id
+        if (!bookMap[bookId]) {
+          bookMap[bookId] = {
+            book_id: bookId,
+            title: item.books?.title,
+            subject_group: item.books?.subject_group,
+            price: item.books?.price,
+            total_ordered: 0,
+            total_received: 0,
+            order_item_ids: []
+          }
+        }
+        bookMap[bookId].total_ordered += item.quantity || 0
+        bookMap[bookId].total_received += item.received_quantity || 0
+        bookMap[bookId].order_item_ids.push(item.id)
+      })
+
+      const books = Object.values(bookMap)
+      console.log('Final books:', books)
+
+      setFilteredBooks(books)
+      setAllOrderItems(filteredItems)
+
+      // ตั้งค่าเริ่มต้นเป็น 0
+      const items = {}
+      books.forEach(book => {
+        items[book.book_id] = 0
+      })
+      setReceiveItems(items)
+
+      // หาครั้งที่รับสำหรับชั้นนี้
+      const gradeReceipts = receipts.filter(r => r.grade === selectedGrade)
+      setDeliveryNumber(gradeReceipts.length + 1)
+    } catch (err) {
+      console.error('Error in fetchFilteredBooks:', err)
+      setFilteredBooks([])
+    }
 
     setLoadingBooks(false)
   }
