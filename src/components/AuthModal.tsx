@@ -50,6 +50,22 @@ const AuthModal = ({
           password: formData.password
         });
         if (error) throw error;
+
+        // Only allow users who have been granted access into the system.
+        const { data: canAccess } = await supabase.rpc('can_access_dashboard');
+        if (canAccess !== true) {
+          await supabase.auth.signOut();
+          await Swal.fire({
+            icon: 'info',
+            title: 'บัญชียังไม่ได้รับสิทธิ์เข้าใช้งาน',
+            text: 'บัญชีนี้ยังไม่ได้รับการอนุมัติจากผู้ดูแลระบบ กรุณาติดต่อผู้ดูแลระบบ',
+            confirmButtonText: 'รับทราบ'
+          });
+          onClose();
+          window.location.assign('/');
+          return;
+        }
+
         await Swal.fire({
           icon: 'success',
           title: 'เข้าสู่ระบบสำเร็จ!',

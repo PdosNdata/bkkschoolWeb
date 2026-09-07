@@ -65,9 +65,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }, 0);
         }
 
-        // Check session and redirect to dashboard if not already there
-        if (!location.pathname.startsWith("/dashboard")) {
-          navigate("/dashboard", { replace: true });
+        // Send the user to the dashboard only if they are allowed in;
+        // otherwise keep them on the public site (no permission = home only).
+        {
+          const { data: canAccess } = await supabase.rpc("can_access_dashboard");
+          if (canAccess === true) {
+            if (!location.pathname.startsWith("/dashboard")) {
+              navigate("/dashboard", { replace: true });
+            }
+          } else if (location.pathname !== "/") {
+            navigate("/", { replace: true });
+          }
         }
       }
 
@@ -88,9 +96,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Clean query params after successful exchange
           window.history.replaceState(null, "", window.location.pathname);
           
-          // If session exists after code exchange, redirect to dashboard
-          if (session && !location.pathname.startsWith("/dashboard")) {
-            navigate("/dashboard", { replace: true });
+          // Route based on whether the user may access the dashboard
+          if (session) {
+            supabase.rpc("can_access_dashboard").then(({ data: canAccess }) => {
+              if (canAccess === true) {
+                if (!location.pathname.startsWith("/dashboard")) {
+                  navigate("/dashboard", { replace: true });
+                }
+              } else {
+                navigate("/", { replace: true });
+              }
+            });
           }
         })
         .catch((err) => {
@@ -98,10 +114,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
     }
 
-    // Initial session check
+    // Initial session check — auto-enter the dashboard only for allowed users.
+    // Users without permission simply stay on the home page.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && location.pathname === "/") {
-        navigate("/dashboard", { replace: true });
+        supabase.rpc("can_access_dashboard").then(({ data: canAccess }) => {
+          if (canAccess === true) {
+            navigate("/dashboard", { replace: true });
+          }
+        });
       }
     });
 
@@ -120,37 +141,48 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Initial session check first
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Verify there is a session AND that the user is allowed into the
+    // dashboard. Anyone without permission is sent back to the home page
+    // and the protected page never renders.
+    const evaluate = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!mounted) return;
-      
-      if (session) {
-        setChecking(false);
-      } else {
+
+      if (!session) {
         const url = new URL(window.location.href);
         const hasCode = !!url.searchParams.get("code");
         const hash = window.location.hash || "";
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
-        
-        // If there is no ongoing auth flow, send user home
+
         if (!hasCode && !hasAuthInHash) {
-          setChecking(false);
           navigate("/", { replace: true });
         } else {
-          // Wait a bit for auth flow to complete
-          setTimeout(() => {
-            if (mounted) setChecking(false);
-          }, 1000);
+          // Auth flow still settling — try again shortly
+          setTimeout(() => { if (mounted) evaluate(); }, 800);
         }
+        return;
       }
-    });
 
-    // Listen for auth changes
+      const { data: canAccess, error } = await supabase.rpc("can_access_dashboard");
+      if (!mounted) return;
+
+      if (error || canAccess !== true) {
+        navigate("/", { replace: true });
+        return;
+      }
+
+      setChecking(false);
+    };
+
+    evaluate();
+
+    // Re-evaluate whenever auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      
       if (session) {
-        setChecking(false);
+        evaluate();
+      } else {
+        navigate("/", { replace: true });
       }
     });
 

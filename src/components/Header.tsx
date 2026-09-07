@@ -161,7 +161,6 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
               width="32"
               height="32"
               loading="eager"
-              fetchpriority="high"
               sizes="32px"
               style={{ maxWidth: '32px', height: 'auto' }}
             />
