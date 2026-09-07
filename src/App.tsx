@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-ro
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import Swal from "sweetalert2";
 import Index from "./pages/Index";
 import AdmissionForm from "./pages/AdmissionForm";
 import Dashboard from "./pages/Dashboard";
@@ -65,16 +66,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }, 0);
         }
 
-        // Send the user to the dashboard only if they are allowed in;
-        // otherwise keep them on the public site (no permission = home only).
-        {
+        // Auto-enter the dashboard only for allowed users. Denial is handled
+        // by ProtectedRoute on the dashboard itself (where the session token
+        // is fully settled), so a transient "not allowed" here does nothing.
+        if (!location.pathname.startsWith("/dashboard")) {
           const { data: canAccess } = await supabase.rpc("can_access_dashboard");
           if (canAccess === true) {
-            if (!location.pathname.startsWith("/dashboard")) {
-              navigate("/dashboard", { replace: true });
-            }
-          } else if (location.pathname !== "/") {
-            navigate("/", { replace: true });
+            navigate("/dashboard", { replace: true });
           }
         }
       }
@@ -140,13 +138,37 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 
   useEffect(() => {
     let mounted = true;
+    let settled = false;
+
+    const allow = () => {
+      if (mounted && !settled) {
+        settled = true;
+        setChecking(false);
+      }
+    };
+
+    const deny = async (message?: string) => {
+      if (!mounted || settled) return;
+      settled = true;
+      if (message) {
+        await Swal.fire({
+          icon: "info",
+          title: "ไม่มีสิทธิ์เข้าใช้งานระบบ",
+          text: message,
+          confirmButtonText: "รับทราบ",
+        });
+      }
+      if (mounted) navigate("/", { replace: true });
+    };
 
     // Verify there is a session AND that the user is allowed into the
     // dashboard. Anyone without permission is sent back to the home page
     // and the protected page never renders.
-    const evaluate = async () => {
+    const evaluate = async (attempt = 0) => {
+      if (settled) return;
+
       const { data: { session } } = await supabase.auth.getSession();
-      if (!mounted) return;
+      if (!mounted || settled) return;
 
       if (!session) {
         const url = new URL(window.location.href);
@@ -155,34 +177,44 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
 
         if (!hasCode && !hasAuthInHash) {
-          navigate("/", { replace: true });
+          deny();
         } else {
-          // Auth flow still settling — try again shortly
-          setTimeout(() => { if (mounted) evaluate(); }, 800);
+          // OAuth flow still settling — try again shortly
+          setTimeout(() => { if (mounted) evaluate(attempt); }, 800);
         }
         return;
       }
 
       const { data: canAccess, error } = await supabase.rpc("can_access_dashboard");
-      if (!mounted) return;
+      if (!mounted || settled) return;
 
-      if (error || canAccess !== true) {
-        navigate("/", { replace: true });
+      if (error) {
+        // The session token may not be attached yet on a cold load — retry
+        // a few times before giving up.
+        if (attempt < 3) {
+          setTimeout(() => { if (mounted) evaluate(attempt + 1); }, 600);
+        } else {
+          deny();
+        }
         return;
       }
 
-      setChecking(false);
+      if (canAccess === true) {
+        allow();
+      } else {
+        deny("บัญชีนี้ยังไม่ได้รับสิทธิ์เข้าใช้งานส่วนจัดการ กรุณาติดต่อผู้ดูแลระบบ");
+      }
     };
 
     evaluate();
 
     // Re-evaluate whenever auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!mounted) return;
+      if (!mounted || settled) return;
       if (session) {
         evaluate();
       } else {
-        navigate("/", { replace: true });
+        deny();
       }
     });
 
