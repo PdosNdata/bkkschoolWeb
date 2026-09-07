@@ -79,7 +79,7 @@ const ImageSlider = () => {
                       height="384"
                       className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       loading={index === 0 ? "eager" : "lazy"}
-                      fetchPriority={index === 0 ? "high" : "low"}
+                      fetchpriority={index === 0 ? "high" : "low"}
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 896px, 896px"
                       style={{ maxWidth: '100%', height: 'auto' }}
                     />

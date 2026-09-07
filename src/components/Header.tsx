@@ -147,27 +147,27 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-elegant">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between gap-2 min-h-16 py-2">
           {/* Logo + Title - clickable to home */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             onClick={(e) => handleMenuClick(e, null)}
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
+            className="flex items-center space-x-2 min-w-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
           >
             <img
               src={schoolLogo}
               alt="โลโก้โรงเรียน บ้านค้อดอนแคน"
-              className="w-auto h-8 transition-transform duration-300 hover:scale-105"
+              className="w-auto h-8 shrink-0 transition-transform duration-300 hover:scale-105"
               width="32"
               height="32"
               loading="eager"
-              fetchPriority="high"
+              fetchpriority="high"
               sizes="32px"
               style={{ maxWidth: '32px', height: 'auto' }}
             />
-            <div className="flex flex-col">
-              <span className="font-bold text-primary text-lg hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
-              <span className="text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-primary text-sm sm:text-lg leading-tight hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
+              <span className="hidden sm:block text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
           </Link>
 

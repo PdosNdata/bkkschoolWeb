@@ -41,7 +41,7 @@ const Index = () => {
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-2">อีเมล</h3>
-                <p className="text-muted-foreground">41030208@udonthani3.ac.th</p>
+                <p className="text-muted-foreground">41030208@udonthani3.go.th</p>
               </div>
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-2">ที่อยู่</h3>

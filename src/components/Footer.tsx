@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Facebook, MessageCircle } from "lucide-react";
+import { MapPin, Mail, Facebook, MessageCircle } from "lucide-react";
 const Footer = () => {
   return <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
@@ -33,13 +33,13 @@ const Footer = () => {
                   ประวัติโรงเรียน
                 </a>
               </li>
-              <li className="text-base">
+              <li>
                 <a href="#activities" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">
-                  กิจกรรมสร้างสรรค์สังคม
+                  กิจกรรมภายใน
                 </a>
               </li>
               <li>
-                <a href="#news" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">ข่าวสารประชาสัมพันธ์</a>
+                <a href="#news" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">ข่าวสาร</a>
               </li>
               <li>
                 <a href="#contact" className="text-primary-foreground/80 hover:text-white transition-colors duration-300">
@@ -56,10 +56,6 @@ const Footer = () => {
               <li className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
                 <span className="text-primary-foreground/80 text-sm">93 หมู่ที่ 3 ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี 41130</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                
-                
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 flex-shrink-0" />
@@ -87,7 +83,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-primary-foreground/60 text-sm">© 2025 โรงเรียนบ้านค้อดอนแคน สงวนลิขสิทธิ์</p>
+          <p className="text-primary-foreground/60 text-sm">© {new Date().getFullYear()} โรงเรียนบ้านค้อดอนแคน สงวนลิขสิทธิ์</p>
         </div>
       </div>
     </footer>;
