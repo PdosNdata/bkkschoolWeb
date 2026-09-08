@@ -22,23 +22,23 @@ const HeroSection = () => {
     },
   });
   
-  return <section id="home" className="relative min-h-[90vh] bg-gradient-hero overflow-hidden">
+  return <section id="home" className="relative min-h-[90vh] bg-gradient-to-b from-pink-100 via-pink-50 to-white overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-20" style={{
       backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
     }}></div>
       
-      <div className="container mx-auto px-4 py-20 relative bg-purple-400">
+      <div className="container mx-auto px-4 py-20 relative">
         <div className="text-center mb-12">
-          
-          
+
+
           <h1 className="text-4xl font-bold mb-6 leading-tight text-violet-950 md:text-6xl">
             โรงเรียนบ้านค้อดอนแคน
             <br />
-            <span className="text-white/90 text-3xl md:text-4xl">โรงเรียนโครงการด้วยรักและห่วงใย</span>
+            <span className="text-rose-500 text-3xl md:text-4xl">โรงเรียนโครงการด้วยรักและห่วงใย</span>
           </h1>
-          
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+
+          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
             พัฒนาการศึกษาด้วยหลักสูตรที่ทันสมัย เพื่อสร้างนักเรียนให้มีความรู้และคุณธรรม
             พร้อมก้าวสู่โลกอนาคต
           </p>
@@ -46,7 +46,7 @@ const HeroSection = () => {
           {/* Activities Layout */}
           <div className="mb-12">
             <div className="max-w-6xl mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-8 text-center">กิจกรรมโครงการด้วยรักและห่วงใย</h3>
+              <h3 className="text-2xl font-bold text-violet-950 mb-8 text-center">กิจกรรมโครงการด้วยรักและห่วงใย</h3>
               
               {/* Videos Row - แถวบน */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -88,7 +88,7 @@ const HeroSection = () => {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-8">
-                    <p className="text-white/80">ยังไม่มีกิจกรรมในหมวดนี้</p>
+                    <p className="text-gray-500">ยังไม่มีกิจกรรมในหมวดนี้</p>
                   </div>
                 )}
               </div>
