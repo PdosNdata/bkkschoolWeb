@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Trash2, Plus, Search, Upload, CheckCircle } from "lucide-react";
+import { DASHBOARD_MENU_PERMISSIONS } from "@/lib/dashboardMenus";
 
 interface UserRole {
   id: string;
@@ -65,18 +66,12 @@ const AdminPage = () => {
     { value: "guardian", label: "ผู้ปกครอง" }
   ];
 
-  const availablePermissions = [
-    { value: "view_news", label: "ดูข่าวสาร" },
-    { value: "create_news", label: "สร้างข่าวสาร" },
-    { value: "edit_news", label: "แก้ไขข่าวสาร" },
-    { value: "view_activities", label: "ดูกิจกรรม" },
-    { value: "create_activities", label: "สร้างกิจกรรม" },
-    { value: "edit_activities", label: "แก้ไขกิจกรรม" },
-    { value: "view_media", label: "ดูสื่อ" },
-    { value: "upload_media", label: "อัพโหลดสื่อ" },
-    { value: "view_dashboard", label: "ดูแดชบอร์ด" },
-    { value: "admin_panel", label: "จัดการระบบ" }
-  ];
+  // Same permission names the dashboard cards check, so granting one here
+  // makes the matching card show up for that user.
+  const availablePermissions = DASHBOARD_MENU_PERMISSIONS.map((p) => ({
+    value: p.permissionName,
+    label: p.label,
+  }));
 
   useEffect(() => {
     fetchUserRoles();

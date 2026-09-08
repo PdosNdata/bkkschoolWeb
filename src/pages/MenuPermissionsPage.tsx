@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
+import { DASHBOARD_MENU_PERMISSIONS } from "@/lib/dashboardMenus";
 
 interface User {
   id: string;
@@ -30,15 +31,12 @@ const MenuPermissionsPage = () => {
   const [userPermissions, setUserPermissions] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const permissions: Permission[] = [
-    { name: "view_news", label: "ดูข่าวสาร" },
-    { name: "create_news", label: "สร้างข่าวสาร" },
-    { name: "edit_news", label: "แก้ไขข่าวสาร" },
-    { name: "delete_news", label: "ลบข่าวสาร" },
-    { name: "create_activity", label: "สร้างกิจกรรม" },
-    { name: "edit_activity", label: "แก้ไขกิจกรรม" },
-    { name: "delete_activity", label: "ลบกิจกรรม" }
-  ];
+  // Use the same permission names the dashboard cards check, so ticking a
+  // menu here actually makes that card appear for the user.
+  const permissions: Permission[] = DASHBOARD_MENU_PERMISSIONS.map((p) => ({
+    name: p.permissionName,
+    label: p.label,
+  }));
 
   useEffect(() => {
     const checkAuthAndFetch = async () => {
