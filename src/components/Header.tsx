@@ -236,6 +236,9 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    แดชบอร์ด
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
                     ตั้งค่า
                   </DropdownMenuItem>

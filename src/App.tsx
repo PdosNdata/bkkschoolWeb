@@ -112,17 +112,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
     }
 
-    // Initial session check — auto-enter the dashboard only for allowed users.
-    // Users without permission simply stay on the home page.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && location.pathname === "/") {
-        supabase.rpc("can_access_dashboard").then(({ data: canAccess }) => {
-          if (canAccess === true) {
-            navigate("/dashboard", { replace: true });
-          }
-        });
-      }
-    });
+    // A signed-in user visiting the home page stays on the home page — the
+    // logo / school name is a real link back here. They reach the dashboard
+    // via the login flow or the "แดชบอร์ด" item in the header menu.
 
     return () => {
       subscription.unsubscribe();
