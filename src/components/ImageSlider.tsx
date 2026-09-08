@@ -61,28 +61,35 @@ const ImageSlider = () => {
           <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-white/20 shadow-elegant">
             <div className="relative h-80 md:h-96">
               {/* Main Image */}
-              <div className="relative w-full h-full overflow-hidden">
+              <div className="relative w-full h-full overflow-hidden bg-slate-100">
                 {slides.map((slide, index) => (
                   <a
                     key={slide.id}
                     href={slide.link}
                     className={`absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer group ${
-                      index === currentSlide 
-                        ? 'opacity-100 scale-100' 
+                      index === currentSlide
+                        ? 'opacity-100 scale-100'
                         : 'opacity-0 scale-105'
                     }`}
                   >
+                    {/* Blurred fill so the letterbox area isn't empty */}
+                    <img
+                      src={slide.image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-60"
+                    />
+                    {/* Full image, never cropped */}
                     <img
                       src={slide.image}
                       alt={slide.title}
                       width="896"
                       height="384"
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      className="relative w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105"
                       loading={index === 0 ? "eager" : "lazy"}
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 896px, 896px"
-                      style={{ maxWidth: '100%', height: 'auto' }}
                     />
-                    
+
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
                       <div className="absolute bottom-6 left-6 right-6 text-white">
