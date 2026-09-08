@@ -18,6 +18,7 @@ export const DASHBOARD_MENU_PERMISSIONS: DashboardMenuPermission[] = [
   { permissionName: "all_activities", label: "กิจกรรมทั้งหมด" },
   { permissionName: "public_relations", label: "ประชาสัมพันธ์" },
   { permissionName: "media_library", label: "คลังสื่อออนไลน์" },
+  { permissionName: "document_upload", label: "อัพโหลดเอกสาร" },
   { permissionName: "personnel_system", label: "ระบบบุคลากร" },
   { permissionName: "menu_permissions", label: "จัดการสิทธิ์เมนู" },
   { permissionName: "textbook_system", label: "ระบบหนังสือเรียน" },

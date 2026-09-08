@@ -129,13 +129,13 @@ const HeroSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-t from-amber-50 to-amber-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-amber-50 to-amber-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/documents')}>
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lightbulb className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="text-amber-900 font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
-              <p className="text-amber-800/90 text-sm">ส่งเสริมความคิดสร้างสรรค์</p>
+              <p className="text-amber-800/90 text-sm">แผนการสอน · นวัตกรรม · หลักสูตรโรงเรียน</p>
             </CardContent>
           </Card>
         </div>

@@ -25,6 +25,8 @@ import PublicPersonnelReport from "./pages/PublicPersonnelReport";
 import PersonnelInSchool from "./pages/PersonnelInSchool";
 import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import TextbookDashboard from "./pages/TextbookDashboard";
+import DocumentUploadPage from "./pages/DocumentUploadPage";
+import DocumentsPublicPage from "./pages/DocumentsPublicPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -327,14 +329,23 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
-              <Route 
+              <Route
                 path="/textbook-dashboard"
                 element={
                   <ProtectedRoute>
                     <TextbookDashboard />
                   </ProtectedRoute>
-                } 
+                }
               />
+              <Route
+                path="/document-upload"
+                element={
+                  <ProtectedRoute>
+                    <DocumentUploadPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/documents" element={<DocumentsPublicPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
