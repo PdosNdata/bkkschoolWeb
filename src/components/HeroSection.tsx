@@ -99,43 +99,43 @@ const HeroSection = () => {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-t from-blue-300 to-blue-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-blue-50 to-blue-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-6 h-6 text-blue-500" />
               </div>
-              <h3 className="text-white font-semibold mb-2">หลักสูตรทันสมัย</h3>
-              <p className="text-white/90 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
+              <h3 className="text-blue-900 font-semibold mb-2">หลักสูตรทันสมัย</h3>
+              <p className="text-blue-700/90 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-t from-green-300 to-green-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
+          <Card className="bg-gradient-to-t from-green-50 to-green-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="text-white font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-white/90 text-sm">ทีมงานที่มีประสบการณ์</p>
+              <h3 className="text-green-900 font-semibold mb-2">ครูที่มีประสบการณ์</h3>
+              <p className="text-green-700/90 text-sm">ทีมงานที่มีประสบการณ์</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-t from-rose-300 to-rose-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-rose-50 to-rose-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="w-6 h-6 text-rose-500" />
               </div>
-              <h3 className="text-white font-semibold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-white/90 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
+              <h3 className="text-rose-900 font-semibold mb-2">ผลงานที่โดดเด่น</h3>
+              <p className="text-rose-700/90 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-t from-orange-300 to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-t from-amber-50 to-amber-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="w-6 h-6 text-amber-600" />
               </div>
-              <h3 className="text-white font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
-              <p className="text-white/90 text-sm">ส่งเสริมความคิดสร้างสรรค์</p>
+              <h3 className="text-amber-900 font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
+              <p className="text-amber-800/90 text-sm">ส่งเสริมความคิดสร้างสรรค์</p>
             </CardContent>
           </Card>
         </div>
