@@ -145,92 +145,52 @@ const Dashboard = () => {
   const systemCards = allSystemCards.filter(card => {
     // Admin sees everything
     if (userRole === "admin") return true;
-    
     // For other roles, check if they have the specific permission
-    const hasPermission = card.permissionName && userPermissions.includes(card.permissionName);
-    console.log('Card:', card.title, 'Permission:', card.permissionName, 'Has permission:', hasPermission, 'User permissions:', userPermissions);
-    return hasPermission;
+    return card.permissionName && userPermissions.includes(card.permissionName);
   });
 
   useEffect(() => {
+    let cancelled = false;
+
+    // Safety net: the dashboard must never spin forever, even if a request
+    // stalls. Show it after 8s regardless.
+    const safety = setTimeout(() => { if (!cancelled) setIsLoading(false); }, 8000);
+
     const fetchUserRoleAndPermissions = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        // Access itself is already enforced by ProtectedRoute; here we only
+        // need the role + granted permissions to decide which cards to show.
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        if (!userId) {
           navigate('/');
           return;
         }
 
-        // Check if user can access dashboard (admin or teacher)
-        const { data: canAccess, error: accessError } = await supabase.rpc('can_access_dashboard');
-        
-        console.log('Can access dashboard:', canAccess, 'Error:', accessError);
-        
-        if (accessError) {
-          console.error('Error checking dashboard access:', accessError);
-          toast({
-            title: "เกิดข้อผิดพลาด",
-            description: "ไม่สามารถตรวจสอบสิทธิ์การเข้าถึงได้",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
-        
-        if (canAccess !== true) {
-          toast({
-            title: "ไม่มีสิทธิ์เข้าถึง",
-            description: "คุณไม่มีสิทธิ์เข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
+        const [rolesRes, permsRes] = await Promise.all([
+          supabase.from('user_roles').select('role').eq('user_id', userId).eq('approved', true),
+          supabase.from('user_permissions').select('permission_name').eq('user_id', userId).eq('granted', true),
+        ]);
 
-        // Fetch user role
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('approved', true)
-          .single();
-        
-        if (roleData) {
-          setUserRole(roleData.role);
-        }
+        if (cancelled) return;
 
-        // Fetch user permissions
-        const { data: permissionsData, error: permissionsError } = await supabase
-          .from('user_permissions')
-          .select('permission_name')
-          .eq('user_id', user.id)
-          .eq('granted', true);
-        
-        console.log('Permissions query result:', { permissionsData, permissionsError, userId: user.id });
-        
-        if (permissionsData) {
-          const permissions = permissionsData.map(p => p.permission_name);
-          setUserPermissions(permissions);
-          console.log('User permissions:', permissions);
-        } else {
-          console.log('No permissions data found or error:', permissionsError);
-          setUserPermissions([]);
-        }
-
-        setIsLoading(false);
+        const roles = (rolesRes.data ?? []).map((r) => r.role);
+        setUserRole(roles.includes('admin') ? 'admin' : (roles[0] ?? ''));
+        setUserPermissions((permsRes.data ?? []).map((p) => p.permission_name));
       } catch (error) {
-        console.error('Error fetching user role:', error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถตรวจสอบสิทธิ์การใช้งานได้",
-          variant: "destructive"
-        });
-        navigate('/');
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchUserRoleAndPermissions();
-  }, [navigate, toast]);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(safety);
+    };
+  }, [navigate]);
   const handleActivitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Submit to Supabase when activities table is ready
