@@ -62,20 +62,18 @@ const TeacherImportPage = () => {
       const { error: upsertErr } = await allowedTeachersTable().upsert(rows, { onConflict: "email" });
       if (upsertErr) throw upsertErr;
 
-      // Approve teachers who have already registered
-      let approved = 0;
-      for (const t of parsed) {
-        const { data, error } = await supabase
-          .from("user_roles")
-          .update({ role: "teacher", approved: true, pending_approval: false, email: t.email })
-          .ilike("email", t.email)
-          .select("user_id");
-        if (!error && data && data.length) approved += data.length;
-      }
+      // Approve everyone who has already registered — one call.
+      // (RPC not in the generated types yet.)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: approved, error: approveErr } = await (supabase as any).rpc(
+        "approve_teachers_by_email",
+        { emails: parsed.map((t) => t.email) },
+      );
+      if (approveErr) throw approveErr;
 
       toast({
         title: "นำเข้าสำเร็จ",
-        description: `เพิ่มในรายชื่ออนุญาต ${parsed.length} คน · อนุมัติบัญชีที่สมัครไว้แล้ว ${approved} คน`,
+        description: `เพิ่มในรายชื่ออนุญาต ${parsed.length} คน · อนุมัติบัญชีที่สมัครไว้แล้ว ${approved ?? 0} คน`,
       });
       setRawText("");
       setParsed([]);

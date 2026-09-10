@@ -54,3 +54,37 @@ begin
   return new;
 end;
 $function$;
+
+-- Approve every already-registered account whose auth email is in the list,
+-- in one call. Matches on auth.users.email so it also catches user_roles
+-- rows that were created without an email.
+CREATE OR REPLACE FUNCTION public.approve_teachers_by_email(emails text[])
+ RETURNS integer
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path = 'public'
+AS $function$
+declare
+  n integer;
+begin
+  if not public.is_admin() then
+    raise exception 'not authorized';
+  end if;
+
+  with lowered as (
+    select distinct lower(trim(e)) as e from unnest(emails) as e
+  ),
+  upd as (
+    update public.user_roles ur
+      set role = 'teacher', approved = true, pending_approval = false,
+          email = coalesce(ur.email, au.email)
+      from auth.users au
+      where ur.user_id = au.id
+        and lower(au.email) in (select e from lowered)
+      returning ur.user_id
+  )
+  select count(*) into n from upd;
+
+  return n;
+end;
+$function$;
