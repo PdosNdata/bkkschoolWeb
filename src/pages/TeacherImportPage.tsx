@@ -62,18 +62,18 @@ const TeacherImportPage = () => {
       const { error: upsertErr } = await allowedTeachersTable().upsert(rows, { onConflict: "email" });
       if (upsertErr) throw upsertErr;
 
-      // Approve everyone who has already registered — one call.
-      // (RPC not in the generated types yet.)
+      // Copy the whole allowed list into user_roles as approved teachers
+      // (updates registered accounts, creates claimable placeholders for
+      // the rest) — one call. RPC not in the generated types yet.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: approved, error: approveErr } = await (supabase as any).rpc(
-        "approve_teachers_by_email",
-        { emails: parsed.map((t) => t.email) },
+      const { data: created, error: provErr } = await (supabase as any).rpc(
+        "provision_allowed_teachers",
       );
-      if (approveErr) throw approveErr;
+      if (provErr) throw provErr;
 
       toast({
         title: "นำเข้าสำเร็จ",
-        description: `เพิ่มในรายชื่ออนุญาต ${parsed.length} คน · อนุมัติบัญชีที่สมัครไว้แล้ว ${approved ?? 0} คน`,
+        description: `เพิ่มในรายชื่ออนุญาต ${parsed.length} คน · เพิ่ม/อนุมัติใน user_roles เรียบร้อย (รอเข้าระบบครั้งแรก ${created ?? 0} คน)`,
       });
       setRawText("");
       setParsed([]);
@@ -97,7 +97,8 @@ const TeacherImportPage = () => {
       confirmButtonColor: "#dc2626",
     });
     if (!res.isConfirmed) return;
-    const { error } = await allowedTeachersTable().delete().eq("email", email);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).rpc("remove_allowed_teacher", { p_email: email });
     if (error) {
       toast({ title: "ลบไม่สำเร็จ", description: error.message, variant: "destructive" });
       return;
