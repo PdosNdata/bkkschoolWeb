@@ -155,6 +155,11 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       if (mounted) navigate("/", { replace: true });
     };
 
+    // Hard safety net: never let the spinner run forever. If nothing has
+    // resolved the check within 12s (hung request, broken auth fragment in
+    // the URL, refresh-token loop, ...), send the user home.
+    const safety = setTimeout(() => deny(), 12000);
+
     // Verify there is a session AND that the user is allowed into the
     // dashboard. Anyone without permission is sent back to the home page
     // and the protected page never renders.
@@ -170,11 +175,12 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         const hash = window.location.hash || "";
         const hasAuthInHash = hash.includes("access_token") || hash.includes("refresh_token") || hash.includes("type=");
 
-        if (!hasCode && !hasAuthInHash) {
-          deny();
+        // Only wait out an in-progress auth flow for a few attempts — a stale
+        // token fragment that never becomes a session must not loop forever.
+        if ((hasCode || hasAuthInHash) && attempt < 5) {
+          setTimeout(() => { if (mounted) evaluate(attempt + 1); }, 800);
         } else {
-          // OAuth flow still settling — try again shortly
-          setTimeout(() => { if (mounted) evaluate(attempt); }, 800);
+          deny();
         }
         return;
       }
@@ -214,6 +220,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 
     return () => {
       mounted = false;
+      clearTimeout(safety);
       subscription.unsubscribe();
     };
   }, [navigate]);
