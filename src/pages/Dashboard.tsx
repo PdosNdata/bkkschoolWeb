@@ -113,6 +113,15 @@ const Dashboard = () => {
     roles: ["admin"],
     permissionName: "personnel_system"
   }, {
+    title: "นำเข้าข้อมูลครู",
+    description: "นำเข้ารายชื่ออีเมลครูจาก Google Form ให้เข้าใช้ระบบ",
+    icon: UsersRound,
+    color: "bg-sky-50 border-sky-200",
+    iconColor: "text-sky-600",
+    href: "/teacher-import",
+    roles: ["admin"],
+    permissionName: "teacher_import"
+  }, {
     title: "จัดการสิทธิ์เมนู",
     description: "กำหนดสิทธิ์การเข้าใช้เมนูต่าง ๆ สำหรับผู้ใช้",
     icon: Shield,

@@ -27,6 +27,7 @@ import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import TextbookDashboard from "./pages/TextbookDashboard";
 import DocumentUploadPage from "./pages/DocumentUploadPage";
 import DocumentsPublicPage from "./pages/DocumentsPublicPage";
+import TeacherImportPage from "./pages/TeacherImportPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -353,6 +354,14 @@ const App = () => {
                 }
               />
               <Route path="/documents" element={<DocumentsPublicPage />} />
+              <Route
+                path="/teacher-import"
+                element={
+                  <ProtectedRoute>
+                    <TeacherImportPage />
+                  </ProtectedRoute>
+                }
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

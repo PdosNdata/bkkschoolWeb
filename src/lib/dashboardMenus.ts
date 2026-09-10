@@ -20,6 +20,7 @@ export const DASHBOARD_MENU_PERMISSIONS: DashboardMenuPermission[] = [
   { permissionName: "media_library", label: "คลังสื่อออนไลน์" },
   { permissionName: "document_upload", label: "อัพโหลดเอกสาร" },
   { permissionName: "personnel_system", label: "ระบบบุคลากร" },
+  { permissionName: "teacher_import", label: "นำเข้าข้อมูลครู" },
   { permissionName: "menu_permissions", label: "จัดการสิทธิ์เมนู" },
   { permissionName: "textbook_system", label: "ระบบหนังสือเรียน" },
   { permissionName: "admin_panel", label: "Admin" },
