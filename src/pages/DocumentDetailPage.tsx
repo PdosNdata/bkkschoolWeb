@@ -72,11 +72,11 @@ const DocumentDetailPage = () => {
   };
 
   const shareLine = () => {
-    window.open(
-      `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(pageUrl)}`,
-      "line-share",
-      "width=500,height=600,scrollbars=yes,resizable=yes",
-    );
+    // The line.me/R/msg link opens the LINE app directly on mobile (no web
+    // login needed); on desktop it falls back to a QR code.
+    if (!doc) return;
+    const text = `${doc.title}\n${pageUrl}`;
+    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, "_blank", "noopener");
   };
 
   const handleDownload = async () => {
