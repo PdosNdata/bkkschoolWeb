@@ -180,16 +180,16 @@ const QrCell = ({ doc }: { doc: SchoolDocument }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" title="QR โค้ดหน้าเอกสาร" className="mx-auto">
+        <Button variant="ghost" size="sm" title="QR โค้ดลิงก์ไฟล์" className="mx-auto">
           <QrCode className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto flex flex-col items-center gap-3 p-4">
         <p className="text-sm font-medium text-center max-w-[220px]">{doc.title}</p>
         <div ref={boxRef} className="rounded-lg bg-white p-3">
-          <QRCodeCanvas value={docPageUrl(doc)} size={176} marginSize={2} level="M" />
+          <QRCodeCanvas value={doc.file_url} size={176} marginSize={2} level="M" />
         </div>
-        <p className="text-xs text-muted-foreground">สแกนเพื่อเปิดหน้าเอกสาร</p>
+        <p className="text-xs text-muted-foreground">สแกนเพื่อเปิดไฟล์</p>
         <Button size="sm" variant="outline" onClick={saveQr}>
           <Download className="w-4 h-4 mr-2" />
           บันทึกรูป QR

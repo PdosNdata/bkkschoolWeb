@@ -155,9 +155,9 @@ const DocumentDetailPage = () => {
               </div>
 
               <div className="flex flex-col items-center gap-2 pt-4 border-t">
-                <p className="text-sm text-muted-foreground">สแกน QR เพื่อเปิดหน้านี้</p>
+                <p className="text-sm text-muted-foreground">สแกน QR เพื่อเปิดไฟล์</p>
                 <div className="rounded-lg bg-white p-3 border">
-                  <QRCodeCanvas value={pageUrl} size={144} marginSize={2} level="M" />
+                  <QRCodeCanvas value={doc.file_url} size={144} marginSize={2} level="M" />
                 </div>
               </div>
             </CardContent>
