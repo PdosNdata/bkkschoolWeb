@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Share2, Link2, Pencil, Trash2, QrCode, Download } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Share2, Link2, Pencil, Trash2, QrCode, Download, Facebook, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LineIcon from "@/components/LineIcon";
 import type { SchoolDocument } from "@/lib/documents";
@@ -41,24 +42,28 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
     }
   };
 
-  const handleShare = async (doc: SchoolDocument) => {
+  const handleShareNative = async (doc: SchoolDocument) => {
     const url = docPageUrl(doc);
     if (navigator.share) {
       try {
         await navigator.share({ title: doc.title, text: doc.title, url });
         return;
       } catch {
-        // user cancelled or share failed — fall through to Facebook
+        // user cancelled — do nothing
+        return;
       }
     }
-    const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-    const popup = window.open(fb, "facebook-share", "width=600,height=400,scrollbars=yes,resizable=yes");
-    if (!popup) handleCopy(doc);
+    handleCopy(doc);
   };
 
   const handleShareLine = (doc: SchoolDocument) => {
     const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(docPageUrl(doc))}`;
     window.open(url, "line-share", "width=500,height=600,scrollbars=yes,resizable=yes");
+  };
+
+  const handleShareFacebook = (doc: SchoolDocument) => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(docPageUrl(doc))}`;
+    window.open(url, "facebook-share", "width=600,height=400,scrollbars=yes,resizable=yes");
   };
 
   const handleDownload = async (doc: SchoolDocument) => {
@@ -119,18 +124,24 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => handleShare(doc)} title="แชร์">
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleShareLine(doc)}
-                    title="แชร์ไปที่ LINE"
-                    className="text-[#06C755] hover:text-[#06C755]"
-                  >
-                    <LineIcon className="w-4 h-4" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" title="แชร์">
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleShareLine(doc)} className="text-[#06C755] focus:text-[#06C755]">
+                        <LineIcon className="w-4 h-4 mr-2" /> แชร์ไปที่ LINE
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleShareFacebook(doc)} className="text-[#1877F2] focus:text-[#1877F2]">
+                        <Facebook className="w-4 h-4 mr-2" /> แชร์ไปที่ Facebook
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleShareNative(doc)}>
+                        <Send className="w-4 h-4 mr-2" /> แชร์แบบอื่น ๆ
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)} title="ดาวน์โหลด">
                     <Download className="w-4 h-4" />
                   </Button>
