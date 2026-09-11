@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Share2, Link2, Pencil, Trash2, QrCode, Download, Facebook, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LineIcon from "@/components/LineIcon";
+import { openLineShare } from "@/lib/lineShare";
 import type { SchoolDocument } from "@/lib/documents";
 
 interface DocumentTableProps {
@@ -57,10 +58,7 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
   };
 
   const handleShareLine = (doc: SchoolDocument) => {
-    // The line.me/R/msg link opens the LINE app directly on mobile (no web
-    // login needed); on desktop it falls back to a QR code.
-    const text = `${doc.title}\n${docPageUrl(doc)}`;
-    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, "_blank", "noopener");
+    openLineShare(`${doc.title}\n${docPageUrl(doc)}`);
   };
 
   const handleShareFacebook = (doc: SchoolDocument) => {

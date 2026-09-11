@@ -10,6 +10,7 @@ import { ArrowLeft, ExternalLink, Download, Share2, Link2, Loader2, FileQuestion
 import { useToast } from "@/hooks/use-toast";
 import { documentsTable, type SchoolDocument } from "@/lib/documents";
 import LineIcon from "@/components/LineIcon";
+import { openLineShare } from "@/lib/lineShare";
 
 const formatDate = (value: string) => {
   try {
@@ -72,11 +73,8 @@ const DocumentDetailPage = () => {
   };
 
   const shareLine = () => {
-    // The line.me/R/msg link opens the LINE app directly on mobile (no web
-    // login needed); on desktop it falls back to a QR code.
     if (!doc) return;
-    const text = `${doc.title}\n${pageUrl}`;
-    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, "_blank", "noopener");
+    openLineShare(`${doc.title}\n${pageUrl}`);
   };
 
   const handleDownload = async () => {
