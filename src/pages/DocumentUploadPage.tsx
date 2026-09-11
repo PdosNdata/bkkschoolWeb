@@ -45,6 +45,8 @@ const DocumentUploadPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadedBy, setUploadedBy] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [documents, setDocuments] = useState<SchoolDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,12 +74,13 @@ const DocumentUploadPage = () => {
 
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .maybeSingle();
+      setCurrentUserId(user.id);
+      const [{ data: profile }, { data: roles }] = await Promise.all([
+        supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", user.id).eq("approved", true),
+      ]);
       setUploadedBy(profile?.display_name?.trim() || user.email?.split("@")[0] || "");
+      setIsAdmin((roles ?? []).some((r) => r.role === "admin"));
     });
   }, []);
 
@@ -107,6 +110,7 @@ const DocumentUploadPage = () => {
         file_name: uploaded.name,
         file_type: uploaded.type,
         uploaded_by: uploadedBy.trim(),
+        user_id: currentUserId,
       });
       if (error) throw error;
       toast({ title: "อัพโหลดเอกสารสำเร็จ" });
@@ -285,7 +289,13 @@ const DocumentUploadPage = () => {
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" /> กำลังโหลด...
               </div>
             ) : (
-              <DocumentTable documents={documents} onEdit={openEdit} onDelete={handleDelete} />
+              <DocumentTable
+                documents={documents}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+                currentUserId={currentUserId}
+                isAdmin={isAdmin}
+              />
             )}
           </CardContent>
         </Card>

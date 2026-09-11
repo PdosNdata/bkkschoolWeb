@@ -17,6 +17,10 @@ interface DocumentTableProps {
   readOnly?: boolean;
   onEdit?: (doc: SchoolDocument) => void;
   onDelete?: (doc: SchoolDocument) => void;
+  /** Current viewer's id and whether they're an admin — only the document's
+   * own uploader (or an admin) gets the edit/delete buttons. */
+  currentUserId?: string | null;
+  isAdmin?: boolean;
 }
 
 const formatDate = (value: string) => {
@@ -31,7 +35,14 @@ const formatDate = (value: string) => {
 // site, never the raw Supabase storage URL.
 const docPageUrl = (doc: SchoolDocument) => `${window.location.origin}/documents/${doc.id}`;
 
-const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: DocumentTableProps) => {
+const DocumentTable = ({
+  documents,
+  readOnly = false,
+  onEdit,
+  onDelete,
+  currentUserId = null,
+  isAdmin = false,
+}: DocumentTableProps) => {
   const { toast } = useToast();
 
   const handleCopy = async (doc: SchoolDocument) => {
@@ -106,7 +117,9 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
           </TableRow>
         </TableHeader>
         <TableBody>
-          {documents.map((doc) => (
+          {documents.map((doc) => {
+            const canManage = isAdmin || (!!currentUserId && doc.user_id === currentUserId);
+            return (
             <TableRow key={doc.id}>
               <TableCell className="whitespace-nowrap">{formatDate(doc.doc_date)}</TableCell>
               <TableCell>
@@ -148,12 +161,12 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
                   <Button variant="ghost" size="sm" onClick={() => handleCopy(doc)} title="คัดลอกลิงก์">
                     <Link2 className="w-4 h-4" />
                   </Button>
-                  {!readOnly && onEdit && (
+                  {!readOnly && onEdit && canManage && (
                     <Button variant="ghost" size="sm" onClick={() => onEdit(doc)} title="แก้ไข">
                       <Pencil className="w-4 h-4" />
                     </Button>
                   )}
-                  {!readOnly && onDelete && (
+                  {!readOnly && onDelete && canManage && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -167,7 +180,8 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </div>

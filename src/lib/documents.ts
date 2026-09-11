@@ -17,6 +17,7 @@ export interface SchoolDocument {
   file_name: string;
   file_type: string | null;
   uploaded_by: string;
+  user_id: string | null;
   created_at: string;
   updated_at: string;
 }
