@@ -27,6 +27,7 @@ import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import TextbookDashboard from "./pages/TextbookDashboard";
 import DocumentUploadPage from "./pages/DocumentUploadPage";
 import DocumentsPublicPage from "./pages/DocumentsPublicPage";
+import DocumentDetailPage from "./pages/DocumentDetailPage";
 import TeacherImportPage from "./pages/TeacherImportPage";
 import NotFound from "./pages/NotFound";
 
@@ -354,6 +355,7 @@ const App = () => {
                 }
               />
               <Route path="/documents" element={<DocumentsPublicPage />} />
+              <Route path="/documents/:id" element={<DocumentDetailPage />} />
               <Route
                 path="/teacher-import"
                 element={

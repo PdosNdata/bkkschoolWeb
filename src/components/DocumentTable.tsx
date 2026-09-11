@@ -1,11 +1,13 @@
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ExternalLink, Share2, Link2, Pencil, Trash2, QrCode, Download } from "lucide-react";
+import { Share2, Link2, Pencil, Trash2, QrCode, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import LineIcon from "@/components/LineIcon";
 import type { SchoolDocument } from "@/lib/documents";
 
 interface DocumentTableProps {
@@ -23,12 +25,16 @@ const formatDate = (value: string) => {
   }
 };
 
+// The link people should share/copy/scan is the document's page on our own
+// site, never the raw Supabase storage URL.
+const docPageUrl = (doc: SchoolDocument) => `${window.location.origin}/documents/${doc.id}`;
+
 const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: DocumentTableProps) => {
   const { toast } = useToast();
 
-  const handleCopy = async (url: string) => {
+  const handleCopy = async (doc: SchoolDocument) => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(docPageUrl(doc));
       toast({ title: "คัดลอกลิงก์แล้ว", description: "วางลิงก์เพื่อแชร์ได้เลย" });
     } catch {
       toast({ title: "คัดลอกไม่สำเร็จ", variant: "destructive" });
@@ -36,18 +42,23 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
   };
 
   const handleShare = async (doc: SchoolDocument) => {
-    const shareData = { title: doc.title, text: doc.title, url: doc.file_url };
+    const url = docPageUrl(doc);
     if (navigator.share) {
       try {
-        await navigator.share(shareData);
+        await navigator.share({ title: doc.title, text: doc.title, url });
         return;
       } catch {
         // user cancelled or share failed — fall through to Facebook
       }
     }
-    const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(doc.file_url)}`;
+    const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     const popup = window.open(fb, "facebook-share", "width=600,height=400,scrollbars=yes,resizable=yes");
-    if (!popup) handleCopy(doc.file_url);
+    if (!popup) handleCopy(doc);
+  };
+
+  const handleShareLine = (doc: SchoolDocument) => {
+    const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(docPageUrl(doc))}`;
+    window.open(url, "line-share", "width=500,height=600,scrollbars=yes,resizable=yes");
   };
 
   const handleDownload = async (doc: SchoolDocument) => {
@@ -94,15 +105,9 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
             <TableRow key={doc.id}>
               <TableCell className="whitespace-nowrap">{formatDate(doc.doc_date)}</TableCell>
               <TableCell>
-                <a
-                  href={doc.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-primary hover:underline inline-flex items-center gap-1"
-                >
+                <Link to={`/documents/${doc.id}`} className="font-medium text-primary hover:underline">
                   {doc.title}
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                </a>
+                </Link>
                 <div className="text-xs text-muted-foreground">{doc.file_name}</div>
               </TableCell>
               <TableCell className="whitespace-nowrap">
@@ -117,10 +122,19 @@ const DocumentTable = ({ documents, readOnly = false, onEdit, onDelete }: Docume
                   <Button variant="ghost" size="sm" onClick={() => handleShare(doc)} title="แชร์">
                     <Share2 className="w-4 h-4" />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleShareLine(doc)}
+                    title="แชร์ไปที่ LINE"
+                    className="text-[#06C755] hover:text-[#06C755]"
+                  >
+                    <LineIcon className="w-4 h-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)} title="ดาวน์โหลด">
                     <Download className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy(doc.file_url)} title="คัดลอกลิงก์">
+                  <Button variant="ghost" size="sm" onClick={() => handleCopy(doc)} title="คัดลอกลิงก์">
                     <Link2 className="w-4 h-4" />
                   </Button>
                   {!readOnly && onEdit && (
@@ -166,16 +180,16 @@ const QrCell = ({ doc }: { doc: SchoolDocument }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" title="QR โค้ดลิงก์ไฟล์" className="mx-auto">
+        <Button variant="ghost" size="sm" title="QR โค้ดหน้าเอกสาร" className="mx-auto">
           <QrCode className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto flex flex-col items-center gap-3 p-4">
         <p className="text-sm font-medium text-center max-w-[220px]">{doc.title}</p>
         <div ref={boxRef} className="rounded-lg bg-white p-3">
-          <QRCodeCanvas value={doc.file_url} size={176} marginSize={2} level="M" />
+          <QRCodeCanvas value={docPageUrl(doc)} size={176} marginSize={2} level="M" />
         </div>
-        <p className="text-xs text-muted-foreground">สแกนเพื่อเปิดไฟล์</p>
+        <p className="text-xs text-muted-foreground">สแกนเพื่อเปิดหน้าเอกสาร</p>
         <Button size="sm" variant="outline" onClick={saveQr}>
           <Download className="w-4 h-4 mr-2" />
           บันทึกรูป QR
