@@ -12,6 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link } from "lucide-react";
 import Swal from "sweetalert2";
+import { withTimeout } from "@/lib/utils";
+
+const MAX_IMAGE_MB = 12;
 
 interface NewsFormData {
   title: string;
@@ -110,14 +113,24 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setCoverImage(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+      toast({
+        title: "ไฟล์รูปใหญ่เกินไป",
+        description: `เลือกไฟล์ไม่เกิน ${MAX_IMAGE_MB}MB (ไฟล์นี้ ${(file.size / 1024 / 1024).toFixed(1)}MB) — ลองบีบอัด/ย่อขนาดรูปก่อนอัพโหลด`,
+        variant: "destructive",
+      });
+      e.target.value = "";
+      return;
     }
+
+    setCoverImage(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -126,9 +139,11 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `news/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(filePath, file);
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from('news-images').upload(filePath, file),
+        30000,
+        "อัพโหลดรูปภาพ",
+      );
 
       if (uploadError) {
         throw uploadError;
@@ -141,9 +156,10 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
+      const message = error instanceof Error ? error.message : "ไม่สามารถอัพโหลดรูปภาพได้";
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถอัพโหลดรูปภาพได้",
+        title: "อัพโหลดรูปภาพไม่สำเร็จ",
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -167,13 +183,17 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
 
       if (editingId) {
         // Update existing news
-        const { error } = await supabase
-          .from('news')
-          .update({
-            ...formData,
-            cover_image: coverImageUrl || null
-          })
-          .eq('id', editingId);
+        const { error } = await withTimeout(
+          supabase
+            .from('news')
+            .update({
+              ...formData,
+              cover_image: coverImageUrl || null
+            })
+            .eq('id', editingId),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -187,12 +207,16 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
         });
       } else {
         // Insert new news
-        const { error } = await supabase
-          .from('news')
-          .insert([{
-            ...formData,
-            cover_image: coverImageUrl || null
-          }]);
+        const { error } = await withTimeout(
+          supabase
+            .from('news')
+            .insert([{
+              ...formData,
+              cover_image: coverImageUrl || null
+            }]),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -214,9 +238,10 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
       fetchAllNews(); // Refresh the news list
     } catch (error) {
       console.error('Error saving news:', error);
+      const fallback = editingId ? "ไม่สามารถแก้ไขข่าวสารได้" : "ไม่สามารถเพิ่มข่าวสารได้";
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: editingId ? "ไม่สามารถแก้ไขข่าวสารได้" : "ไม่สามารถเพิ่มข่าวสารได้",
+        description: error instanceof Error ? error.message : fallback,
         variant: "destructive",
       });
     } finally {
