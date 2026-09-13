@@ -12,8 +12,15 @@ interface Activity {
   content: string;
   author_name: string;
   cover_image?: string;
+  images?: string[];
+  cover_image_index?: number;
   created_at: string;
 }
+
+// Activities store their photos in `images`, with `cover_image_index`
+// picking which one is the cover — `cover_image` itself is never set.
+const getCoverImage = (activity: Activity): string | undefined =>
+  activity.cover_image || activity.images?.[activity.cover_image_index ?? 0];
 
 interface ActivitiesDetailModalProps {
   activity: Activity | null;
@@ -149,10 +156,10 @@ const ActivitiesDetailModal = ({ activity, isOpen, onClose }: ActivitiesDetailMo
 
             <div className="space-y-6">
               {/* Cover Image */}
-              {activity.cover_image && (
+              {getCoverImage(activity) && (
                 <div className="w-full">
                   <img
-                    src={activity.cover_image}
+                    src={getCoverImage(activity)}
                     alt={activity.title}
                     className="w-full h-auto max-h-96 object-contain rounded-lg shadow-md bg-gray-50"
                   />

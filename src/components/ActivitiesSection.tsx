@@ -12,8 +12,15 @@ interface Activity {
   content: string;
   author_name: string;
   cover_image?: string;
+  images?: string[];
+  cover_image_index?: number;
   created_at: string;
 }
+
+// Activities store their photos in `images`, with `cover_image_index`
+// picking which one is the cover — `cover_image` itself is never set.
+const getCoverImage = (activity: Activity): string | undefined =>
+  activity.cover_image || activity.images?.[activity.cover_image_index ?? 0];
 const ActivitiesSection = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,11 +83,13 @@ const ActivitiesSection = () => {
           </div> : activities.length === 0 ? <div className="text-center py-8">
             <p>ยังไม่มีกิจกรรม</p>
           </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {activities.map(activity => <Card key={activity.id} className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer" onClick={() => openActivityDetail(activity)}>
+            {activities.map(activity => {
+              const cover = getCoverImage(activity);
+              return <Card key={activity.id} className="bg-white border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 group cursor-pointer" onClick={() => openActivityDetail(activity)}>
                 <CardContent className="p-0">
                   <div className="w-full h-48 overflow-hidden rounded-t-lg bg-gradient-primary relative">
-                    {activity.cover_image ? (
-                      <img src={activity.cover_image} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" width="400" height="192" loading="lazy" decoding="async" />
+                    {cover ? (
+                      <img src={cover} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" width="400" height="192" loading="lazy" decoding="async" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
                         {activity.title}
@@ -117,7 +126,8 @@ const ActivitiesSection = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>)}
+              </Card>;
+            })}
           </div>}
 
         {/* Highlight Section */}

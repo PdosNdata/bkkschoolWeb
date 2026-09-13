@@ -14,8 +14,15 @@ interface Activity {
   content: string;
   author_name: string;
   cover_image?: string;
+  images?: string[];
+  cover_image_index?: number;
   created_at: string;
 }
+
+// Activities store their photos in `images`, with `cover_image_index`
+// picking which one is the cover — `cover_image` itself is never set.
+const getCoverImage = (activity: Activity): string | undefined =>
+  activity.cover_image || activity.images?.[activity.cover_image_index ?? 0];
 
 const AllActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -111,23 +118,25 @@ const AllActivitiesPage = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            {activities.map((activity) => (
+            {activities.map((activity) => {
+              const cover = getCoverImage(activity);
+              return (
               <Card key={activity.id} className="bg-white border-0 shadow-elegant">
                 <CardContent className="p-8">
                   <div className="grid md:grid-cols-3 gap-8">
-                    {activity.cover_image && (
+                    {cover && (
                       <div className="md:col-span-1">
                         <div className="w-full h-64 overflow-hidden rounded-lg">
                           <img
-                            src={activity.cover_image}
+                            src={cover}
                             alt={activity.title}
                             className="w-full h-full object-cover"
                           />
                         </div>
                       </div>
                     )}
-                    
-                    <div className={activity.cover_image ? "md:col-span-2" : "md:col-span-3"}>
+
+                    <div className={cover ? "md:col-span-2" : "md:col-span-3"}>
                       <h2 className="text-2xl font-bold text-foreground mb-4">
                         {activity.title}
                       </h2>
@@ -171,7 +180,8 @@ const AllActivitiesPage = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
