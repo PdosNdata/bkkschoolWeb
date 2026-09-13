@@ -3,9 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, ArrowRight, Calendar, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import ActivitiesDetailModal from "./ActivitiesDetailModal";
 interface Activity {
   id: string;
   title: string;
@@ -22,10 +21,9 @@ interface Activity {
 const getCoverImage = (activity: Activity): string | undefined =>
   activity.cover_image || activity.images?.[activity.cover_image_index ?? 0];
 const ActivitiesSection = () => {
+  const navigate = useNavigate();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const fetchActivities = async () => {
     try {
       const {
@@ -47,12 +45,7 @@ const ActivitiesSection = () => {
     }
   };
   const openActivityDetail = (activity: Activity) => {
-    setSelectedActivity(activity);
-    setIsModalOpen(true);
-  };
-  const closeActivityDetail = () => {
-    setSelectedActivity(null);
-    setIsModalOpen(false);
+    navigate(`/activities/${activity.id}`);
   };
   useEffect(() => {
     fetchActivities();
@@ -152,8 +145,6 @@ const ActivitiesSection = () => {
             </Link>
           </div>
         </div>
-
-        <ActivitiesDetailModal activity={selectedActivity} isOpen={isModalOpen} onClose={closeActivityDetail} />
       </div>
     </section>;
 };

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Share2, Facebook, ArrowLeft } from "lucide-react";
+import { Share2, Facebook, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -24,6 +24,7 @@ const ActivityDetailPage = () => {
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -66,6 +67,39 @@ const ActivityDetailPage = () => {
     const url = window.location.href;
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     window.open(facebookUrl, "_blank", "width=600,height=400");
+  };
+
+  const downloadImage = async (url: string, index: number) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("fetch failed");
+      const blob = await res.blob();
+      const ext = blob.type.split("/")[1] || "jpg";
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `${activity?.title || "activity"}-${index + 1}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.open(url, "_blank", "noopener");
+    }
+  };
+
+  const downloadAllImages = async () => {
+    if (!activity?.images?.length) return;
+    setDownloadingAll(true);
+    try {
+      for (let i = 0; i < activity.images.length; i++) {
+        await downloadImage(activity.images[i], i);
+        // small gap so the browser doesn't block multiple simultaneous downloads
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    } finally {
+      setDownloadingAll(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -158,13 +192,39 @@ const ActivityDetailPage = () => {
               {activity.images && activity.images.length > 0 && (
                 <div className="mb-6">
                   {/* Main Image */}
-                  <div className="mb-4">
+                  <div className="mb-3 relative group">
                     <img
                       src={activity.images[selectedImage]}
                       alt={activity.title}
                       className="w-full h-[500px] object-cover rounded-lg"
                     />
+                    <Button
+                      size="sm"
+                      className="absolute bottom-3 right-3"
+                      onClick={() => downloadImage(activity.images[selectedImage], selectedImage)}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      ดาวน์โหลดภาพนี้
+                    </Button>
                   </div>
+
+                  {activity.images.length > 1 && (
+                    <div className="flex justify-end mb-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadAllImages}
+                        disabled={downloadingAll}
+                      >
+                        {downloadingAll ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4 mr-2" />
+                        )}
+                        ดาวน์โหลดทั้งหมด ({activity.images.length} ภาพ)
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Thumbnails */}
                   {activity.images.length > 1 && (

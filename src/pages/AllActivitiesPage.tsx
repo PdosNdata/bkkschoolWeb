@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, User, Share2, Copy } from "lucide-react";
+import { Users, Calendar, User, Share2, Copy, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -18,11 +18,6 @@ interface Activity {
   cover_image_index?: number;
   created_at: string;
 }
-
-// Activities store their photos in `images`, with `cover_image_index`
-// picking which one is the cover — `cover_image` itself is never set.
-const getCoverImage = (activity: Activity): string | undefined =>
-  activity.cover_image || activity.images?.[activity.cover_image_index ?? 0];
 
 const AllActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -60,10 +55,36 @@ const AllActivitiesPage = () => {
     });
   };
 
+  const downloadImage = async (url: string, title: string, index: number) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("fetch failed");
+      const blob = await res.blob();
+      const ext = blob.type.split("/")[1] || "jpg";
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `${title}-${index + 1}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.open(url, "_blank", "noopener");
+    }
+  };
+
+  const downloadAllImages = async (activity: Activity) => {
+    const images = activity.images ?? [];
+    for (let i = 0; i < images.length; i++) {
+      await downloadImage(images[i], activity.title, i);
+      await new Promise((r) => setTimeout(r, 400));
+    }
+  };
+
   const handleShare = (activity: Activity, platform: 'facebook') => {
-    const baseUrl = 'https://www.bankhodonkan.ac.th';
-    const activityUrl = `${baseUrl}/#activity-detail-${activity.id}`;
-    
+    const activityUrl = `${window.location.origin}/activities/${activity.id}`;
+
     if (platform === 'facebook') {
       const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(activityUrl)}`;
       window.open(facebookUrl, '_blank', 'width=600,height=400');
@@ -76,9 +97,8 @@ const AllActivitiesPage = () => {
   };
 
   const handleCopyLink = (activity: Activity) => {
-    const baseUrl = 'https://www.bankhodonkan.ac.th';
-    const activityUrl = `${baseUrl}/#activity-detail-${activity.id}`;
-    
+    const activityUrl = `${window.location.origin}/activities/${activity.id}`;
+
     navigator.clipboard.writeText(activityUrl).then(() => {
       toast({
         title: "คัดลอกลิงค์สำเร็จ",
@@ -119,24 +139,42 @@ const AllActivitiesPage = () => {
         ) : (
           <div className="space-y-8">
             {activities.map((activity) => {
-              const cover = getCoverImage(activity);
+              const images = activity.images ?? [];
               return (
               <Card key={activity.id} className="bg-white border-0 shadow-elegant">
                 <CardContent className="p-8">
-                  <div className="grid md:grid-cols-3 gap-8">
-                    {cover && (
-                      <div className="md:col-span-1">
-                        <div className="w-full h-64 overflow-hidden rounded-lg">
-                          <img
-                            src={cover}
-                            alt={activity.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                  {images.length > 0 && (
+                    <div className="mb-6">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-3">
+                        {images.map((image, index) => (
+                          <div key={index} className="relative group aspect-square rounded-lg overflow-hidden bg-muted">
+                            <a href={image} target="_blank" rel="noopener noreferrer">
+                              <img
+                                src={image}
+                                alt={`${activity.title} - ภาพที่ ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </a>
+                            <button
+                              onClick={() => downloadImage(image, activity.title, index)}
+                              className="absolute bottom-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="ดาวน์โหลดภาพนี้"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                      {images.length > 1 && (
+                        <Button variant="outline" size="sm" onClick={() => downloadAllImages(activity)}>
+                          <Download className="w-4 h-4 mr-2" />
+                          ดาวน์โหลดทั้งหมด ({images.length} ภาพ)
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
-                    <div className={cover ? "md:col-span-2" : "md:col-span-3"}>
+                  <div>
                       <h2 className="text-2xl font-bold text-foreground mb-4">
                         {activity.title}
                       </h2>
@@ -176,7 +214,6 @@ const AllActivitiesPage = () => {
                           แชร์ Facebook
                         </Button>
                       </div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
