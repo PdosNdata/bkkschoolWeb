@@ -85,6 +85,9 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
     const { data, error } = await supabase
       .from("activities")
       .select("*")
+      // "กิจกรรมด้วยรักและห่วงใย" has its own dedicated management page
+      // (โครงการด้วยรักและห่วงใย), so it's excluded from this general list.
+      .neq("category", "กิจกรรมด้วยรักและห่วงใย")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -375,7 +378,6 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                   <SelectValue placeholder="เลือกประเภทกิจกรรม" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="กิจกรรมด้วยรักและห่วงใย">กิจกรรมด้วยรักและห่วงใย</SelectItem>
                   <SelectItem value="กิจกรรมภายใน">กิจกรรมภายใน</SelectItem>
                   <SelectItem value="กิจกรรมภายนอก">กิจกรรมภายนอก</SelectItem>
                 </SelectContent>
@@ -484,7 +486,6 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="กิจกรรมด้วยรักและห่วงใย">กิจกรรมด้วยรักและห่วงใย</SelectItem>
                   <SelectItem value="กิจกรรมภายใน">กิจกรรมภายใน</SelectItem>
                   <SelectItem value="กิจกรรมภายนอก">กิจกรรมภายนอก</SelectItem>
                 </SelectContent>
