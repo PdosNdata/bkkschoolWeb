@@ -14,7 +14,7 @@ export const DASHBOARD_MENU_PERMISSIONS: DashboardMenuPermission[] = [
   { permissionName: "attendance_system", label: "ระบบตรวจการมาเรียน" },
   { permissionName: "supplies_system", label: "ระบบงานพัสดุ" },
   { permissionName: "student_affairs", label: "ระบบกิจการนักเรียน" },
-  { permissionName: "internal_activities", label: "กิจกรรมเกษตรเพื่ออาหารกลางวัน" },
+  { permissionName: "internal_activities", label: "โครงการด้วยรักและห่วงใย" },
   { permissionName: "all_activities", label: "กิจกรรมทั้งหมด" },
   { permissionName: "public_relations", label: "ประชาสัมพันธ์" },
   { permissionName: "media_library", label: "คลังสื่อออนไลน์" },
