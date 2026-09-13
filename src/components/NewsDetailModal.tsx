@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, X } from "lucide-react";
+import { Calendar, User, X, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,12 @@ interface NewsDetailModalProps {
 
 const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
   const { toast } = useToast();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Reset fullscreen state each time a different news item is opened
+  useEffect(() => {
+    setIsFullscreen(false);
+  }, [news?.id]);
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
@@ -56,17 +62,37 @@ const NewsDetailModal = ({ news, isOpen, onClose }: NewsDetailModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={
+          isFullscreen
+            ? "max-w-none w-screen h-screen sm:rounded-none overflow-y-auto"
+            : "max-w-4xl max-h-[90vh] overflow-y-auto"
+        }
+      >
         {news && (
           <>
             <DialogHeader className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <DialogTitle className="text-2xl font-bold text-left">
                   {news.title}
                 </DialogTitle>
-                <Button variant="ghost" size="sm" onClick={onClose}>
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsFullscreen((prev) => !prev)}
+                    title={isFullscreen ? "ย่อหน้าต่าง" : "ขยายเต็มจอ"}
+                  >
+                    {isFullscreen ? (
+                      <Minimize2 className="w-4 h-4" />
+                    ) : (
+                      <Maximize2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={onClose}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </DialogHeader>
 

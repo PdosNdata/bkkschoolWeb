@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ArrowRight, Newspaper, User } from "lucide-react";
+import { Calendar, Clock, ArrowRight, ArrowLeft, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import NewsDetailModal from "./NewsDetailModal";
+
+const NEWS_PAGE_SIZE = 3;
 
 interface NewsItem {
   id: string;
@@ -23,25 +25,37 @@ const NewsSection = () => {
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchNews = async () => {
+  const fetchNews = async (pageIndex: number) => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      const from = pageIndex * NEWS_PAGE_SIZE;
+      const to = from + NEWS_PAGE_SIZE - 1;
+      const { data, error, count } = await supabase
         .from('news')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('published_date', { ascending: false })
-        .limit(6);
+        .range(from, to);
 
       if (error) {
         throw error;
       }
 
       setNews(data || []);
+      setTotalCount(count ?? 0);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / NEWS_PAGE_SIZE));
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    window.scrollTo({ top: document.getElementById('news')?.offsetTop ?? 0, behavior: 'smooth' });
   };
 
   const openNewsDetail = (newsItem: NewsItem) => {
@@ -55,18 +69,30 @@ const NewsSection = () => {
   };
 
   useEffect(() => {
-    fetchNews();
-  }, []);
+    fetchNews(page);
+  }, [page]);
 
-  // Handle URL fragment for opening specific news
+  // Handle URL fragment for opening specific news (e.g. from a shared link) —
+  // the item may not be on the currently loaded page, so fall back to
+  // fetching it directly by id.
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleHashChange = async () => {
       const hash = window.location.hash;
       if (hash.startsWith('#news-detail-')) {
         const newsId = hash.replace('#news-detail-', '');
         const newsItem = news.find(item => item.id === newsId);
         if (newsItem) {
           openNewsDetail(newsItem);
+          return;
+        }
+
+        const { data } = await supabase
+          .from('news')
+          .select('*')
+          .eq('id', newsId)
+          .maybeSingle();
+        if (data) {
+          openNewsDetail(data);
         }
       }
     };
@@ -202,6 +228,32 @@ const NewsSection = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 0}
+              onClick={() => goToPage(page - 1)}
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              ก่อนหน้า
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              หน้า {page + 1} จาก {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages - 1}
+              onClick={() => goToPage(page + 1)}
+            >
+              หน้าถัดไป
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
           </div>
         )}
 
