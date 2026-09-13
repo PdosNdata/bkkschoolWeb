@@ -29,6 +29,10 @@ const AllActivitiesPage = () => {
       const { data, error } = await supabase
         .from('activities')
         .select('*')
+        // "กิจกรรมด้วยรักและห่วงใย" already has its own card section on
+        // the home page (HeroSection), so it's excluded here to avoid
+        // showing the same activities twice.
+        .neq('category', 'กิจกรรมด้วยรักและห่วงใย')
         .order('created_at', { ascending: false });
 
       if (error) {
