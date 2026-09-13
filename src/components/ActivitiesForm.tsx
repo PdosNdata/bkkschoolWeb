@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
 
 const MAX_IMAGE_MB = 12;
+const ACTIVITY_CATEGORY = "กิจกรรมด้วยรักและห่วงใย";
 
 interface ActivitiesFormData {
   title: string;
@@ -89,6 +90,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
       const { data, error } = await supabase
         .from('activities')
         .select('*')
+        .eq('category', ACTIVITY_CATEGORY)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -220,7 +222,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
               content: formData.content,
               author_name: formData.author_name,
               images: imageUrls,
-              cover_image_index: coverImageIndex
+              cover_image_index: coverImageIndex,
+              category: ACTIVITY_CATEGORY
             })
             .eq('id', editingId),
           20000,
@@ -248,7 +251,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
               author_name: formData.author_name,
               images: imageUrls,
               cover_image_index: coverImageIndex,
-              user_id: currentUserId
+              user_id: currentUserId,
+              category: ACTIVITY_CATEGORY
             }]),
           20000,
           "บันทึกข้อมูล",
