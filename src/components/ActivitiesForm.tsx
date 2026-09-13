@@ -10,6 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, X } from "lucide-react";
 import Swal from "sweetalert2";
+import { withTimeout } from "@/lib/utils";
+
+const MAX_IMAGE_MB = 12;
 
 interface ActivitiesFormData {
   title: string;
@@ -106,16 +109,25 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    
+    const picked = Array.from(e.target.files || []);
+
     // Check if total images exceed 10
-    if (selectedFiles.length + files.length > 10) {
+    if (selectedFiles.length + picked.length > 10) {
       toast({
         title: "เกินจำนวนที่กำหนด",
         description: "สามารถอัพโหลดรูปภาพได้สูงสุด 10 รูปเท่านั้น",
         variant: "destructive",
       });
       return;
+    }
+
+    const files = picked.filter((file) => file.size <= MAX_IMAGE_MB * 1024 * 1024);
+    if (files.length < picked.length) {
+      toast({
+        title: "มีไฟล์ถูกข้าม",
+        description: `ไฟล์ที่เกิน ${MAX_IMAGE_MB}MB จะไม่ถูกเพิ่ม (${picked.length - files.length} ไฟล์)`,
+        variant: "destructive",
+      });
     }
 
     // Add new files to existing ones
@@ -152,9 +164,11 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `activities/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('news-images')
-          .upload(filePath, file);
+        const { error: uploadError } = await withTimeout(
+          supabase.storage.from('news-images').upload(filePath, file),
+          30000,
+          `อัพโหลดรูปภาพ ${file.name}`,
+        );
 
         if (uploadError) {
           throw uploadError;
@@ -167,14 +181,15 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
         uploadedUrls.push(data.publicUrl);
       } catch (error) {
         console.error('Error uploading image:', error);
+        const message = error instanceof Error ? error.message : `ไม่สามารถอัพโหลดรูปภาพ ${file.name} ได้`;
         toast({
-          title: "เกิดข้อผิดพลาด",
-          description: `ไม่สามารถอัพโหลดรูปภาพ ${file.name} ได้`,
+          title: "อัพโหลดรูปภาพไม่สำเร็จ",
+          description: message,
           variant: "destructive",
         });
       }
     }
-    
+
     return uploadedUrls;
   };
 
@@ -193,16 +208,20 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
 
       if (editingId) {
         // Update existing activity
-        const { error } = await supabase
-          .from('activities')
-          .update({
-            title: formData.title,
-            content: formData.content,
-            author_name: formData.author_name,
-            images: imageUrls,
-            cover_image_index: coverImageIndex
-          })
-          .eq('id', editingId);
+        const { error } = await withTimeout(
+          supabase
+            .from('activities')
+            .update({
+              title: formData.title,
+              content: formData.content,
+              author_name: formData.author_name,
+              images: imageUrls,
+              cover_image_index: coverImageIndex
+            })
+            .eq('id', editingId),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -216,15 +235,19 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
         });
       } else {
         // Insert new activity
-        const { error } = await supabase
-          .from('activities')
-          .insert([{
-            title: formData.title,
-            content: formData.content,
-            author_name: formData.author_name,
-            images: imageUrls,
-            cover_image_index: coverImageIndex
-          }]);
+        const { error } = await withTimeout(
+          supabase
+            .from('activities')
+            .insert([{
+              title: formData.title,
+              content: formData.content,
+              author_name: formData.author_name,
+              images: imageUrls,
+              cover_image_index: coverImageIndex
+            }]),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -246,9 +269,10 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
       fetchAllActivities(); // Refresh the activities list
     } catch (error) {
       console.error('Error saving activity:', error);
+      const fallback = editingId ? "ไม่สามารถแก้ไขกิจกรรมได้" : "ไม่สามารถเพิ่มกิจกรรมได้";
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: editingId ? "ไม่สามารถแก้ไขกิจกรรมได้" : "ไม่สามารถเพิ่มกิจกรรมได้",
+        description: error instanceof Error ? error.message : fallback,
         variant: "destructive",
       });
     } finally {

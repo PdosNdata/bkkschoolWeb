@@ -9,7 +9,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Edit, Upload } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, withTimeout } from "@/lib/utils";
+
+const MAX_IMAGE_MB = 12;
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,14 +85,24 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setThumbnailFile(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setThumbnailPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+      toast({
+        title: "ไฟล์รูปใหญ่เกินไป",
+        description: `เลือกไฟล์ไม่เกิน ${MAX_IMAGE_MB}MB (ไฟล์นี้ ${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+        variant: "destructive",
+      });
+      e.target.value = "";
+      return;
     }
+
+    setThumbnailFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setThumbnailPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadThumbnail = async (file: File): Promise<string | null> => {
@@ -99,9 +111,11 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `thumbnails/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('media-files')
-        .upload(filePath, file);
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from('media-files').upload(filePath, file),
+        30000,
+        "อัพโหลดรูปภาพ",
+      );
 
       if (uploadError) {
         throw uploadError;
@@ -114,9 +128,10 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading thumbnail:', error);
+      const message = error instanceof Error ? error.message : "ไม่สามารถอัพโหลดรูปภาพได้";
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถอัพโหลดรูปภาพได้",
+        title: "อัพโหลดรูปภาพไม่สำเร็จ",
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -160,18 +175,21 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       };
 
       let error;
-      
+
       if (editingMedia) {
         // Update existing media
-        ({ error } = await supabase
-          .from('media_resources')
-          .update(mediaData)
-          .eq('id', editingMedia.id));
+        ({ error } = await withTimeout(
+          supabase.from('media_resources').update(mediaData).eq('id', editingMedia.id),
+          20000,
+          "บันทึกข้อมูล",
+        ));
       } else {
         // Insert new media
-        ({ error } = await supabase
-          .from('media_resources')
-          .insert(mediaData));
+        ({ error } = await withTimeout(
+          supabase.from('media_resources').insert(mediaData),
+          20000,
+          "บันทึกข้อมูล",
+        ));
       }
 
       if (error) throw error;
@@ -195,9 +213,10 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
 
     } catch (error) {
       console.error('Error adding media resource:', error);
+      const fallback = "ไม่สามารถเพิ่มข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเพิ่มข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        description: error instanceof Error ? error.message : fallback,
         variant: "destructive",
       });
     } finally {

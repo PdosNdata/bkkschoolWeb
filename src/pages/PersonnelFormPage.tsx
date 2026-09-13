@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { withTimeout } from "@/lib/utils";
+
+const MAX_IMAGE_MB = 12;
 
 const PersonnelFormPage = () => {
   const navigate = useNavigate();
@@ -89,16 +92,26 @@ const PersonnelFormPage = () => {
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setPhotoFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPhotoPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "ไฟล์รูปใหญ่เกินไป",
+        description: `เลือกไฟล์ไม่เกิน ${MAX_IMAGE_MB}MB (ไฟล์นี้ ${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+      });
+      event.target.value = "";
+      return;
     }
+
+    setPhotoFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPhotoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadPhoto = async (file: File): Promise<string | null> => {
@@ -107,9 +120,11 @@ const PersonnelFormPage = () => {
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `personnel/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from('avatars').upload(filePath, file),
+        30000,
+        "อัปโหลดรูปภาพ",
+      );
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
@@ -123,10 +138,11 @@ const PersonnelFormPage = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading photo:', error);
+      const message = error instanceof Error ? error.message : "ไม่สามารถอัปโหลดรูปภาพได้";
       toast({
         variant: "destructive",
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถอัปโหลดรูปภาพได้",
+        title: "อัปโหลดรูปภาพไม่สำเร็จ",
+        description: message,
       });
       return null;
     }
@@ -168,16 +184,19 @@ const PersonnelFormPage = () => {
       let error;
       if (isEditing && personnelId) {
         // Update existing personnel
-        const result = await supabase
-          .from('personnel')
-          .update(personnelData)
-          .eq('id', personnelId);
+        const result = await withTimeout(
+          supabase.from('personnel').update(personnelData).eq('id', personnelId),
+          20000,
+          "บันทึกข้อมูล",
+        );
         error = result.error;
       } else {
         // Insert new personnel
-        const result = await supabase
-          .from('personnel')
-          .insert(personnelData);
+        const result = await withTimeout(
+          supabase.from('personnel').insert(personnelData),
+          20000,
+          "บันทึกข้อมูล",
+        );
         error = result.error;
       }
 
@@ -191,10 +210,11 @@ const PersonnelFormPage = () => {
       navigate('/personnel');
     } catch (error) {
       console.error('Error saving personnel:', error);
+      const fallback = isEditing ? "ไม่สามารถแก้ไขข้อมูลบุคลากรได้" : "ไม่สามารถเพิ่มข้อมูลบุคลากรได้";
       toast({
         variant: "destructive",
         title: "เกิดข้อผิดพลาด",
-        description: isEditing ? "ไม่สามารถแก้ไขข้อมูลบุคลากรได้" : "ไม่สามารถเพิ่มข้อมูลบุคลากรได้",
+        description: error instanceof Error ? error.message : fallback,
       });
     } finally {
       setIsSubmitting(false);

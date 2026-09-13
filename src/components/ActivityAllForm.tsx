@@ -10,6 +10,9 @@ import { Edit, Trash2, Share2, Facebook, X, Image as ImageIcon } from "lucide-re
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Swal from "sweetalert2";
+import { withTimeout } from "@/lib/utils";
+
+const MAX_IMAGE_MB = 12;
 
 interface ActivityAllFormData {
   title: string;
@@ -99,14 +102,23 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length + selectedFiles.length > 10) {
+    const picked = Array.from(e.target.files || []);
+    if (picked.length + selectedFiles.length > 10) {
       toast({
         title: "จำนวนไฟล์เกินกำหนด",
         description: "สามารถอัปโหลดได้สูงสุด 10 ภาพ",
         variant: "destructive",
       });
       return;
+    }
+
+    const files = picked.filter((file) => file.size <= MAX_IMAGE_MB * 1024 * 1024);
+    if (files.length < picked.length) {
+      toast({
+        title: "มีไฟล์ถูกข้าม",
+        description: `ไฟล์ที่เกิน ${MAX_IMAGE_MB}MB จะไม่ถูกเพิ่ม (${picked.length - files.length} ไฟล์)`,
+        variant: "destructive",
+      });
     }
 
     setSelectedFiles((prev) => [...prev, ...files]);
@@ -136,9 +148,11 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError, data } = await supabase.storage
-        .from("media-files")
-        .upload(filePath, file);
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from("media-files").upload(filePath, file),
+        30000,
+        `อัพโหลดรูปภาพ ${file.name}`,
+      );
 
       if (uploadError) {
         throw uploadError;
@@ -183,10 +197,11 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       };
 
       if (editingId) {
-        const { error } = await supabase
-          .from("activities")
-          .update(dataToSubmit)
-          .eq("id", editingId);
+        const { error } = await withTimeout(
+          supabase.from("activities").update(dataToSubmit).eq("id", editingId),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -195,9 +210,11 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
           description: "แก้ไขกิจกรรมเรียบร้อยแล้ว",
         });
       } else {
-        const { error } = await supabase
-          .from("activities")
-          .insert([dataToSubmit]);
+        const { error } = await withTimeout(
+          supabase.from("activities").insert([dataToSubmit]),
+          20000,
+          "บันทึกข้อมูล",
+        );
 
         if (error) throw error;
 
@@ -211,9 +228,10 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       fetchActivities();
     } catch (error) {
       console.error("Error:", error);
+      const fallback = "ไม่สามารถบันทึกข้อมูลได้";
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกข้อมูลได้",
+        description: error instanceof Error ? error.message : fallback,
         variant: "destructive",
       });
     } finally {
