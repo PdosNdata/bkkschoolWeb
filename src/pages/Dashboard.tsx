@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload } from "lucide-react";
+import { Calendar, Users, FileText, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -139,6 +139,15 @@ const Dashboard = () => {
     href: "/textbook-dashboard",
     roles: ["teacher", "admin"],
     permissionName: "textbook_system"
+  }, {
+    title: "จัดการสไลด์หน้าแรก",
+    description: "เพิ่ม/แก้ไข/ลบรูปภาพสไลด์บนหน้าแรกของเว็บไซต์",
+    icon: Images,
+    color: "bg-fuchsia-50 border-fuchsia-200",
+    iconColor: "text-fuchsia-600",
+    href: "/home-slider-form",
+    roles: ["admin"],
+    permissionName: "home_slider"
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",

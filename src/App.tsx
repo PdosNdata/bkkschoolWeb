@@ -29,6 +29,7 @@ import DocumentUploadPage from "./pages/DocumentUploadPage";
 import DocumentsPublicPage from "./pages/DocumentsPublicPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import TeacherImportPage from "./pages/TeacherImportPage";
+import HomeSliderFormPage from "./pages/HomeSliderFormPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -289,13 +290,21 @@ const App = () => {
               />
               <Route path="/activities/:id" element={<ActivityDetailPage />} />
               <Route path="/personinschool" element={<PersonnelInSchool />} />
-              <Route 
-                path="/media-form" 
+              <Route
+                path="/media-form"
                 element={
                   <ProtectedRoute>
                     <MediaFormPage />
                   </ProtectedRoute>
-                } 
+                }
+              />
+              <Route
+                path="/home-slider-form"
+                element={
+                  <ProtectedRoute>
+                    <HomeSliderFormPage />
+                  </ProtectedRoute>
+                }
               />
               <Route 
                 path="/admin" 

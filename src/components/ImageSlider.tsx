@@ -5,34 +5,76 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import activitiesImage from "@/assets/activities-image-optimized.webp";
 import environmentImage from "@/assets/environment-image-optimized.webp";
 import libraryImage from "@/assets/library-image-optimized.webp";
+import { homeSlidesTable, HomeSlide } from "@/lib/homeSlides";
 
+interface Slide {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  link: string;
+}
+
+// Shown until an admin adds their own slides in the dashboard.
+const DEFAULT_SLIDES: Slide[] = [
+  {
+    id: "default-1",
+    image: activitiesImage,
+    title: "กิจกรรมนักเรียน",
+    description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
+    link: "#activities",
+  },
+  {
+    id: "default-2",
+    image: environmentImage,
+    title: "สิ่งแวดล้อมการเรียนรู้",
+    description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
+    link: "#environment",
+  },
+  {
+    id: "default-3",
+    image: libraryImage,
+    title: "ห้องสมุดและแหล่งเรียนรู้",
+    description: "แหล่งความรู้ที่ครบครันและทันสมัย",
+    link: "#library",
+  },
+];
 
 const ImageSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
 
-  const slides = [
-    {
-      id: 1,
-      image: activitiesImage,
-      title: "กิจกรรมนักเรียน",
-      description: "ส่งเสริมความสามารถรอบด้านของนักเรียน",
-      link: "#activities"
-    },
-    {
-      id: 2,
-      image: environmentImage,
-      title: "สิ่งแวดล้อมการเรียนรู้",
-      description: "บรรยากาศที่เอื้อต่อการพัฒนาศักยภาพ",
-      link: "#environment"
-    },
-    {
-      id: 3,
-      image: libraryImage,
-      title: "ห้องสมุดและแหล่งเรียนรู้",
-      description: "แหล่งความรู้ที่ครบครันและทันสมัย",
-      link: "#library"
-    }
-  ];
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const { data, error } = await homeSlidesTable()
+          .select("*")
+          .order("display_order", { ascending: true });
+        if (error) throw error;
+
+        const rows = (data as HomeSlide[]) || [];
+        if (rows.length > 0) {
+          setSlides(
+            rows.map((row) => ({
+              id: row.id,
+              image: row.image_url,
+              title: row.title,
+              description: row.description || "",
+              link: row.link || "",
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching home slides, using defaults:", error);
+      }
+    };
+
+    fetchSlides();
+  }, []);
+
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [slides.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -40,7 +82,7 @@ const ImageSlider = () => {
     }, 4000); // เปลี่ยนภาพทุก 4 วินาที
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -59,50 +101,57 @@ const ImageSlider = () => {
       <div className="container mx-auto px-4">
         <div className="relative max-w-4xl mx-auto">
           <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-white/20 shadow-elegant">
-            <div className="relative h-80 md:h-96">
+            <div className="relative aspect-video">
               {/* Main Image */}
               <div className="relative w-full h-full overflow-hidden bg-slate-100">
-                {slides.map((slide, index) => (
-                  <a
-                    key={slide.id}
-                    href={slide.link}
-                    className={`absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer group ${
-                      index === currentSlide
-                        ? 'opacity-100 scale-100'
-                        : 'opacity-0 scale-105'
-                    }`}
-                  >
-                    {/* Blurred fill so the letterbox area isn't empty */}
-                    <img
-                      src={slide.image}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-60"
-                    />
-                    {/* Full image, never cropped */}
-                    <img
-                      src={slide.image}
-                      alt={slide.title}
-                      width="896"
-                      height="384"
-                      className="relative w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105"
-                      loading={index === 0 ? "eager" : "lazy"}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 896px, 896px"
-                    />
+                {slides.map((slide, index) => {
+                  const content = (
+                    <>
+                      {/* Blurred fill so any letterbox area isn't empty */}
+                      <img
+                        src={slide.image}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-60"
+                      />
+                      {/* Full image, never cropped */}
+                      <img
+                        src={slide.image}
+                        alt={slide.title}
+                        className="relative w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105"
+                        loading={index === 0 ? "eager" : "lazy"}
+                      />
 
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                      <div className="absolute bottom-6 left-6 right-6 text-white">
-                        <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-primary-light transition-colors">
-                          {slide.title}
-                        </h3>
-                        <p className="text-white/90 text-sm md:text-base">
-                          {slide.description}
-                        </p>
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
+                        <div className="absolute bottom-6 left-6 right-6 text-white">
+                          <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-primary-light transition-colors">
+                            {slide.title}
+                          </h3>
+                          {slide.description && (
+                            <p className="text-white/90 text-sm md:text-base">
+                              {slide.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
+                    </>
+                  );
+
+                  const className = `absolute inset-0 transition-all duration-700 ease-in-out group ${
+                    slide.link ? "cursor-pointer" : ""
+                  } ${index === currentSlide ? "opacity-100 scale-100" : "opacity-0 scale-105"}`;
+
+                  return slide.link ? (
+                    <a key={slide.id} href={slide.link} className={className}>
+                      {content}
+                    </a>
+                  ) : (
+                    <div key={slide.id} className={className}>
+                      {content}
                     </div>
-                  </a>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Navigation Arrows */}
@@ -114,7 +163,7 @@ const ImageSlider = () => {
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="icon"

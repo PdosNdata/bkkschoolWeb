@@ -23,5 +23,6 @@ export const DASHBOARD_MENU_PERMISSIONS: DashboardMenuPermission[] = [
   { permissionName: "teacher_import", label: "นำเข้าข้อมูลครู" },
   { permissionName: "menu_permissions", label: "จัดการสิทธิ์เมนู" },
   { permissionName: "textbook_system", label: "ระบบหนังสือเรียน" },
+  { permissionName: "home_slider", label: "จัดการสไลด์หน้าแรก" },
   { permissionName: "admin_panel", label: "Admin" },
 ];
