@@ -23,8 +23,8 @@ const AboutSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-          <div className="rounded-xl overflow-hidden shadow-elegant">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center mb-16">
+          <div className="lg:col-span-2 rounded-xl overflow-hidden shadow-elegant">
             <img
               src={schoolHistoryImage}
               alt="ประวัติโรงเรียนบ้านค้อดอนแคน ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี"
@@ -34,7 +34,7 @@ const AboutSection = () => {
             />
           </div>
 
-          <div className="bg-gradient-card rounded-xl p-8 shadow-elegant">
+          <div className="lg:col-span-1 bg-gradient-card rounded-xl p-8 shadow-elegant">
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="text-xl font-semibold tracking-tight text-primary mb-1">250+</div>
