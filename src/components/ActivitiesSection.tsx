@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, ArrowRight, ArrowLeft, Calendar, User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const ACTIVITIES_PAGE_SIZE = 3;
@@ -152,29 +152,6 @@ const ActivitiesSection = () => {
             </Button>
           </div>
         )}
-
-        {/* Highlight Section */}
-        <div className="bg-gradient-primary rounded-2xl p-8 md:p-12 text-center text-white">
-          <h3 className="text-2xl md:text-3xl font-bold mb-4">
-            ร่วมเป็นส่วนหนึ่งของกิจกรรมสุดพิเศษ
-          </h3>
-          <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-            ทุกภาคเรียนมีกิจกรรมพิเศษและการแข่งขันที่จะช่วยพัฒนาศักยภาพของนักเรียน
-            ให้สามารถแสดงออกและเรียนรู้ได้อย่างเต็มที่
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/activities">
-              <Button variant="hero" size="lg" className="bg-white text-primary hover:bg-white/90">
-                ดูกิจกรรมทั้งหมด
-              </Button>
-            </Link>
-            <Link to="/activities-form">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
-                เพิ่มกิจกรรม
-              </Button>
-            </Link>
-          </div>
-        </div>
       </div>
     </section>;
 };
