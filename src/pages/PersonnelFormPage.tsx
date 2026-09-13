@@ -27,7 +27,8 @@ const PersonnelFormPage = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
-  
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     fullName: '',
     position: '',
@@ -42,6 +43,9 @@ const PersonnelFormPage = () => {
     if (isEditing && personnelId) {
       fetchPersonnelData(personnelId);
     }
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id);
+    });
   }, [isEditing, personnelId]);
 
   const fetchPersonnelData = async (id: string) => {
@@ -193,7 +197,7 @@ const PersonnelFormPage = () => {
       } else {
         // Insert new personnel
         const result = await withTimeout(
-          supabase.from('personnel').insert(personnelData),
+          supabase.from('personnel').insert({ ...personnelData, user_id: currentUserId }),
           20000,
           "บันทึกข้อมูล",
         );

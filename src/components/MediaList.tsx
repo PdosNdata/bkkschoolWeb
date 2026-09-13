@@ -77,8 +77,9 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-      .single();
-    
+      .eq('approved', true)
+      .maybeSingle();
+
     return data?.role || null;
   };
 
@@ -130,14 +131,12 @@ const MediaList = ({ onEdit, refreshTrigger }: MediaListProps) => {
 
   const canEditDelete = (media: MediaResource) => {
     if (!currentUser) return false;
-    
+
     // Admin can edit/delete everything
     if (userRole === 'admin') return true;
-    
-    // Teachers can edit/delete everything (temporary until user_id is properly implemented)
-    if (userRole === 'teacher') return true;
-    
-    return false;
+
+    // Everyone else may only manage their own upload
+    return !!media.user_id && media.user_id === currentUser.id;
   };
 
   const handleDelete = async (id: string) => {

@@ -21,16 +21,30 @@ interface Personnel {
   photo_url: string;
   additional_details: string;
   created_at: string;
+  user_id?: string | null;
 }
 
 const PersonnelPage = () => {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchPersonnel();
+
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      setCurrentUserId(user.id);
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('approved', true);
+      setIsAdmin((roles ?? []).some((r) => r.role === 'admin'));
+    });
   }, []);
 
   const fetchPersonnel = async () => {
@@ -177,7 +191,9 @@ const PersonnelPage = () => {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {filteredPersonnel.map((person) => (
+                  {filteredPersonnel.map((person) => {
+                    const canManage = isAdmin || (!!currentUserId && person.user_id === currentUserId);
+                    return (
                     <Card key={person.id} className="hover:shadow-lg transition-shadow relative">
                       <CardContent className="p-6">
                         <div className="flex items-center space-x-6">
@@ -244,50 +260,53 @@ const PersonnelPage = () => {
                           </div>
                           
                           {/* Action Buttons - Bottom Right */}
-                          <div className="absolute bottom-4 right-4 flex space-x-2">
-                            <Link to={`/personnel-form?id=${person.id}`}>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 w-8 p-0 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-                              >
-                                <Edit className="w-4 h-4 text-purple-600" />
-                              </Button>
-                            </Link>
-                            
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
+                          {canManage && (
+                            <div className="absolute bottom-4 right-4 flex space-x-2">
+                              <Link to={`/personnel-form?id=${person.id}`}>
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 w-8 p-0 border-red-200 hover:bg-red-50 hover:border-red-300"
+                                  className="h-8 w-8 p-0 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                                 >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
+                                  <Edit className="w-4 h-4 text-purple-600" />
                                 </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDeletePersonnel(person.id, person.full_name)}
-                                    className="bg-red-600 hover:bg-red-700"
+                              </Link>
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 border-red-200 hover:bg-red-50 hover:border-red-300"
                                   >
-                                    ลบ
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>ยืนยันการลบบุคลากร</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      คุณต้องการลบข้อมูลของ "{person.full_name}" หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeletePersonnel(person.id, person.full_name)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      ลบ
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>

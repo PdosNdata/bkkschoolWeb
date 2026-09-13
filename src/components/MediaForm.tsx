@@ -44,19 +44,23 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Get current user name for author field
   useEffect(() => {
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
       if (user && !editingMedia) {
         // Only set author name for new media, not when editing
         const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'ผู้ใช้งาน';
         setAuthorName(displayName);
       }
     };
-    
+
     getCurrentUser();
   }, [editingMedia]);
 
@@ -186,7 +190,7 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
       } else {
         // Insert new media
         ({ error } = await withTimeout(
-          supabase.from('media_resources').insert(mediaData),
+          supabase.from('media_resources').insert({ ...mediaData, user_id: currentUserId }),
           20000,
           "บันทึกข้อมูล",
         ));

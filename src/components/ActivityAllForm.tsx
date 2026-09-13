@@ -32,6 +32,7 @@ interface Activity {
   images: string[];
   cover_image_index: number;
   created_at: string;
+  user_id?: string | null;
 }
 
 interface ActivityAllFormProps {
@@ -56,6 +57,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchActivities();
@@ -65,6 +67,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const fetchUserData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      setCurrentUserId(user.id);
       const { data: profile } = await supabase
         .from("profiles")
         .select("display_name")
@@ -211,7 +214,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
         });
       } else {
         const { error } = await withTimeout(
-          supabase.from("activities").insert([dataToSubmit]),
+          supabase.from("activities").insert([{ ...dataToSubmit, user_id: currentUserId }]),
           20000,
           "บันทึกข้อมูล",
         );
@@ -516,7 +519,9 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredActivities.map((activity) => (
+                  {filteredActivities.map((activity) => {
+                    const canManage = userRole === "admin" || (!!currentUserId && activity.user_id === currentUserId);
+                    return (
                     <TableRow key={activity.id}>
                       <TableCell>
                         {activity.images && activity.images.length > 0 ? (
@@ -557,15 +562,17 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                           >
                             <Facebook className="w-4 h-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(activity)}
-                            title="แก้ไข"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          {userRole === "admin" && (
+                          {canManage && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(activity)}
+                              title="แก้ไข"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {canManage && (
                             <Button
                               variant="ghost"
                               size="icon"
@@ -578,7 +585,8 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

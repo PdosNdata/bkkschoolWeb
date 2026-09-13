@@ -30,6 +30,7 @@ interface ActivityItem {
   created_at: string;
   images?: string[];
   cover_image_index?: number;
+  user_id?: string | null;
 }
 
 interface ActivitiesFormProps {
@@ -42,6 +43,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [activitiesList, setActivitiesList] = useState<ActivityItem[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
@@ -60,18 +63,19 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Try to get user profile first
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', user.id)
-          .single();
-        
+        setCurrentUserId(user.id);
+
+        const [{ data: profile }, { data: roles }] = await Promise.all([
+          supabase.from('profiles').select('display_name').eq('id', user.id).single(),
+          supabase.from('user_roles').select('role').eq('user_id', user.id).eq('approved', true),
+        ]);
+
         const authorName = profile?.display_name || user.email || 'ผู้ใช้งาน';
         setFormData(prev => ({
           ...prev,
           author_name: authorName
         }));
+        setIsAdmin((roles ?? []).some((r) => r.role === 'admin'));
       }
     };
 
@@ -243,7 +247,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
               content: formData.content,
               author_name: formData.author_name,
               images: imageUrls,
-              cover_image_index: coverImageIndex
+              cover_image_index: coverImageIndex,
+              user_id: currentUserId
             }]),
           20000,
           "บันทึกข้อมูล",
@@ -606,7 +611,9 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activitiesList.map((activity) => (
+                  {activitiesList.map((activity) => {
+                    const canManage = isAdmin || (!!currentUserId && activity.user_id === currentUserId);
+                    return (
                     <TableRow key={activity.id}>
                       <TableCell>
                         <div className="space-y-1">
@@ -637,24 +644,28 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(activity)}
-                            className="flex items-center gap-1"
-                          >
-                            <Edit className="h-3 w-3" />
-                            แก้ไข
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(activity.id)}
-                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                            ลบ
-                          </Button>
+                          {canManage && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(activity)}
+                              className="flex items-center gap-1"
+                            >
+                              <Edit className="h-3 w-3" />
+                              แก้ไข
+                            </Button>
+                          )}
+                          {canManage && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(activity.id)}
+                              className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              ลบ
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -676,7 +687,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

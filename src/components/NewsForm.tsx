@@ -34,6 +34,7 @@ interface NewsItem {
   published_date: string;
   created_at: string;
   cover_image?: string;
+  user_id?: string | null;
 }
 
 interface NewsFormProps {
@@ -47,6 +48,8 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loadingNews, setLoadingNews] = useState(true);
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -63,18 +66,19 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Try to get user profile first
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', user.id)
-          .single();
-        
+        setCurrentUserId(user.id);
+
+        const [{ data: profile }, { data: roles }] = await Promise.all([
+          supabase.from('profiles').select('display_name').eq('id', user.id).single(),
+          supabase.from('user_roles').select('role').eq('user_id', user.id).eq('approved', true),
+        ]);
+
         const authorName = profile?.display_name || user.email || 'ผู้ใช้งาน';
         setFormData(prev => ({
           ...prev,
           author_name: authorName
         }));
+        setIsAdmin((roles ?? []).some((r) => r.role === 'admin'));
       }
     };
 
@@ -212,7 +216,8 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
             .from('news')
             .insert([{
               ...formData,
-              cover_image: coverImageUrl || null
+              cover_image: coverImageUrl || null,
+              user_id: currentUserId
             }]),
           20000,
           "บันทึกข้อมูล",
@@ -604,7 +609,9 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    newsList.map((newsItem) => (
+                    newsList.map((newsItem) => {
+                      const canManage = isAdmin || (!!currentUserId && newsItem.user_id === currentUserId);
+                      return (
                       <TableRow key={newsItem.id}>
                         <TableCell className="font-medium">
                           <div className="line-clamp-2" title={newsItem.title}>
@@ -625,24 +632,28 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center gap-1 flex-wrap">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(newsItem)}
-                              className="h-8 w-8 p-0"
-                              title="แก้ไข"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(newsItem.id)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                              title="ลบ"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {canManage && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(newsItem)}
+                                className="h-8 w-8 p-0"
+                                title="แก้ไข"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {canManage && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(newsItem.id)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                title="ลบ"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -692,7 +703,8 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
