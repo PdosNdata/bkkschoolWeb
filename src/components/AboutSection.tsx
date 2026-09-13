@@ -3,10 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Target, Heart, Star, X } from "lucide-react";
+import { GraduationCap, Target, Heart, Star, X, Maximize2 } from "lucide-react";
 import { useState } from "react";
 import schoolHistoryImage from "@/assets/school-history-optimized.webp";
 const AboutSection = () => {
+  const [isImageOpen, setIsImageOpen] = useState(false);
   return <section id="history" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
@@ -24,7 +25,10 @@ const AboutSection = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center mb-16">
-          <div className="lg:col-span-2 rounded-xl overflow-hidden shadow-elegant">
+          <div
+            className="lg:col-span-2 rounded-xl overflow-hidden shadow-elegant relative group cursor-pointer"
+            onClick={() => setIsImageOpen(true)}
+          >
             <img
               src={schoolHistoryImage}
               alt="ประวัติโรงเรียนบ้านค้อดอนแคน ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี"
@@ -32,7 +36,26 @@ const AboutSection = () => {
               loading="lazy"
               decoding="async"
             />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white rounded-full p-3">
+                <Maximize2 className="w-6 h-6" />
+              </div>
+            </div>
           </div>
+
+          <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
+            <DialogContent className="max-w-none w-screen h-screen sm:rounded-none border-0 bg-black/95 flex items-center justify-center p-4">
+              <DialogTitle className="sr-only">ประวัติโรงเรียนบ้านค้อดอนแคน</DialogTitle>
+              <img
+                src={schoolHistoryImage}
+                alt="ประวัติโรงเรียนบ้านค้อดอนแคน ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี"
+                className="max-w-full max-h-full object-contain"
+              />
+              <DialogClose className="absolute right-4 top-4 rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors">
+                <X className="h-5 w-5" />
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
 
           <div className="lg:col-span-1 bg-gradient-card rounded-xl p-8 shadow-elegant">
             <div className="grid grid-cols-2 gap-6">
