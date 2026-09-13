@@ -5,6 +5,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Target, Heart, Star, X } from "lucide-react";
 import { useState } from "react";
+import schoolHistoryImage from "@/assets/school-history-optimized.webp";
 const AboutSection = () => {
   return <section id="history" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -23,36 +24,33 @@ const AboutSection = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-          <div>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              โรงเรียนบ้านค้อดอนแคนเป็นโรงเรียนที่มีประวัติความเป็นมายาวนาน 
-              ตั้งอยู่ในชุมชนที่อบอุ่น มีการพัฒนาการศึกษาอย่างต่อเนื่อง 
-              เพื่อให้นักเรียนได้รับการศึกษาที่มีคุณภาพ
-            </p>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              ด้วยทีมครูที่มีประสบการณ์และความมุ่งมั่น 
-              พร้อมสร้างสรรค์การเรียนรู้ที่หลากหลายและสนุกสนาน 
-              เพื่อเตรียมนักเรียนสู่การเป็นพลเมืองที่ดีของสังคม
-            </p>
+          <div className="rounded-xl overflow-hidden shadow-elegant">
+            <img
+              src={schoolHistoryImage}
+              alt="ประวัติโรงเรียนบ้านค้อดอนแคน ตำบลค้อใหญ่ อำเภอกู่แก้ว จังหวัดอุดรธานี"
+              className="w-full h-auto object-contain"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-          
+
           <div className="bg-gradient-card rounded-xl p-8 shadow-elegant">
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">250+</div>
-                <div className="text-muted-foreground">นักเรียน</div>
+                <div className="text-xl font-semibold tracking-tight text-primary mb-1">250+</div>
+                <div className="text-sm font-medium text-muted-foreground">นักเรียน</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">25+</div>
-                <div className="text-muted-foreground">ครูและบุคลากร</div>
+                <div className="text-xl font-semibold tracking-tight text-primary mb-1">20+</div>
+                <div className="text-sm font-medium text-muted-foreground">ครูและบุคลากร</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">15+</div>
-                <div className="text-muted-foreground">ปีประสบการณ์</div>
+                <div className="text-xl font-semibold tracking-tight text-primary mb-1">15+</div>
+                <div className="text-sm font-medium text-muted-foreground">ปีประสบการณ์</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">100%</div>
-                <div className="text-muted-foreground">ความมุ่งมั่น</div>
+                <div className="text-xl font-semibold tracking-tight text-primary mb-1">100%</div>
+                <div className="text-sm font-medium text-muted-foreground">ความมุ่งมั่น</div>
               </div>
             </div>
           </div>
