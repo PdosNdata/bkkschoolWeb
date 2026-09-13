@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, ArrowRight, Calendar, User } from "lucide-react";
+import { Users, ArrowRight, ArrowLeft, Calendar, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+
+const ACTIVITIES_PAGE_SIZE = 3;
 interface Activity {
   id: string;
   title: string;
@@ -24,20 +26,27 @@ const ActivitiesSection = () => {
   const navigate = useNavigate();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const fetchActivities = async () => {
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const fetchActivities = async (pageIndex: number) => {
     try {
+      setLoading(true);
+      const from = pageIndex * ACTIVITIES_PAGE_SIZE;
+      const to = from + ACTIVITIES_PAGE_SIZE - 1;
       const {
         data,
-        error
-      } = await supabase.from('activities').select('*')
+        error,
+        count
+      } = await supabase.from('activities').select('*', { count: 'exact' })
         .in('category', ['กิจกรรมภายใน', 'กิจกรรมภายนอก'])
         .order('created_at', {
           ascending: false
-        }).limit(6);
+        }).range(from, to);
       if (error) {
         throw error;
       }
       setActivities(data || []);
+      setTotalCount(count ?? 0);
     } catch (error) {
       console.error('Error fetching activities:', error);
     } finally {
@@ -48,8 +57,13 @@ const ActivitiesSection = () => {
     navigate(`/activities/${activity.id}`);
   };
   useEffect(() => {
-    fetchActivities();
-  }, []);
+    fetchActivities(page);
+  }, [page]);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ACTIVITIES_PAGE_SIZE));
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    window.scrollTo({ top: document.getElementById('activities')?.offsetTop ?? 0, behavior: 'smooth' });
+  };
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -122,6 +136,22 @@ const ActivitiesSection = () => {
               </Card>;
             })}
           </div>}
+
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => goToPage(page - 1)}>
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              ก่อนหน้า
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              หน้า {page + 1} จาก {totalPages}
+            </span>
+            <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => goToPage(page + 1)}>
+              หน้าถัดไป
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
 
         {/* Highlight Section */}
         <div className="bg-gradient-primary rounded-2xl p-8 md:p-12 text-center text-white">
