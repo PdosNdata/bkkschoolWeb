@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link } from "lucide-react";
+import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
 
@@ -135,6 +135,14 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
       setImagePreview(reader.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCoverImage(null);
+    setImagePreview("");
+    setFormData(prev => ({ ...prev, cover_image: "" }));
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -520,6 +528,14 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
                       <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded">
                         <Upload className="h-4 w-4" />
                       </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 left-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
+                        title="ลบรูปภาพนี้"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
                   ) : (
                     <>
