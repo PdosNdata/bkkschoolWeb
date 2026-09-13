@@ -42,8 +42,8 @@ CREATE POLICY "Uploader or admin can delete activities"
   ON public.activities FOR DELETE
   USING (public.is_admin() OR (user_id = auth.uid() AND public.can_access_dashboard()));
 
--- ── MEDIA RESOURCES (user_id column already existed) ────────────────
-ALTER TABLE public.media_resources ALTER COLUMN user_id SET DEFAULT auth.uid();
+-- ── MEDIA RESOURCES ──────────────────────────────────────────────────
+ALTER TABLE public.media_resources ADD COLUMN IF NOT EXISTS user_id uuid DEFAULT auth.uid();
 
 DROP POLICY IF EXISTS "Only teachers can create media resources" ON public.media_resources;
 DROP POLICY IF EXISTS "Users can update their own media or admins can update any" ON public.media_resources;
