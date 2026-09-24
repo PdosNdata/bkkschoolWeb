@@ -5,14 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import DocumentTable from "@/components/DocumentTable";
-import { DOCUMENT_TYPES, documentsTable, type SchoolDocument } from "@/lib/documents";
+import { useDocumentTypes, documentsTable, type SchoolDocument } from "@/lib/documents";
 
-const FILTERS = ["ทั้งหมด", ...DOCUMENT_TYPES] as const;
+const ALL = "ทั้งหมด";
 
 const DocumentsPublicPage = () => {
   const [documents, setDocuments] = useState<SchoolDocument[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("ทั้งหมด");
+  const [filter, setFilter] = useState<string>(ALL);
+  const { types } = useDocumentTypes();
+
+  // Managed types, plus any type still used by an existing document
+  const FILTERS = useMemo(
+    () => [ALL, ...new Set([...types, ...documents.map((d) => d.doc_type)])],
+    [types, documents],
+  );
 
   useEffect(() => {
     documentsTable()
@@ -25,7 +32,7 @@ const DocumentsPublicPage = () => {
   }, []);
 
   const visible = useMemo(
-    () => (filter === "ทั้งหมด" ? documents : documents.filter((d) => d.doc_type === filter)),
+    () => (filter === ALL ? documents : documents.filter((d) => d.doc_type === filter)),
     [documents, filter],
   );
 

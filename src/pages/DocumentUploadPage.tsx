@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Swal from "sweetalert2";
 import { supabase } from "@/integrations/supabase/client";
 import DocumentTable from "@/components/DocumentTable";
 import {
-  DOCUMENT_TYPES,
+  useDocumentTypes,
   DOCUMENTS_BUCKET,
   DOCUMENTS_PREFIX,
   documentsTable,
@@ -40,6 +40,9 @@ const uploadFile = async (file: File) => {
 
 const DocumentUploadPage = () => {
   const { toast } = useToast();
+  const { types: documentTypes, addType } = useDocumentTypes();
+  const [newType, setNewType] = useState("");
+  const [addingType, setAddingType] = useState(false);
 
   const [form, setForm] = useState(emptyForm());
   const [file, setFile] = useState<File | null>(null);
@@ -94,6 +97,22 @@ const DocumentUploadPage = () => {
     setFile(null);
     const input = document.getElementById("doc-file") as HTMLInputElement | null;
     if (input) input.value = "";
+  };
+
+  const handleAddType = async () => {
+    if (!newType.trim()) return;
+    setAddingType(true);
+    try {
+      const name = await addType(newType);
+      setForm((f) => ({ ...f, doc_type: name }));
+      setNewType("");
+      toast({ title: "เพิ่มประเภทเอกสารแล้ว", description: name });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "กรุณาลองใหม่อีกครั้ง";
+      toast({ title: "เพิ่มประเภทไม่สำเร็จ", description: message, variant: "destructive" });
+    } finally {
+      setAddingType(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -197,7 +216,7 @@ const DocumentUploadPage = () => {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">อัพโหลดเอกสาร</h1>
           <p className="text-muted-foreground mt-1">
-            แผนการจัดการการเรียนรู้ · นวัตกรรมการเรียนรู้ · หลักสูตรโรงเรียน
+            {documentTypes.join(" · ")}
           </p>
         </div>
 
@@ -239,11 +258,36 @@ const DocumentUploadPage = () => {
                     <SelectValue placeholder="เลือกประเภท" />
                   </SelectTrigger>
                   <SelectContent>
-                    {DOCUMENT_TYPES.map((t) => (
+                    {documentTypes.map((t) => (
                       <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <div className="flex gap-2 pt-1">
+                  <Input
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddType();
+                      }
+                    }}
+                    placeholder="หรือพิมพ์ชื่อประเภทใหม่"
+                    className="h-9"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-9 shrink-0"
+                    onClick={handleAddType}
+                    disabled={addingType || !newType.trim()}
+                  >
+                    {addingType ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+                    เพิ่มประเภท
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -335,7 +379,7 @@ const DocumentUploadPage = () => {
                   <SelectValue placeholder="เลือกประเภท" />
                 </SelectTrigger>
                 <SelectContent>
-                  {DOCUMENT_TYPES.map((t) => (
+                  {documentTypes.map((t) => (
                     <SelectItem key={t} value={t}>{t}</SelectItem>
                   ))}
                 </SelectContent>
