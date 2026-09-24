@@ -11,6 +11,7 @@ import { Upload, Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Swal from "sweetalert2";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/utils";
 import DocumentTable from "@/components/DocumentTable";
 import {
   useDocumentTypes,
@@ -32,7 +33,11 @@ const emptyForm = () => ({
 const uploadFile = async (file: File) => {
   const ext = file.name.split(".").pop() ?? "bin";
   const path = `${DOCUMENTS_PREFIX}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from(DOCUMENTS_BUCKET).upload(path, file);
+  const { error } = await withTimeout(
+    supabase.storage.from(DOCUMENTS_BUCKET).upload(path, file),
+    90000,
+    "อัพโหลดไฟล์",
+  );
   if (error) throw error;
   const { data } = supabase.storage.from(DOCUMENTS_BUCKET).getPublicUrl(path);
   return { url: data.publicUrl, name: file.name, type: file.type || null };
@@ -121,16 +126,20 @@ const DocumentUploadPage = () => {
     setSubmitting(true);
     try {
       const uploaded = await uploadFile(file);
-      const { error } = await documentsTable().insert({
-        title: form.title.trim(),
-        doc_date: form.doc_date,
-        doc_type: form.doc_type,
-        file_url: uploaded.url,
-        file_name: uploaded.name,
-        file_type: uploaded.type,
-        uploaded_by: uploadedBy.trim(),
-        user_id: currentUserId,
-      });
+      const { error } = await withTimeout(
+        documentsTable().insert({
+          title: form.title.trim(),
+          doc_date: form.doc_date,
+          doc_type: form.doc_type,
+          file_url: uploaded.url,
+          file_name: uploaded.name,
+          file_type: uploaded.type,
+          uploaded_by: uploadedBy.trim(),
+          user_id: currentUserId,
+        }) as Promise<{ error: Error | null }>,
+        20000,
+        "บันทึกข้อมูล",
+      );
       if (error) throw error;
       toast({ title: "อัพโหลดเอกสารสำเร็จ" });
       resetForm();
@@ -164,7 +173,11 @@ const DocumentUploadPage = () => {
         patch.file_name = uploaded.name;
         patch.file_type = uploaded.type;
       }
-      const { error } = await documentsTable().update(patch).eq("id", editing.id);
+      const { error } = await withTimeout(
+        documentsTable().update(patch).eq("id", editing.id) as Promise<{ error: Error | null }>,
+        20000,
+        "บันทึกข้อมูล",
+      );
       if (error) throw error;
       toast({ title: "บันทึกการแก้ไขแล้ว" });
       setEditing(null);
