@@ -5,6 +5,7 @@ import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import LatestDocuments from "@/components/LatestDocuments";
 const HeroSection = () => {
   const navigate = useNavigate();
   
@@ -139,6 +140,8 @@ const HeroSection = () => {
             </CardContent>
           </Card>
         </div>
+
+        <LatestDocuments />
       </div>
     </section>;
 };

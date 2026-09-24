@@ -72,3 +72,22 @@ export const useDocumentTypes = () => {
 
   return { types, addType, reload };
 };
+
+/** Force-download a document (falls back to opening it in a new tab). */
+export const downloadDocument = async (doc: Pick<SchoolDocument, "file_url" | "file_name" | "title">) => {
+  try {
+    const res = await fetch(doc.file_url);
+    if (!res.ok) throw new Error("fetch failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = doc.file_name || doc.title || "document";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    window.open(doc.file_url, "_blank", "noopener");
+  }
+};
