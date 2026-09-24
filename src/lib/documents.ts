@@ -91,3 +91,13 @@ export const downloadDocument = async (doc: Pick<SchoolDocument, "file_url" | "f
     window.open(doc.file_url, "_blank", "noopener");
   }
 };
+
+// Link-preview services (LINE, Facebook) cache the preview image per URL.
+// Shared links carry this version so they get a fresh preview after the
+// site's share image changes — bump it whenever og-image.png is replaced.
+export const SHARE_LINK_VERSION = "2";
+export const withShareVersion = (url: string) => {
+  const u = new URL(url);
+  u.searchParams.set("v", SHARE_LINK_VERSION);
+  return u.toString();
+};

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { QRCodeCanvas } from "qrcode.react";
 import { ArrowLeft, ExternalLink, Download, Share2, Link2, Loader2, FileQuestion } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { documentsTable, type SchoolDocument } from "@/lib/documents";
+import { documentsTable, withShareVersion, type SchoolDocument } from "@/lib/documents";
 import LineIcon from "@/components/LineIcon";
 import { openLineShare } from "@/lib/lineShare";
 
@@ -40,7 +40,8 @@ const DocumentDetailPage = () => {
       });
   }, [id]);
 
-  const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const pageUrl =
+    typeof window !== "undefined" ? withShareVersion(window.location.origin + window.location.pathname) : "";
 
   const handleCopy = async () => {
     try {

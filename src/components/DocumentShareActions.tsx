@@ -4,12 +4,12 @@ import { Share2, Link2, Facebook, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LineIcon from "@/components/LineIcon";
 import { openLineShare } from "@/lib/lineShare";
-import type { SchoolDocument } from "@/lib/documents";
+import { withShareVersion, type SchoolDocument } from "@/lib/documents";
 
 // The link people should share/copy/scan is the document's page on our own
 // site, never the raw Supabase storage URL.
 export const docPageUrl = (doc: Pick<SchoolDocument, "id">) =>
-  `${window.location.origin}/documents/${doc.id}`;
+  withShareVersion(`${window.location.origin}/documents/${doc.id}`);
 
 type ShareDoc = Pick<SchoolDocument, "id" | "title">;
 
