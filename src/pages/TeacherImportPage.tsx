@@ -10,6 +10,7 @@ import { Upload, Loader2, Trash2, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Swal from "sweetalert2";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/utils";
 import {
   allowedTeachersTable,
   extractTeachers,
@@ -59,15 +60,21 @@ const TeacherImportPage = () => {
     setImporting(true);
     try {
       const rows = parsed.map((t) => ({ email: t.email, full_name: t.full_name || null }));
-      const { error: upsertErr } = await allowedTeachersTable().upsert(rows, { onConflict: "email" });
+      const { error: upsertErr } = await withTimeout(
+        allowedTeachersTable().upsert(rows, { onConflict: "email" }) as Promise<{ error: Error | null }>,
+        20000,
+        "ขั้นที่ 1: บันทึกรายชื่อ",
+      );
       if (upsertErr) throw upsertErr;
 
       // Copy the whole allowed list into user_roles as approved teachers
       // (updates registered accounts, creates claimable placeholders for
       // the rest) — one call. RPC not in the generated types yet.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: created, error: provErr } = await (supabase as any).rpc(
-        "provision_allowed_teachers",
+      const { data: created, error: provErr } = await withTimeout(
+        (supabase as any).rpc("provision_allowed_teachers") as Promise<{ data: number | null; error: Error | null }>,
+        45000,
+        "ขั้นที่ 2: อนุมัติในระบบ",
       );
       if (provErr) throw provErr;
 
