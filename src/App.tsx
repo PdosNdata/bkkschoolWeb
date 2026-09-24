@@ -27,6 +27,7 @@ import MenuPermissionsPage from "./pages/MenuPermissionsPage";
 import TextbookDashboard from "./pages/TextbookDashboard";
 import DocumentUploadPage from "./pages/DocumentUploadPage";
 import DocumentsPublicPage from "./pages/DocumentsPublicPage";
+import DocumentDownloadsPage from "./pages/DocumentDownloadsPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import TeacherImportPage from "./pages/TeacherImportPage";
 import HomeSliderFormPage from "./pages/HomeSliderFormPage";
@@ -364,6 +365,7 @@ const App = () => {
                 }
               />
               <Route path="/documents" element={<DocumentsPublicPage />} />
+              <Route path="/document-downloads" element={<DocumentDownloadsPage />} />
               <Route path="/documents/:id" element={<DocumentDetailPage />} />
               <Route
                 path="/teacher-import"

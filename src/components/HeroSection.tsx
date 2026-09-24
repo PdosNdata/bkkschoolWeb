@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Award, Lightbulb } from "lucide-react";
+import { BookOpen, Users, Award, Lightbulb, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import LatestDocuments from "@/components/LatestDocuments";
 const HeroSection = () => {
   const navigate = useNavigate();
   
@@ -99,7 +98,7 @@ const HeroSection = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card className="bg-gradient-to-t from-blue-50 to-blue-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -139,9 +138,17 @@ const HeroSection = () => {
               <p className="text-amber-800/90 text-sm">แผนการสอน · นวัตกรรม · หลักสูตรโรงเรียน</p>
             </CardContent>
           </Card>
-        </div>
 
-        <LatestDocuments />
+          <Card className="bg-gradient-to-t from-violet-50 to-violet-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/document-downloads')}>
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Download className="w-6 h-6 text-violet-600" />
+              </div>
+              <h3 className="text-violet-900 font-semibold mb-2">ดาวน์โหลดเอกสาร</h3>
+              <p className="text-violet-800/90 text-sm">แบบฟอร์มและเอกสารของโรงเรียน</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>;
 };
