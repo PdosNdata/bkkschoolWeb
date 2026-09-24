@@ -4,3 +4,6 @@ Thumbs.db
 regen_*.py
 __pycache__/
 *.pyc
+.claude/
+student.xlsx
+~$student.xlsx
