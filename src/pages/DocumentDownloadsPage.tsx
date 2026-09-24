@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DocumentShareActions from "@/components/DocumentShareActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,7 +70,7 @@ const DocumentDownloadsPage = () => {
               <div className="py-12 text-center text-muted-foreground">ยังไม่มีเอกสาร</div>
             ) : (
               visible.map((doc) => (
-                <div key={doc.id} className="flex items-center gap-3 p-4">
+                <div key={doc.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
                   <div className="flex-1 min-w-0">
                     <Link to={`/documents/${doc.id}`} className="font-medium text-foreground hover:text-primary line-clamp-2">
                       {doc.title}
@@ -79,10 +80,13 @@ const DocumentDownloadsPage = () => {
                       <span>{formatDate(doc.doc_date)}</span>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="shrink-0" onClick={() => downloadDocument(doc)}>
-                    <Download className="w-4 h-4 mr-1" />
-                    ดาวน์โหลด
-                  </Button>
+                  <div className="flex items-center gap-1 sm:shrink-0">
+                    <DocumentShareActions doc={doc} />
+                    <Button size="sm" variant="outline" onClick={() => downloadDocument(doc)}>
+                      <Download className="w-4 h-4 mr-1" />
+                      ดาวน์โหลด
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
