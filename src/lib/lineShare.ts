@@ -7,8 +7,14 @@
  * This handoff is inherently best-effort — browsers vary in how they deal
  * with custom protocols, and some will show a one-time "open LINE?"
  * permission prompt.
+ *
+ * The desktop LINE app often opens without pre-filling the message, so the
+ * text is also copied to the clipboard first — the user can just paste it
+ * (Ctrl+V) into the chat. `onCopied` fires if the copy succeeded.
  */
-export const openLineShare = (text: string) => {
+export const openLineShare = (text: string, onCopied?: () => void) => {
+  navigator.clipboard?.writeText(text).then(() => onCopied?.()).catch(() => {});
+
   const encoded = encodeURIComponent(text);
   const appUrl = `line://msg/text/${encoded}`;
   const webUrl = `https://line.me/R/msg/text/?${encoded}`;

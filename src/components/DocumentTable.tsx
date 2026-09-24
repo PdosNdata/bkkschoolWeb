@@ -69,7 +69,12 @@ const DocumentTable = ({
   };
 
   const handleShareLine = (doc: SchoolDocument) => {
-    openLineShare(`${doc.title}\n${docPageUrl(doc)}`);
+    openLineShare(`${doc.title}\n${docPageUrl(doc)}`, () =>
+      toast({
+        title: "คัดลอกข้อความแล้ว",
+        description: "ถ้า LINE ไม่ขึ้นข้อความให้ ให้กดวาง (Ctrl+V) ในช่องแชทได้เลย",
+      }),
+    );
   };
 
   const handleShareFacebook = (doc: SchoolDocument) => {

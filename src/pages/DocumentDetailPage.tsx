@@ -74,7 +74,12 @@ const DocumentDetailPage = () => {
 
   const shareLine = () => {
     if (!doc) return;
-    openLineShare(`${doc.title}\n${pageUrl}`);
+    openLineShare(`${doc.title}\n${pageUrl}`, () =>
+      toast({
+        title: "คัดลอกข้อความแล้ว",
+        description: "ถ้า LINE ไม่ขึ้นข้อความให้ ให้กดวาง (Ctrl+V) ในช่องแชทได้เลย",
+      }),
+    );
   };
 
   const handleDownload = async () => {
