@@ -7,6 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
+import { withTimeout } from "@/lib/utils";
+
+const MAX_AVATAR_MB = 8;
 
 interface UserSettingsModalProps {
   isOpen: boolean;
@@ -21,27 +24,43 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"teacher" | "student" | "guardian" | "">("");
+  // Role as loaded, and whether this account is an admin — used so saving the
+  // dialog never rewrites an admin's role and only touches the role if changed.
+  const [originalRole, setOriginalRole] = useState<string>("");
+  const [isAdminUser, setIsAdminUser] = useState(false);
   useEffect(() => {
     if (!isOpen) return;
 
     const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('id', user.id)
-        .maybeSingle();
+      try {
+        const { data: { user } } = await withTimeout(supabase.auth.getUser(), 15000, "ตรวจสอบผู้ใช้");
+        if (!user) return;
+        const { data } = await withTimeout(
+          supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', user.id)
+            .maybeSingle(),
+          15000,
+          "โหลดข้อมูลโปรไฟล์",
+        );
 
-      setDisplayName(data?.display_name ?? "");
-      setAvatarUrl(data?.avatar_url ?? null);
+        setDisplayName(data?.display_name ?? "");
+        setAvatarUrl(data?.avatar_url ?? null);
 
-      const { data: roleData } = await (supabase as any)
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      setRole(roleData?.role ?? "");
+        const { data: roleRows } = await withTimeout(
+          (supabase as any).from('user_roles').select('role').eq('user_id', user.id) as Promise<{ data: { role: string }[] | null }>,
+          15000,
+          "โหลดสถานะผู้ใช้",
+        );
+        const roles = (roleRows ?? []).map((r) => r.role);
+        setIsAdminUser(roles.includes('admin'));
+        const shown = roles.find((r) => r !== 'admin') ?? roles[0] ?? "";
+        setRole(shown as typeof role);
+        setOriginalRole(shown);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
     };
 
     loadProfile();
@@ -49,46 +68,73 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) setFile(f);
+    if (!f) return;
+    if (f.size > MAX_AVATAR_MB * 1024 * 1024) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'ไฟล์รูปใหญ่เกินไป',
+        text: `เลือกรูปไม่เกิน ${MAX_AVATAR_MB}MB (ไฟล์นี้ ${(f.size / 1024 / 1024).toFixed(1)}MB) ลองย่อขนาดรูปก่อน`,
+      });
+      e.target.value = "";
+      return;
+    }
+    setFile(f);
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await withTimeout(supabase.auth.getUser(), 15000, "ตรวจสอบผู้ใช้");
       if (!user) throw new Error('ยังไม่ได้เข้าสู่ระบบ');
+
+      if (newPassword.trim().length > 0 && newPassword !== confirmPassword) {
+        throw new Error('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
+      }
 
       let uploadedUrl: string | null = avatarUrl;
       if (file) {
-        const path = `${user.id}/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+        // Safe storage key: keep only the extension (Thai/long names not needed)
+        const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await withTimeout(
+          supabase.storage.from('avatars').upload(path, file, { upsert: true }),
+          60000,
+          "อัพโหลดรูปโปรไฟล์",
+        );
         if (uploadError) throw uploadError;
         const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(path);
         uploadedUrl = publicData.publicUrl;
       }
 
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ display_name: displayName, avatar_url: uploadedUrl })
-        .eq('id', user.id);
+      const { error: updateError } = await withTimeout(
+        supabase
+          .from('profiles')
+          .update({ display_name: displayName, avatar_url: uploadedUrl })
+          .eq('id', user.id),
+        20000,
+        "บันทึกโปรไฟล์",
+      );
       if (updateError) throw updateError;
 
-      // Save user role/status
-      if (!role) {
-        throw new Error('กรุณาเลือกสถานะผู้ใช้');
+      // Only touch the role if the user actually changed it, and never for
+      // admins (an admin picking "ครู" here would otherwise demote themselves).
+      if (role && role !== originalRole && !isAdminUser) {
+        const { error: roleUpdateError } = await withTimeout(
+          (supabase as any).from('user_roles').update({ role }).eq('user_id', user.id) as Promise<{ error: Error | null }>,
+          20000,
+          "บันทึกสถานะผู้ใช้",
+        );
+        if (roleUpdateError) throw roleUpdateError;
+        setOriginalRole(role);
       }
-      const { error: roleUpdateError } = await (supabase as any)
-        .from('user_roles')
-        .update({ role })
-        .eq('user_id', user.id);
-      if (roleUpdateError) throw roleUpdateError;
 
       // Update password if provided
       if (newPassword.trim().length > 0) {
-        if (newPassword !== confirmPassword) {
-          throw new Error('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
-        }
-        const { error: pwdError } = await supabase.auth.updateUser({ password: newPassword });
+        const { error: pwdError } = await withTimeout(
+          supabase.auth.updateUser({ password: newPassword }),
+          20000,
+          "เปลี่ยนรหัสผ่าน",
+        );
         if (pwdError) throw pwdError;
       }
 
@@ -149,7 +195,7 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="userStatus">สถานะผู้ใช้</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as "teacher" | "student" | "guardian")}>
+            <Select value={role} onValueChange={(v) => setRole(v as "teacher" | "student" | "guardian")} disabled={isAdminUser}>
               <SelectTrigger id="userStatus">
                 <SelectValue placeholder="เลือกสถานะ (ครู/นักเรียน/ผู้ปกครอง)" />
               </SelectTrigger>
