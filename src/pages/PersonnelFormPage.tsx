@@ -43,8 +43,26 @@ const PersonnelFormPage = () => {
     if (isEditing && personnelId) {
       fetchPersonnelData(personnelId);
     }
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setCurrentUserId(user.id);
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      setCurrentUserId(user.id);
+
+      // Adding a new person is admin-only (editing your own record stays open)
+      if (!isEditing) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('approved', true);
+        if (!(roles ?? []).some((r) => r.role === 'admin')) {
+          toast({
+            title: "เฉพาะแอดมินเท่านั้น",
+            description: "การเพิ่มบุคลากรใหม่ทำได้เฉพาะแอดมิน",
+            variant: "destructive",
+          });
+          navigate('/personnel', { replace: true });
+        }
+      }
     });
   }, [isEditing, personnelId]);
 

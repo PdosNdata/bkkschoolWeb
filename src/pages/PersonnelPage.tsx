@@ -126,12 +126,14 @@ const PersonnelPage = () => {
                   รายงานบุคลากร
                 </Button>
               </Link>
-              <Link to="/personnel-form">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  เพิ่มบุคลากรใหม่
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link to="/personnel-form">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    เพิ่มบุคลากรใหม่
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -182,17 +184,19 @@ const PersonnelPage = () => {
                       {searchTerm ? 'ไม่พบข้อมูลบุคลากร' : 'ยังไม่มีข้อมูลบุคลากร'}
                     </h3>
                     <p className="text-gray-500 mb-4">
-                      {searchTerm 
-                        ? 'ลองค้นหาด้วยคำอื่น หรือเพิ่มบุคลากรใหม่' 
-                        : 'เริ่มต้นเพิ่มข้อมูลบุคลากรใหม่เพื่อจัดการระบบ'
+                      {searchTerm
+                        ? 'ลองค้นหาด้วยคำอื่น' + (isAdmin ? ' หรือเพิ่มบุคลากรใหม่' : '')
+                        : isAdmin ? 'เริ่มต้นเพิ่มข้อมูลบุคลากรใหม่เพื่อจัดการระบบ' : 'ยังไม่มีข้อมูลบุคลากรในระบบ'
                       }
                     </p>
-                    <Link to="/personnel-form">
-                      <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                        <Plus className="w-4 h-4 mr-2" />
-                        เพิ่มบุคลากรใหม่
-                      </Button>
-                    </Link>
+                    {isAdmin && (
+                      <Link to="/personnel-form">
+                        <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                          <Plus className="w-4 h-4 mr-2" />
+                          เพิ่มบุคลากรใหม่
+                        </Button>
+                      </Link>
+                    )}
                   </CardContent>
                 </Card>
               ) : (

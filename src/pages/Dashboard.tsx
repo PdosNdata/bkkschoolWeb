@@ -110,7 +110,8 @@ const Dashboard = () => {
     color: "bg-teal-50 border-teal-200",
     iconColor: "text-teal-600",
     href: "/personnel",
-    roles: ["admin"],
+    roles: ["teacher", "admin"],
+    everyone: true, // every staff account sees it; only admins can add people
     permissionName: "personnel_system"
   }, {
     title: "นำเข้าข้อมูลครู",
@@ -163,6 +164,8 @@ const Dashboard = () => {
   const systemCards = allSystemCards.filter(card => {
     // Admin sees everything
     if (userRole === "admin") return true;
+    // Cards open to every staff account
+    if ("everyone" in card && card.everyone) return true;
     // For other roles, check if they have the specific permission
     return card.permissionName && userPermissions.includes(card.permissionName);
   });
