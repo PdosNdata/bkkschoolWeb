@@ -45,6 +45,8 @@ const emptyForm = () => ({
 });
 
 const MAX_FILE_MB = 20;
+const MAX_IMAGES = 10;
+const MAX_IMAGE_MB = 12;
 
 const PersonnelTrainingsPage = () => {
   const { toast } = useToast();
@@ -57,6 +59,12 @@ const PersonnelTrainingsPage = () => {
 
   const [form, setForm] = useState(emptyForm());
   const [file, setFile] = useState<File | null>(null);
+  // Optional photos (max MAX_IMAGES total): already-saved URLs + newly picked files
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const uploadedImages = useRef(new Map<File, string>());
+  const newImagePreviews = useMemo(() => newImages.map((f) => URL.createObjectURL(f)), [newImages]);
+  useEffect(() => () => newImagePreviews.forEach((u) => URL.revokeObjectURL(u)), [newImagePreviews]);
   const [editing, setEditing] = useState<TeacherTraining | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -111,13 +119,21 @@ const PersonnelTrainingsPage = () => {
     setForm(emptyForm());
     setFile(null);
     setEditing(null);
-    const input = document.getElementById("training-file") as HTMLInputElement | null;
-    if (input) input.value = "";
+    setExistingImages([]);
+    setNewImages([]);
+    uploadedImages.current = new Map();
+    for (const id of ["training-file", "training-images"]) {
+      const input = document.getElementById(id) as HTMLInputElement | null;
+      if (input) input.value = "";
+    }
   };
 
   const startEdit = (r: TeacherTraining) => {
     setEditing(r);
     setFile(null);
+    setExistingImages(r.images ?? []);
+    setNewImages([]);
+    uploadedImages.current = new Map();
     setForm({
       personnel_id: r.personnel_id ?? "",
       report_date: r.report_date,
@@ -128,6 +144,32 @@ const PersonnelTrainingsPage = () => {
       organizer: r.organizer ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const onImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (picked.length === 0) return;
+
+    const room = MAX_IMAGES - existingImages.length - newImages.length;
+    const withinSize = picked.filter((f) => f.size <= MAX_IMAGE_MB * 1024 * 1024);
+    const accepted = withinSize.slice(0, Math.max(room, 0));
+
+    if (withinSize.length < picked.length) {
+      toast({
+        title: "มีรูปถูกข้าม",
+        description: `รูปที่ใหญ่เกิน ${MAX_IMAGE_MB}MB จะไม่ถูกเพิ่ม (${picked.length - withinSize.length} รูป)`,
+        variant: "destructive",
+      });
+    }
+    if (accepted.length < withinSize.length) {
+      toast({
+        title: `แนบรูปได้สูงสุด ${MAX_IMAGES} รูป`,
+        description: `เพิ่มได้อีก ${Math.max(room, 0)} รูป`,
+        variant: "destructive",
+      });
+    }
+    if (accepted.length > 0) setNewImages((prev) => [...prev, ...accepted]);
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,6 +223,31 @@ const PersonnelTrainingsPage = () => {
         if (upErr) throw upErr;
         payload.certificate_url = supabase.storage.from(TRAININGS_BUCKET).getPublicUrl(path).data.publicUrl;
         payload.certificate_name = file.name;
+      }
+
+      // Photos: upload only the ones not already uploaded (retries after a
+      // timeout skip them). `images` is sent only when it matters, so saving
+      // without photos keeps working even before the column exists.
+      const uploadedUrls: string[] = [];
+      for (const img of newImages) {
+        let url = uploadedImages.current.get(img);
+        if (!url) {
+          const ext = img.name.split(".").pop() ?? "jpg";
+          const imgPath = `${TRAININGS_PREFIX}/images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error: imgErr } = await withTimeout(
+            supabase.storage.from(TRAININGS_BUCKET).upload(imgPath, img),
+            60000,
+            `อัพโหลดรูป ${img.name}`,
+          );
+          if (imgErr) throw imgErr;
+          url = supabase.storage.from(TRAININGS_BUCKET).getPublicUrl(imgPath).data.publicUrl;
+          uploadedImages.current.set(img, url);
+        }
+        uploadedUrls.push(url);
+      }
+      const finalImages = [...existingImages, ...uploadedUrls];
+      if (finalImages.length > 0 || (editing?.images?.length ?? 0) > 0) {
+        payload.images = finalImages;
       }
 
       if (editing) {
@@ -359,6 +426,50 @@ const PersonnelTrainingsPage = () => {
                   )}
                 </div>
 
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="training-images">
+                    รูปประกอบการอบรม (ไม่บังคับ สูงสุด {MAX_IMAGES} รูป) — {existingImages.length + newImages.length}/{MAX_IMAGES}
+                  </Label>
+                  <Input
+                    id="training-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={onImagesChange}
+                    disabled={existingImages.length + newImages.length >= MAX_IMAGES}
+                  />
+                  {existingImages.length + newImages.length > 0 && (
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-1">
+                      {existingImages.map((src, i) => (
+                        <div key={src} className="relative aspect-square rounded-md overflow-hidden border bg-muted">
+                          <img src={src} alt={`รูปที่ ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setExistingImages((prev) => prev.filter((u) => u !== src))}
+                            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                            title="เอารูปนี้ออก"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {newImagePreviews.map((src, i) => (
+                        <div key={src} className="relative aspect-square rounded-md overflow-hidden border bg-muted">
+                          <img src={src} alt={`รูปใหม่ ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setNewImages((prev) => prev.filter((_, idx) => idx !== i))}
+                            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                            title="เอารูปนี้ออก"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="md:col-span-2">
                   <Button type="submit" disabled={saving} className="bg-purple-600 hover:bg-purple-700 text-white">
                     {saving ? (
@@ -418,6 +529,16 @@ const PersonnelTrainingsPage = () => {
                               </Link>
                               {r.organizer && <div className="text-xs text-muted-foreground">อบรมโดย {r.organizer}</div>}
                               {r.details && <div className="text-xs text-muted-foreground line-clamp-2">{r.details}</div>}
+                              {r.images && r.images.length > 0 && (
+                                <div className="flex items-center gap-1 mt-2">
+                                  {r.images.slice(0, 3).map((src, i) => (
+                                    <img key={src} src={src} alt={`รูปที่ ${i + 1}`} className="w-10 h-10 object-cover rounded border" loading="lazy" />
+                                  ))}
+                                  {r.images.length > 3 && (
+                                    <span className="text-xs text-muted-foreground">+{r.images.length - 3} รูป</span>
+                                  )}
+                                </div>
+                              )}
                             </TableCell>
                             <TableCell className="whitespace-nowrap">{formatTrainingDate(r.report_date)}</TableCell>
                             <TableCell>

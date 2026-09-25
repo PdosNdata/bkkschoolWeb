@@ -12,6 +12,7 @@ export interface TeacherTraining {
   end_date: string | null;
   certificate_url: string | null;
   certificate_name: string | null;
+  images: string[] | null;
   user_id: string | null;
   created_at: string;
   updated_at: string;

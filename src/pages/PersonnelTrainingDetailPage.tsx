@@ -15,6 +15,23 @@ import {
   type TeacherTraining,
 } from "@/lib/trainings";
 
+const imageName = (t: TeacherTraining, src: string, i: number) => {
+  const ext = src.split("?")[0].split(".").pop() || "jpg";
+  return `${t.title}-${i + 1}.${ext}`;
+};
+
+const downloadImage = (t: TeacherTraining, src: string, i: number) =>
+  downloadDocument({ file_url: src, file_name: imageName(t, src, i), title: t.title });
+
+const downloadAllImages = async (t: TeacherTraining) => {
+  const images = t.images ?? [];
+  for (let i = 0; i < images.length; i++) {
+    await downloadImage(t, images[i], i);
+    // small gap so the browser doesn't block several downloads at once
+    await new Promise((r) => setTimeout(r, 400));
+  }
+};
+
 const PersonnelTrainingDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [record, setRecord] = useState<TeacherTraining | null>(null);
@@ -73,6 +90,36 @@ const PersonnelTrainingDetailPage = () => {
                 <div>
                   <h2 className="font-semibold mb-1">รายละเอียด</h2>
                   <p className="text-sm whitespace-pre-wrap text-foreground/90">{record.details}</p>
+                </div>
+              )}
+
+              {record.images && record.images.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="font-semibold">ภาพประกอบ ({record.images.length} รูป)</h2>
+                    {record.images.length > 1 && (
+                      <Button variant="outline" size="sm" onClick={() => downloadAllImages(record)}>
+                        <Download className="w-4 h-4 mr-2" /> ดาวน์โหลดทั้งหมด
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {record.images.map((src, i) => (
+                      <div key={src} className="relative group aspect-square rounded-lg overflow-hidden border bg-muted">
+                        <a href={src} target="_blank" rel="noopener noreferrer">
+                          <img src={src} alt={`${record.title} รูปที่ ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => downloadImage(record, src, i)}
+                          className="absolute bottom-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                          title="ดาวน์โหลดภาพนี้"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
