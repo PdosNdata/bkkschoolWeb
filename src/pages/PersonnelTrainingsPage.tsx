@@ -70,9 +70,13 @@ const PersonnelTrainingsPage = () => {
 
   const [search, setSearch] = useState("");
 
-  const fetchRecords = async () => {
+  // Each person sees only the records they added; admins see everyone's.
+  const fetchRecords = async (userId: string | null = currentUserId, admin: boolean = isAdmin) => {
+    if (!admin && !userId) return; // identity not known yet — the mount effect loads once it is
     setLoading(true);
-    const { data, error } = await trainingsTable().select("*").order("start_date", { ascending: false });
+    let query = trainingsTable().select("*").order("start_date", { ascending: false });
+    if (!admin) query = query.eq("user_id", userId);
+    const { data, error } = await query;
     if (error) {
       toast({ title: "โหลดรายการไม่สำเร็จ", description: error.message, variant: "destructive" });
     } else {
@@ -82,7 +86,6 @@ const PersonnelTrainingsPage = () => {
   };
 
   useEffect(() => {
-    fetchRecords();
     supabase
       .from("personnel")
       .select("id, full_name")
@@ -90,14 +93,19 @@ const PersonnelTrainingsPage = () => {
       .then(({ data }) => setPeople((data ?? []) as PersonOption[]));
 
     supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       setCurrentUserId(user.id);
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
         .eq("approved", true);
-      setIsAdmin((roles ?? []).some((r) => r.role === "admin"));
+      const admin = (roles ?? []).some((r) => r.role === "admin");
+      setIsAdmin(admin);
+      fetchRecords(user.id, admin);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -485,7 +493,7 @@ const PersonnelTrainingsPage = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">รายการทั้งหมด</CardTitle>
+              <CardTitle className="text-lg">{isAdmin ? "รายการทั้งหมด (แอดมินเห็นของทุกคน)" : "รายการของฉัน"}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
