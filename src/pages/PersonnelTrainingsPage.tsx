@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -101,7 +101,13 @@ const PersonnelTrainingsPage = () => {
     );
   }, [records, search]);
 
+  // A new record keeps one id across retries: if a save "times out" but the
+  // server actually stored it, saving again updates that row instead of
+  // creating a duplicate.
+  const pendingId = useRef<string | null>(null);
+
   const resetForm = () => {
+    pendingId.current = null;
     setForm(emptyForm());
     setFile(null);
     setEditing(null);
@@ -187,7 +193,10 @@ const PersonnelTrainingsPage = () => {
         toast({ title: "บันทึกการแก้ไขแล้ว" });
       } else {
         const { error } = await withTimeout(
-          trainingsTable().insert({ ...payload, user_id: currentUserId }) as Promise<{ error: Error | null }>,
+          trainingsTable().upsert(
+            { ...payload, id: (pendingId.current ??= crypto.randomUUID()), user_id: currentUserId },
+            { onConflict: "id" },
+          ) as Promise<{ error: Error | null }>,
           20000,
           "บันทึกข้อมูล",
         );
@@ -198,7 +207,15 @@ const PersonnelTrainingsPage = () => {
       fetchRecords();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "กรุณาลองใหม่อีกครั้ง";
-      toast({ title: "บันทึกไม่สำเร็จ", description: message, variant: "destructive" });
+      const timedOut = message.includes("ใช้เวลานานเกินไป");
+      toast({
+        title: timedOut ? "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์" : "บันทึกไม่สำเร็จ",
+        description: timedOut
+          ? "รายการอาจถูกบันทึกไปแล้ว — ตรวจดูในตารางด้านล่างก่อน (กดบันทึกซ้ำได้ ไม่ทำให้ซ้ำ)"
+          : message,
+        variant: "destructive",
+      });
+      if (timedOut) fetchRecords();
     } finally {
       setSaving(false);
     }
