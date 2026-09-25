@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, UserCheck, Mail, Phone, Building, FileText, Edit, Trash2, User } from "lucide-react";
+import { Plus, Search, UserCheck, Mail, Phone, Building, FileText, Edit, Trash2, User, GraduationCap } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,7 +113,13 @@ const PersonnelPage = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">ระบบจัดการข้อมูลบุคลากร</h1>
               <p className="text-gray-600">เพิ่ม แก้ไข และจัดการข้อมูลบุคลากรในสถานศึกษา</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
+              <Link to="/personnel-trainings">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <GraduationCap className="w-4 h-4 mr-2" />
+                  การอบรมประชุมสัมมนาของครู
+                </Button>
+              </Link>
               <Link to="/personnel-report">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                   <FileText className="w-4 h-4 mr-2" />

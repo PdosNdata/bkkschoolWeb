@@ -21,6 +21,8 @@ import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
+import PersonnelTrainingsPage from "./pages/PersonnelTrainingsPage";
+import PersonnelTrainingDetailPage from "./pages/PersonnelTrainingDetailPage";
 import PublicPersonnelReport from "./pages/PublicPersonnelReport";
 import PersonnelInSchool from "./pages/PersonnelInSchool";
 import MenuPermissionsPage from "./pages/MenuPermissionsPage";
@@ -323,8 +325,17 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/personnel-form" 
+              <Route path="/personnel-trainings/:id" element={<PersonnelTrainingDetailPage />} />
+              <Route
+                path="/personnel-trainings"
+                element={
+                  <ProtectedRoute>
+                    <PersonnelTrainingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/personnel-form"
                 element={
                   <ProtectedRoute>
                     <PersonnelFormPage />

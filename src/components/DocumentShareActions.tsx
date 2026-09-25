@@ -14,12 +14,14 @@ export const docPageUrl = (doc: Pick<SchoolDocument, "id">) =>
 type ShareDoc = Pick<SchoolDocument, "id" | "title">;
 
 /** Share menu (LINE / Facebook / other) + copy-link button for one document. */
-const DocumentShareActions = ({ doc }: { doc: ShareDoc }) => {
+/** `url` overrides the shared link (defaults to the document page). */
+const DocumentShareActions = ({ doc, url }: { doc: ShareDoc; url?: string }) => {
+  const link = url ?? docPageUrl(doc);
   const { toast } = useToast();
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(docPageUrl(doc));
+      await navigator.clipboard.writeText(link);
       toast({ title: "คัดลอกลิงก์แล้ว", description: "วางลิงก์เพื่อแชร์ได้เลย" });
     } catch {
       toast({ title: "คัดลอกไม่สำเร็จ", variant: "destructive" });
@@ -29,7 +31,7 @@ const DocumentShareActions = ({ doc }: { doc: ShareDoc }) => {
   const handleShareNative = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: doc.title, text: doc.title, url: docPageUrl(doc) });
+        await navigator.share({ title: doc.title, text: doc.title, url: link });
       } catch {
         // user cancelled — do nothing
       }
@@ -39,7 +41,7 @@ const DocumentShareActions = ({ doc }: { doc: ShareDoc }) => {
   };
 
   const handleShareLine = () => {
-    openLineShare(`${doc.title}\n${docPageUrl(doc)}`, () =>
+    openLineShare(`${doc.title}\n${link}`, () =>
       toast({
         title: "คัดลอกข้อความแล้ว",
         description: "ถ้า LINE ไม่ขึ้นข้อความให้ ให้กดวาง (Ctrl+V) ในช่องแชทได้เลย",
@@ -48,7 +50,7 @@ const DocumentShareActions = ({ doc }: { doc: ShareDoc }) => {
   };
 
   const handleShareFacebook = () => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(docPageUrl(doc))}`;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
     window.open(url, "facebook-share", "width=600,height=400,scrollbars=yes,resizable=yes");
   };
 
