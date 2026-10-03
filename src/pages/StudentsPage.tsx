@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, FileSpreadsheet, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import {
   errMsg,
   fetchAllStudents,
   parseStudentRows,
+  readSpreadsheetToText,
   studentFullName,
   studentsTable,
 } from "@/lib/students";
@@ -56,6 +57,9 @@ const StudentsPage = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [readingFile, setReadingFile] = useState(false);
+  const [fileNote, setFileNote] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [toDelete, setToDelete] = useState<Student | null>(null);
 
@@ -197,6 +201,23 @@ const StudentsPage = () => {
   };
 
   const parsed = useMemo(() => parseStudentRows(importText), [importText]);
+
+  const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow picking the same file again
+    if (!file) return;
+    setReadingFile(true);
+    try {
+      const { text, sheet } = await readSpreadsheetToText(file);
+      setImportText(text);
+      setFileNote(`โหลดจากไฟล์ ${file.name}${sheet ? ` (ชีต "${sheet}")` : ""} — ตรวจรายการด้านล่างก่อนกดนำเข้า`);
+    } catch (err) {
+      setFileNote("");
+      toast({ title: "อ่านไฟล์ไม่สำเร็จ", description: errMsg(err), variant: "destructive" });
+    } finally {
+      setReadingFile(false);
+    }
+  };
 
   const runImport = async () => {
     if (!parsed.rows.length) return;
@@ -361,15 +382,23 @@ const StudentsPage = () => {
           <DialogHeader>
             <DialogTitle>นำเข้ารายชื่อจาก Excel</DialogTitle>
             <DialogDescription>
-              คัดลอกตารางจาก Excel มาวาง โดยเรียงคอลัมน์: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น (เช่น ม.1), ห้อง</b>
+              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง ถ้ามีแถวหัวตาราง (เช่น รหัสนักเรียน, ชื่อ-สกุล, ชั้น, ห้อง, เพศ)
+              ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง</b>
               — รหัสที่มีอยู่แล้วจะถูกอัปเดต ไม่เพิ่มซ้ำ
             </DialogDescription>
           </DialogHeader>
+          <div className="flex flex-wrap items-center gap-3">
+            <input ref={fileRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsb,.csv,.tsv,.txt" onChange={onPickFile} />
+            <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={readingFile}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" />{readingFile ? "กำลังอ่านไฟล์…" : "เลือกไฟล์ Excel / CSV"}
+            </Button>
+            {fileNote && <span className="text-sm text-muted-foreground">{fileNote}</span>}
+          </div>
           <Textarea rows={10} className="font-mono text-xs" value={importText} onChange={(e) => setImportText(e.target.value)}
             placeholder={"64019\tเด็กชาย\tสมชาย\tใจดี\tช\tม.1\t1\n64020\tเด็กหญิง\tสมหญิง\tรักเรียน\tญ\tม.1\t1"} />
           {importText.trim() && (
             <div className="space-y-1 text-sm">
-              <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
+              <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.usedHeader && " (จับคู่คอลัมน์จากหัวตาราง)"}{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
               {parsed.errors.length > 0 && (
                 <ul className="max-h-24 list-disc overflow-y-auto pl-5 text-destructive">
                   {parsed.errors.slice(0, 20).map((e, i) => <li key={i}>{e}</li>)}
