@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เฉลยปรนัย – สแกนตรวจกระดาษคำตอบ</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1c2333;--mute:#6b7488;--line:#dfe4ee;--pri:#2f5bea;--ok:#12a150;--bad:#e5484d;--warn:#e8a200}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Tahoma,"Sarabun",system-ui,sans-serif}
+header{background:var(--pri);color:#fff;padding:12px 16px}
+header h1{margin:0;font-size:1.15rem}
+nav{display:flex;position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:.9rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
+main{max-width:900px;margin:0 auto;padding:16px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 8px;font-size:1.05rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label{font-size:.9rem;color:var(--mute)}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+input[type=number]{width:80px}
+input.wide{flex:1;min-width:180px}
+.btn{display:inline-block;font:inherit;padding:9px 16px;border:0;border-radius:8px;background:var(--pri);color:#fff;cursor:pointer;text-decoration:none;line-height:1.5}
+.btn.sec{background:#e8ecf7;color:var(--pri)}
+.btn.dng{background:#fde8e9;color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.hint{font-size:.85rem;color:var(--mute);margin:6px 0 0}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.q{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:8px;border:1px solid var(--line)}
+.q .no{width:26px;text-align:right;font-size:.85rem;color:var(--mute)}
+.q .ch{flex:1;display:flex;gap:4px}
+.q button{flex:1;min-width:30px;height:32px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;font-size:.9rem;cursor:pointer;padding:0}
+.q button.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.q.good{background:#e9f8ef;border-color:#a8e0bf}.q.good button.sel{background:var(--ok);border-color:var(--ok)}
+.q.wrong{background:#fdecec;border-color:#f3b4b6}.q.wrong button.sel{background:var(--bad);border-color:var(--bad)}
+.q button.ans{box-shadow:0 0 0 2px var(--pri) inset}
+.q.wrong button.ans:not(.sel){border-color:var(--pri);color:var(--pri);font-weight:700}
+.sheetprev{max-width:460px;margin:0 auto;border:1px solid var(--line);background:#fff}
+.cam{position:relative;background:#000;border-radius:12px;overflow:hidden}
+.cam video,.cam canvas.ov{position:absolute;inset:0;width:100%;height:100%}
+.cam .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa4bd;text-align:center;padding:20px}
+.bar{height:6px;background:#2a3350;border-radius:3px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
+#status{margin-top:8px;font-weight:600}
+#status.ok{color:var(--ok)}#status.warn{color:var(--warn)}
+.score{font-size:2.6rem;font-weight:800;line-height:1.1}
+.score small{font-size:1rem;font-weight:400;color:var(--mute)}
+#resCanvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+td.r,th.r{text-align:right}
+#printArea{display:none}
+@media print{
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block;padding:0}
+  #printArea .pg{display:flex;width:296mm;height:208mm}
+  #printArea .pg>div+div{border-left:.2mm dashed #aaa}
+  html,body{margin:0;padding:0}
+  body{background:#fff}
+}
+</style>
+<script>
+// Embedded in the school site: same Supabase project + same login session (localStorage), school tables.
+window.SUPABASE_CONFIG = {"url": "https://dhufwdxxfbahovnmjgrc.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodWZ3ZHh4ZmJhaG92bm1qZ3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTIwODAsImV4cCI6MjA2OTM4ODA4MH0.V-7Jlkq5ucQBznGXjtUKCse8sLLnNJ0mDTlcgme8G0c"};
+window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/" };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header><h1>📝 เฉลยปรนัย — สแกนตรวจกระดาษคำตอบด้วยกล้อง</h1></header>
+<nav id="tabs">
+  <button data-t="key" class="on">1 ตั้งเฉลย</button>
+  <button data-t="print">2 พิมพ์กระดาษ</button>
+  <button data-t="scan">3 สแกนตรวจ</button>
+  <button data-t="hist">4 ผลคะแนน</button>
+</nav>
+<main>
+
+<div class="card">
+  <div class="row">
+    <label>วิชา <select id="subj"></select></label>
+    <button class="btn sec" id="subjAdd">＋ เพิ่มวิชา</button>
+    <button class="btn sec" id="subjRen">✏️ เปลี่ยนชื่อ</button>
+    <button class="btn dng" id="subjDel">ลบวิชา</button>
+  </div>
+  <p class="hint">แต่ละวิชามีเฉลย จำนวนข้อ และกระดาษคำตอบของตัวเอง — เลือกวิชาก่อนพิมพ์หรือสแกน</p>
+</div>
+
+<section id="t-key" class="on">
+  <div class="card">
+    <h2>ตั้งค่าข้อสอบ</h2>
+    <div class="row">
+      <label>จำนวนข้อ <input id="n" type="number" min="1" max="100"></label>
+      <label>ตัวเลือก
+        <select id="k"><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+      </label>
+      <label>รหัสนักเรียน
+        <select id="idl"><option value="0">ไม่มีช่องรหัส</option><option value="4">4 หลัก</option><option value="5">5 หลัก</option><option value="6">6 หลัก</option></select>
+      </label>
+      <label>รูปแบบ
+        <select id="lab"><option value="thai">ก ข ค ง จ</option><option value="abc">A B C D E</option></select>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>เฉลย</h2>
+    <div class="row" style="margin-bottom:10px">
+      <input id="quick" class="wide" placeholder="พิมพ์เฉลยรวดเดียว เช่น กขคงกข... หรือ ABCDAB... หรือ 1234123...">
+      <button class="btn sec" id="quickBtn">ใส่เฉลย</button>
+      <button class="btn dng" id="keyClear">ล้างเฉลย</button>
+    </div>
+    <p class="hint" id="quickMsg" style="margin:-4px 0 10px;min-height:1.2em"></p>
+    <div id="keyGrid" class="qgrid"></div>
+    <p class="hint">กดตัวเลือกเพื่อกำหนดเฉลย (กดซ้ำเพื่อยกเลิก) ข้อที่ไม่ได้ตั้งเฉลยจะไม่นับคะแนน · บันทึกในเครื่องอัตโนมัติ</p>
+  </div>
+</section>
+
+<section id="t-print">
+  <div class="card">
+    <h2>กระดาษคำตอบ</h2>
+    <p class="hint" style="margin:0 0 10px">พิมพ์แล้วให้ผู้สอบระบายวงกลมให้ทึบด้วยปากกาหรือดินสอสีเข้ม ห้ามตัดหรือบังสี่เหลี่ยมดำที่มุมทั้ง 4 ด้าน · ในหน้าต่างพิมพ์ให้ตั้ง "หน้าต่อแผ่น = 1" และสเกลเป็นค่าเริ่มต้น/100%</p>
+    <div class="row" style="margin-bottom:10px"><label>รูปแบบการพิมพ์
+      <select id="printMode"><option value="2up">A4 แนวนอน — 2 ใบต่อแผ่น (ตัดครึ่งเป็น A5)</option><option value="a5">A5 — 1 ใบต่อแผ่น</option></select></label></div>
+    <button class="btn" id="printBtn">🖨️ พิมพ์กระดาษคำตอบ</button>
+  </div>
+  <div class="sheetprev" id="sheetPrev"></div>
+</section>
+
+<section id="t-scan">
+  <div id="scanView">
+    <div class="card">
+      <div class="cam" id="cam" style="aspect-ratio:4/3">
+        <video id="video" playsinline muted></video>
+        <canvas id="ov" class="ov"></canvas>
+        <div class="ph" id="camPh">กด "เปิดกล้อง" แล้วถือกระดาษคำตอบให้เห็นสี่เหลี่ยมดำครบ 4 มุม</div>
+      </div>
+      <div class="bar"><i id="prog"></i></div>
+      <div id="status">ยังไม่ได้เปิดกล้อง</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="camBtn">📷 เปิดกล้อง</button>
+        <button class="btn sec" id="flipBtn" disabled>🔄 สลับกล้อง</button>
+        <button class="btn sec" id="snapBtn" disabled>ถ่ายและตรวจ</button>
+        <label class="btn sec" style="margin:0;cursor:pointer">🖼️ เลือกรูป<input id="file" type="file" accept="image/*" hidden></label>
+        <label><input type="checkbox" id="auto" checked> ตรวจอัตโนมัติเมื่อภาพนิ่ง</label>
+      </div>
+    </div>
+  </div>
+  <div id="resView" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><div class="score" id="score"></div><div class="hint" id="scoreSub"></div></div>
+        <div class="row">
+          <label>รหัส <input id="stuId" style="width:110px" inputmode="numeric" placeholder="รหัสนักเรียน"></label>
+          <input id="stuName" placeholder="ชื่อผู้สอบ (ไม่บังคับ)">
+          <span id="stuInfo" class="hint" style="margin:0"></span>
+          <button class="btn" id="saveBtn">💾 บันทึก</button>
+          <button class="btn sec" id="againBtn">สแกนแผ่นต่อไป</button>
+        </div>
+      </div>
+    </div>
+    <div class="card"><canvas id="resCanvas"></canvas>
+      <p class="hint">เขียว = ถูก · แดง = ผิด · วงฟ้า = เฉลยที่ถูก (เมื่อตอบผิดหรือเว้นว่าง)</p></div>
+    <div class="card"><h2>ตรวจทาน / แก้คำตอบที่ระบบอ่านได้</h2>
+      <div id="resGrid" class="qgrid"></div>
+      <p class="hint">ถ้าระบบอ่านผิดหรือผู้สอบลบรอยไม่สะอาด แตะตัวเลือกเพื่อแก้ คะแนนคำนวณใหม่ทันที</p></div>
+  </div>
+</section>
+
+<section id="t-hist">
+  <div class="card">
+    <h2>บัญชีและคลาวด์ (Supabase)</h2>
+    <div id="cNone" hidden class="hint">โหลดไลบรารี Supabase ไม่ได้ (ออฟไลน์?) — ยังใช้งานแบบเก็บในเครื่องได้ตามปกติ</div>
+    <div id="cCfg" hidden>
+      <p class="hint" style="margin:0 0 8px">ยังไม่ได้เชื่อม Supabase — ใส่ค่าจาก Project Settings → API (ผู้ดูแลตั้งครั้งเดียว)</p>
+      <div class="row"><input id="cUrl" class="wide" placeholder="Project URL เช่น https://xxxx.supabase.co">
+        <input id="cKey" class="wide" placeholder="anon public key"><button class="btn" id="cCfgSave">บันทึก</button></div>
+    </div>
+    <div id="cLogin" hidden>
+      <div id="cShared" hidden class="row"><span>ต้องเข้าสู่ระบบที่เว็บโรงเรียนก่อน แล้วกลับมาหน้านี้</span><a class="btn" id="cSharedLink" href="/">ไปหน้าเข้าสู่ระบบ</a></div>
+      <div id="cForm">
+      <div class="row"><input id="cEmail" type="email" class="wide" placeholder="อีเมลของคุณครู" autocomplete="username" inputmode="email">
+        <button class="btn" id="cMagic">✉️ ส่งลิงก์เข้าสู่ระบบทางอีเมล</button></div>
+      <p class="hint">ใส่อีเมลอย่างเดียว ไม่ต้องใช้รหัสผ่าน — ระบบส่งลิงก์ให้ กดลิงก์ในอีเมลแล้วจะเข้าสู่ระบบอัตโนมัติ (ครั้งแรกจะสร้างบัญชีให้เอง) · ถ้าไม่เห็นอีเมล ให้ดูในกล่องจดหมายขยะ</p>
+      <details style="margin-top:6px"><summary style="cursor:pointer;color:var(--pri)">เข้าด้วยรหัสผ่านแทน (ไม่บังคับ)</summary>
+        <div class="row" style="margin-top:8px">
+          <input id="cPw" type="password" class="wide" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)" autocomplete="current-password">
+          <button class="btn" id="cIn">เข้าสู่ระบบ</button><button class="btn sec" id="cUp">สมัครด้วยรหัสผ่าน</button></div>
+        <label style="display:inline-block;margin-top:6px"><input type="checkbox" id="cShowPw"> แสดงรหัสผ่านที่พิมพ์</label>
+      </details>
+      <p class="hint">ไม่เข้าสู่ระบบก็ใช้ได้ ข้อมูลจะเก็บในเครื่องนี้อย่างเดียว · เข้าสู่ระบบแล้วเฉลยและผลสอบจะซิงก์ข้ามเครื่องและเป็นของครูคนนั้นเท่านั้น</p>
+      </div>
+    </div>
+    <div id="cUser" hidden>
+      <div class="row"><span>👤 <b id="cWho"></b></span>
+        <button class="btn" id="cSync">🔄 ซิงก์ตอนนี้</button><button class="btn sec" id="cOut">ออกจากระบบ</button></div>
+      <p class="hint">ผลสอบที่กด "บันทึก" และเฉลยที่แก้ จะส่งขึ้นคลาวด์อัตโนมัติ · ข้อมูลในเครื่องยังอยู่หลังออกจากระบบ</p>
+    </div>
+    <p class="hint" id="cMsg" style="min-height:1.2em"></p>
+    <details id="cAdmin"><summary style="cursor:pointer;color:var(--pri)">วิธีตั้งค่าฝั่งผู้ดูแล (ทำครั้งเดียว)</summary>
+      <ol class="hint">
+        <li>สร้างโปรเจกต์ที่ supabase.com</li>
+        <li>เมนู <b>SQL Editor</b> → วางโค้ดด้านล่าง → Run (สร้างตารางและกำหนดให้ครูเห็นเฉพาะข้อมูลของตัวเอง)</li>
+        <li><b>Project Settings → API</b> คัดลอก Project URL และ anon public key ใส่ในช่องด้านบน หรือในไฟล์ <code>config.js</code></li>
+        <li><b>Authentication → URL Configuration</b> ตั้ง <b>Site URL</b> เป็นที่อยู่เว็บแอป (เช่น https://pdosndata.github.io/omr-scanner/) และเพิ่มที่อยู่เดียวกันใน <b>Redirect URLs</b> — ไม่ตั้งค่านี้ ลิงก์ในอีเมลจะพาไปผิดที่</li>
+        <li><b>Authentication → Providers → Email</b> เปิด Email ไว้ (ลิงก์เข้าสู่ระบบทางอีเมลใช้ได้เลย) · ถ้าไม่ต้องการให้ยืนยันอีเมลตอนสมัครด้วยรหัสผ่าน ให้ปิด "Confirm email"</li>
+        <li>ตัวส่งอีเมลเริ่มต้นของ Supabase ส่งได้น้อยมากต่อชั่วโมง (ไว้ทดสอบ) ถ้ามีครูหลายคน ให้ตั้ง <b>Project Settings → Authentication → SMTP</b> ใช้บริการส่งอีเมลของตัวเอง</li>
+      </ol>
+      <textarea id="cSql" readonly rows="8" style="width:100%;font:12px monospace"></textarea>
+      <button class="btn sec" id="cSqlCopy" style="margin-top:6px">คัดลอก SQL</button>
+    </details>
+  </div>
+  <div class="card">
+    <h2>ไฟล์สำรองข้อมูล</h2>
+    <div class="row">
+      <button class="btn sec" id="bkOut">⬆️ ส่งออกไฟล์สำรอง</button>
+      <label class="btn sec" style="margin:0;cursor:pointer">⬇️ นำเข้าไฟล์สำรอง<input id="bkIn" type="file" accept=".json,application/json" hidden></label>
+    </div>
+    <p class="hint">เก็บวิชา เฉลย และผลคะแนนทั้งหมด ใช้ย้ายข้อมูลระหว่างคอมกับมือถือ การนำเข้าจะแทนที่ข้อมูลปัจจุบันในเครื่อง</p>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">ผลที่บันทึก</h2>
+      <div class="row"><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
+    </div>
+    <div id="histBox"></div>
+  </div>
+</section>
+</main>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/* ====================== สถานะ + จัดเก็บ ====================== */
+const LABELS={thai:['ก','ข','ค','ง','จ'],abc:['A','B','C','D','E']};
+const SKEY='omr-state-v1';
+const uuid=()=>{if(crypto.randomUUID)try{return crypto.randomUUID()}catch(e){}
+  const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;
+  const h=[...b].map(x=>x.toString(16).padStart(2,'0')).join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`};
+const newSubject=name=>({id:uuid(),name,n:20,k:4,labels:'thai',key:[],idLen:5,upd:0});
+let db={subjects:[],active:0,history:[]};
+try{
+  const o=JSON.parse(localStorage.getItem(SKEY)||'{}');
+  if(o.subjects&&o.subjects.length)db=Object.assign(db,o);
+  else if(o.key){db.subjects=[Object.assign(newSubject('วิชา 1'),{n:o.n,k:o.k,labels:o.labels,key:o.key})];db.history=o.history||[]}
+}catch(e){}
+if(!db.subjects.length)db.subjects=[newSubject('วิชา 1')];
+db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(!s.id)s.id=uuid()});
+db.history.forEach(h=>{if(!h.id)h.id=uuid()});
+if(db.active>=db.subjects.length)db.active=0;
+// state = มุมมองของวิชาที่เลือกอยู่ (n,k,labels,key) + history รวมทุกวิชา
+const state={
+  get n(){return db.subjects[db.active].n},set n(v){db.subjects[db.active].n=v},
+  get k(){return db.subjects[db.active].k},set k(v){db.subjects[db.active].k=v},
+  get labels(){return db.subjects[db.active].labels},set labels(v){db.subjects[db.active].labels=v},
+  get key(){return db.subjects[db.active].key},set key(v){db.subjects[db.active].key=v},
+  get idLen(){return db.subjects[db.active].idLen},set idLen(v){db.subjects[db.active].idLen=v},
+  get name(){return db.subjects[db.active].name},
+  get history(){return db.history},set history(v){db.history=v}
+};
+const sigOf=s=>JSON.stringify([s.name,s.n,s.k,s.labels,s.key,s.idLen]);
+function save(){
+  db.subjects.forEach(s=>{const g=sigOf(s);if(s.sig!==g){s.sig=g;s.upd=Date.now()}});
+  try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
+  if(typeof cloudSchedule==='function')cloudSchedule();
+}
+function fitKey(){while(state.key.length<state.n)state.key.push(-1);state.key.length=state.n;
+  state.key=state.key.map(v=>v>=state.k?-1:v)}
+fitKey();
+const $=id=>document.getElementById(id);
+const lab=()=>LABELS[state.labels].slice(0,state.k);
+
+/* ====================== เลย์เอาต์กระดาษ (หน่วย มม. ใช้ร่วมทั้งพิมพ์และสแกน) ====================== */
+const SHEET={w:134,h:194,mk:8,markerC:[[4,4],[130,4],[130,190],[4,190]],dot:[24,4],margin:7};
+// ช่องรหัสนักเรียน: แถวละ 1 หลัก ตัวเลข 0-9 อยู่มุมขวาบนของหัวกระดาษ
+function idLayout(len){
+  const rows=[];
+  for(let d=0;d<len;d++){const l=[];for(let v=0;v<10;v++)l.push({x:76+v*5,y:13.5+d*4.4});rows.push(l)}
+  return rows;
+}
+function layout(n,k){
+  const hasId=state.idLen>0;
+  const R=25,y0=hasId?42:32,pitch=hasId?5.5:6,r=2.2,sp=5.2,bx=9;
+  const C=Math.ceil(n/R),colW=Math.min(40,SHEET.w/C),x0=(SHEET.w-C*colW)/2,bubbles=[];
+  for(let q=0;q<n;q++){
+    const col=Math.floor(q/R),row=q%R,cy=y0+(row+.5)*pitch,list=[];
+    for(let c=0;c<k;c++)list.push({x:x0+col*colW+bx+c*sp,y:cy});
+    bubbles.push(list);
+  }
+  return {bubbles,r,C,x0,colW,y0,R,bx,sp};
+}
+// กระดาษขนาด A5 (ครึ่ง A4) 148x208 มม. = กรอบ 134x194 + ขอบขาวรอบละ 7 มม.
+function sheetSVG({mm=false,marks=[],idMarks=''}={}){
+  const L=layout(state.n,state.k),lb=lab(),{w,h,mk,margin:m}=SHEET,W=w+2*m,H=h+2*m;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="Tahoma,Sarabun,sans-serif">`;
+  s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
+  [[0,0],[w-mk,0],[w-mk,h-mk],[0,h-mk]].forEach(([x,y])=>s+=`<rect x="${x}" y="${y}" width="${mk}" height="${mk}" fill="#000"/>`);
+  s+=`<circle cx="${SHEET.dot[0]}" cy="${SHEET.dot[1]}" r="2" fill="#000"/>`;
+  const title='กระดาษคำตอบ '+state.name,hasId=state.idLen>0;
+  if(hasId){
+    const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
+    s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
+    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="31" font-size="3.2">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="71" y="9.5" font-size="2.6" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
+    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.4" text-anchor="middle">${v}</text>`;
+    idLayout(state.idLen).forEach((row,d)=>{
+      s+=`<text x="73" y="${row[0].y+1}" font-size="2.6" text-anchor="end">${d+1}</text>`;
+      row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#fff" stroke="#000" stroke-width=".28"/>`);
+    });
+    (idMarks||'').split('').forEach((ch,d)=>{if(/\d/.test(ch)){const b=idLayout(state.idLen)[d][+ch];s+=`<circle cx="${b.x}" cy="${b.y}" r="1.8" fill="#222"/>`}});
+  }else{
+    s+=`<text x="${w/2}" y="14" font-size="4.2" text-anchor="middle" font-weight="bold" textLength="${Math.min(110,(12+state.name.length)*2.7)}" lengthAdjust="spacing">${esc(title)}</text>`;
+    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="97" y="23" font-size="3.2">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
+  }
+  for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)
+    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="2.8" text-anchor="middle">${lb[j]}</text>`;
+  L.bubbles.forEach((row,q)=>{
+    s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="2.8" text-anchor="end">${q+1}</text>`;
+    row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="${L.r}" fill="#fff" stroke="#000" stroke-width=".28"/>`);
+  });
+  marks.forEach(([q,c])=>{const b=L.bubbles[q][c];s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#222"/>`});
+  return s+'</svg>';
+}
+
+/* ====================== ประมวลผลภาพ ====================== */
+function toGray(id){const d=id.data,n=id.width*id.height,g=new Uint8ClampedArray(n);
+  for(let i=0;i<n;i++)g[i]=(d[4*i]*77+d[4*i+1]*150+d[4*i+2]*29)>>8;return g}
+
+// หาสี่เหลี่ยมดำทึบ (มุมกระดาษ) → [TL,TR,BR,BL] ตามพิกัดภาพ
+function findMarkers(g,w,h){
+  const iw=w+1,I=new Float64Array(iw*(h+1));
+  for(let y=0;y<h;y++){let row=0;for(let x=0;x<w;x++){row+=g[y*w+x];I[(y+1)*iw+x+1]=I[y*iw+x+1]+row}}
+  const half=Math.max(8,Math.round(w/16)),bin=new Uint8Array(w*h);
+  for(let y=0;y<h;y++){const y0=Math.max(0,y-half),y1=Math.min(h,y+half+1);
+    for(let x=0;x<w;x++){const x0=Math.max(0,x-half),x1=Math.min(w,x+half+1);
+      const m=(I[y1*iw+x1]-I[y0*iw+x1]-I[y1*iw+x0]+I[y0*iw+x0])/((x1-x0)*(y1-y0));
+      if(g[y*w+x]<m*.75)bin[y*w+x]=1}}
+  const seen=new Uint8Array(w*h),st=new Int32Array(w*h),cands=[];
+  for(let i=0;i<w*h;i++){
+    if(!bin[i]||seen[i])continue;
+    let sp=0,a=0,sx=0,sy=0,sxx=0,syy=0,sxy=0;st[sp++]=i;seen[i]=1;
+    while(sp){const p=st[--sp],x=p%w,y=(p-x)/w;a++;sx+=x;sy+=y;sxx+=x*x;syy+=y*y;sxy+=x*y;
+      if(x>0&&bin[p-1]&&!seen[p-1]){seen[p-1]=1;st[sp++]=p-1}
+      if(x<w-1&&bin[p+1]&&!seen[p+1]){seen[p+1]=1;st[sp++]=p+1}
+      if(y>0&&bin[p-w]&&!seen[p-w]){seen[p-w]=1;st[sp++]=p-w}
+      if(y<h-1&&bin[p+w]&&!seen[p+w]){seen[p+w]=1;st[sp++]=p+w}}
+    const side=Math.sqrt(a);
+    if(side<w*.012||side>w*.15)continue;
+    const mx=sx/a,my=sy/a,vx=sxx/a-mx*mx,vy=syy/a-my*my,cv=sxy/a-mx*my;
+    const tr=vx+vy,det=vx*vy-cv*cv,d=Math.sqrt(Math.max(0,tr*tr/4-det));
+    const l1=tr/2+d,l2=tr/2-d;
+    if(l2<=0||l2/l1<.65)continue;            // ต้องเป็นก้อนกลมๆ/จัตุรัส ไม่ใช่เส้นยาว
+    const solid=a/(6*tr);                      // ทึบ ≈1, วงแหวนกลวง ≪1
+    if(solid<.85||solid>1.2)continue;
+    cands.push({x:mx,y:my,a});
+  }
+  if(cands.length<4)return null;
+  const best=(f)=>cands.reduce((p,c)=>f(c)>f(p)?c:p);
+  const TL=best(c=>-(c.x+c.y)),BR=best(c=>c.x+c.y),TR=best(c=>c.x-c.y),BL=best(c=>c.y-c.x);
+  const q=[TL,TR,BR,BL];
+  if(new Set(q).size<4)return null;
+  const as=q.map(c=>c.a);if(Math.max(...as)/Math.min(...as)>2.6)return null;
+  return q.map(c=>[c.x,c.y]);
+}
+function homography(src,dst){
+  const A=[],b=[];
+  for(let i=0;i<4;i++){const[x,y]=src[i],[u,v]=dst[i];
+    A.push([x,y,1,0,0,0,-u*x,-u*y]);b.push(u);
+    A.push([0,0,0,x,y,1,-v*x,-v*y]);b.push(v)}
+  for(let c=0;c<8;c++){
+    let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+    if(Math.abs(A[p][c])<1e-9)return null;
+    [A[c],A[p]]=[A[p],A[c]];[b[c],b[p]]=[b[p],b[c]];
+    for(let r=0;r<8;r++){if(r===c)continue;const f=A[r][c]/A[c][c];
+      for(let k=c;k<8;k++)A[r][k]-=f*A[c][k];b[r]-=f*b[c]}}
+  return b.map((v,i)=>v/A[i][i]);
+}
+const applyH=(h,x,y)=>{const d=h[6]*x+h[7]*y+1;return[(h[0]*x+h[1]*y+h[2])/d,(h[3]*x+h[4]*y+h[5])/d]};
+function ppm(H,x,y){const[c,d]=applyH(H,x,y),[e,f]=applyH(H,x+1,y),[g,k]=applyH(H,x,y+1);
+  return(Math.hypot(e-c,f-d)+Math.hypot(g-c,k-d))/2}
+function sampleDisc(g,w,h,H,sx,sy,rmm){
+  const[cx,cy]=applyH(H,sx,sy),r=rmm*ppm(H,sx,sy),m=Math.max(2,Math.min(5,Math.round(r/1.5)));
+  let s=0,n=0;
+  for(let j=-m;j<=m;j++)for(let i=-m;i<=m;i++){
+    if(i*i+j*j>m*m)continue;
+    const x=Math.round(cx+i*r/m),y=Math.round(cy+j*r/m);
+    if(x<0||y<0||x>=w||y>=h)continue;s+=g[y*w+x];n++}
+  return n?s/n:255;
+}
+// ลองหมุนมุมทั้ง 4 แบบ เลือกแบบที่สัดส่วนกระดาษถูกและจุดบอกทิศ (วงกลมดำข้างมุมซ้ายบน) ดำ
+function solveOrientation(pts,g,w,h){
+  const src=SHEET.markerC;
+  for(let r=0;r<4;r++){
+    const q=[0,1,2,3].map(i=>pts[(i+r)%4]);
+    const ratio=Math.hypot(q[1][0]-q[0][0],q[1][1]-q[0][1])/Math.hypot(q[3][0]-q[0][0],q[3][1]-q[0][1]);
+    if(ratio<.55||ratio>.95)continue;
+    const H=homography(src,q);if(!H)continue;
+    const dot=sampleDisc(g,w,h,H,SHEET.dot[0],SHEET.dot[1],1.4);
+    const pa=(sampleDisc(g,w,h,H,50,SHEET.dot[1],1.4)+sampleDisc(g,w,h,H,100,SHEET.dot[1],1.4))/2;
+    if(pa-dot>.3*pa)return{H,quad:q};
+  }
+  return null;
+}
+const median=a=>{const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+// อ่านคำตอบ: -1 ว่าง, -2 ระบายหลายตัวเลือก
+function readSheet(g,w,h,H,n,k){
+  const L=layout(n,k),res=[];
+  for(let q=0;q<n;q++){
+    const m=L.bubbles[q].map(b=>sampleDisc(g,w,h,H,b.x,b.y,L.r*.6));
+    const base=median(m),dr=m.map(v=>base-v),thr=Math.max(12,base*.2);
+    const order=dr.map((v,i)=>i).sort((a,b)=>dr[b]-dr[a]);
+    const top=dr[order[0]],second=dr[order[1]];
+    res.push(top<thr?-1:(second>thr&&second>.6*top?-2:order[0]));
+  }
+  return res;
+}
+
+// อ่านรหัสนักเรียน: ตัวเลข หรือ ? ถ้าว่าง/ระบายซ้อน
+function readId(g,w,h,H,len){
+  return idLayout(len).map(row=>{
+    const m=row.map(b=>sampleDisc(g,w,h,H,b.x,b.y,1.2)),base=median(m),dr=m.map(v=>base-v),thr=Math.max(12,base*.2);
+    const o=dr.map((v,i)=>i).sort((a,b)=>dr[b]-dr[a]);
+    return dr[o[0]]<thr||(dr[o[1]]>thr&&dr[o[1]]>.6*dr[o[0]])?'?':String(o[0]);
+  }).join('');
+}
+
+/* ====================== กล้อง + ตรวจจับสด ====================== */
+const video=$('video'),ov=$('ov'),octx=ov.getContext('2d');
+const small=document.createElement('canvas'),sctx=small.getContext('2d',{willReadFrequently:true});
+let stream=null,facing='environment',timer=null,stable=0,lastQuad=null,paused=false;
+
+function detectOn(src,sw,sh){
+  const W=640,H=Math.round(sh*W/sw);small.width=W;small.height=H;sctx.drawImage(src,0,0,W,H);
+  const g=toGray(sctx.getImageData(0,0,W,H)),pts=findMarkers(g,W,H);
+  return pts?{pts,g,W,H,sc:sw/W}:null;
+}
+function setStatus(t,c){const s=$('status');s.textContent=t;s.className=c||''}
+async function startCam(){
+  stopCam();
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},audio:false});
+  }catch(e){
+    setStatus(location.protocol==='file:'||window.isSecureContext?'เปิดกล้องไม่ได้: '+e.message:'ต้องเปิดผ่าน https หรือ localhost จึงจะใช้กล้องได้','warn');return}
+  video.srcObject=stream;await video.play();
+  $('cam').style.aspectRatio=video.videoWidth+'/'+video.videoHeight;
+  ov.width=640;ov.height=Math.round(640*video.videoHeight/video.videoWidth);
+  $('camPh').hidden=true;$('camBtn').textContent='⏹ ปิดกล้อง';$('flipBtn').disabled=false;$('snapBtn').disabled=false;
+  paused=false;stable=0;timer=setInterval(tick,250);setStatus('กำลังมองหามุมกระดาษ…');
+}
+function stopCam(){
+  clearInterval(timer);timer=null;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  video.srcObject=null;$('camPh').hidden=false;$('camBtn').textContent='📷 เปิดกล้อง';
+  $('flipBtn').disabled=true;$('snapBtn').disabled=true;$('prog').style.width='0';octx.clearRect(0,0,ov.width,ov.height);
+}
+function tick(){
+  if(paused||!video.videoWidth)return;
+  const d=detectOn(video,video.videoWidth,video.videoHeight);
+  octx.clearRect(0,0,ov.width,ov.height);
+  const o=d&&solveOrientation(d.pts,d.g,d.W,d.H);
+  if(!o){stable=0;lastQuad=null;$('prog').style.width='0';
+    setStatus(d?'เห็นมุมแล้วแต่ทิศ/สัดส่วนไม่ตรง — ถือกระดาษตั้งตรง ให้เห็นทั้งแผ่น':'ยังไม่เห็นสี่เหลี่ยมดำครบ 4 มุม','warn');return}
+  const q=o.quad;
+  octx.strokeStyle='#12a150';octx.lineWidth=4;octx.beginPath();q.forEach((p,i)=>i?octx.lineTo(p[0],p[1]):octx.moveTo(p[0],p[1]));octx.closePath();octx.stroke();
+  const moved=lastQuad?Math.max(...q.map((p,i)=>Math.hypot(p[0]-lastQuad[i][0],p[1]-lastQuad[i][1]))):99;
+  lastQuad=q;stable=moved<6?stable+1:0;
+  const auto=$('auto').checked;$('prog').style.width=auto?Math.min(100,stable*25)+'%':'0';
+  setStatus(auto?'พบกระดาษแล้ว — ถือให้นิ่งสักครู่':'พบกระดาษแล้ว — กด "ถ่ายและตรวจ"','ok');
+  if(auto&&stable>=4)capture();
+}
+function capture(){
+  if(!video.videoWidth)return;
+  const cv=document.createElement('canvas');cv.width=video.videoWidth;cv.height=video.videoHeight;
+  cv.getContext('2d').drawImage(video,0,0);
+  if(!process(cv))setStatus('อ่านกระดาษไม่สำเร็จ ลองถ่ายใหม่ให้เห็นทั้งแผ่นและสว่างพอ','warn');
+}
+$('file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;e.target.value='';
+  const bmp=await createImageBitmap(f),s=Math.min(1,2200/Math.max(bmp.width,bmp.height));
+  const cv=document.createElement('canvas');cv.width=Math.round(bmp.width*s);cv.height=Math.round(bmp.height*s);
+  cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+  if(!process(cv))alert('ไม่พบสี่เหลี่ยมดำครบ 4 มุม หรือทิศกระดาษไม่ถูก — ลองถ่ายให้เห็นทั้งแผ่น ตั้งตรงและสว่างพอ');
+};
+$('camBtn').onclick=()=>stream?stopCam():startCam();
+$('flipBtn').onclick=()=>{facing=facing==='environment'?'user':'environment';startCam()};
+$('snapBtn').onclick=capture;
+
+/* ====================== ผลตรวจ ====================== */
+let cur=null;
+function process(cv){
+  const w=cv.width,h=cv.height,g=toGray(cv.getContext('2d').getImageData(0,0,w,h));
+  const d=detectOn(cv,w,h);if(!d)return false;
+  const full=d.pts.map(p=>[p[0]*d.sc,p[1]*d.sc]),o=solveOrientation(full,g,w,h);
+  if(!o)return false;
+  cur={cv,H:o.H,ans:readSheet(g,w,h,o.H,state.n,state.k),id:state.idLen?readId(g,w,h,o.H,state.idLen):''};
+  paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
+  renderResult();return true;
+}
+function grade(ans){
+  let right=0,total=0;
+  ans.forEach((a,q)=>{if(state.key[q]<0)return;total++;if(a===state.key[q])right++});
+  return{right,total};
+}
+function renderResult(){
+  const{cv,H,ans}=cur,L=layout(state.n,state.k),lb=lab();
+  const c=$('resCanvas');c.width=cv.width;c.height=cv.height;
+  const x=c.getContext('2d');x.drawImage(cv,0,0);
+  ans.forEach((a,q)=>{
+    const key=state.key[q];
+    L.bubbles[q].forEach((b,ci)=>{
+      const[px,py]=applyH(H,b.x,b.y),r=L.r*ppm(H,b.x,b.y);
+      if(key>=0&&ci===key&&a!==key){x.strokeStyle='#2f8cff';x.lineWidth=Math.max(2,r*.4);x.beginPath();x.arc(px,py,r*1.25,0,7);x.stroke()}
+      if(ci===a){x.lineWidth=Math.max(2,r*.4);x.strokeStyle=key<0?'#e8a200':a===key?'#12a150':'#e5484d';
+        x.beginPath();x.arc(px,py,r*1.25,0,7);x.stroke()}
+    });
+  });
+  if(state.idLen){const idc=cur.id,rows=idLayout(state.idLen);
+    rows.forEach((row,d)=>{const v=idc[d];if(v==null||v==='?')return;const b=row[+v],[px,py]=applyH(H,b.x,b.y),r=2*ppm(H,b.x,b.y);
+      x.strokeStyle='#2f8cff';x.lineWidth=Math.max(2,r*.4);x.beginPath();x.arc(px,py,r*1.25,0,7);x.stroke()})}
+  const{right,total}=grade(ans);
+  $('score').innerHTML=`${right} <small>/ ${total} คะแนน${total?` (${Math.round(right*100/total)}%)`:''}</small>`;
+  const blank=ans.filter(a=>a===-1).length,multi=ans.filter(a=>a===-2).length;
+  $('scoreSub').textContent=(total?'':'ยังไม่ได้ตั้งเฉลย · ')+`เว้นว่าง ${blank} ข้อ · ระบายซ้อน ${multi} ข้อ`;
+  const box=$('resGrid');box.innerHTML='';
+  ans.forEach((a,q)=>{
+    const key=state.key[q],d=document.createElement('div');
+    d.className='q'+(key<0?'':a===key?' good':' wrong');
+    d.innerHTML=`<span class="no">${q+1}</span><span class="ch"></span>`;
+    const ch=d.querySelector('.ch');
+    lb.forEach((t,ci)=>{const b=document.createElement('button');b.textContent=t;
+      if(ci===a)b.classList.add('sel');if(ci===key)b.classList.add('ans');
+      b.onclick=()=>{cur.ans[q]=cur.ans[q]===ci?-1:ci;renderResult()};ch.appendChild(b)});
+    box.appendChild(d);
+  });
+}
+$('againBtn').onclick=()=>{cur=null;$('resView').hidden=true;$('scanView').hidden=false;paused=false;stable=0};
+$('saveBtn').onclick=()=>{
+  if(!cur)return;const g=grade(cur.ans);
+  state.history.unshift({id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels});
+  save();renderHist();cloudPushResult(state.history[0]);
+  $('againBtn').click();setStatus('บันทึกแล้ว — พร้อมสแกนแผ่นต่อไป','ok');
+};
+
+/* ====================== ตั้งเฉลย ====================== */
+function renderKey(){
+  $('n').value=state.n;$('k').value=state.k;$('lab').value=state.labels;$('idl').value=state.idLen;
+  const lb=lab(),box=$('keyGrid');box.innerHTML='';
+  state.key.forEach((kv,q)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<span class="no">${q+1}</span><span class="ch"></span>`;
+    lb.forEach((t,ci)=>{const b=document.createElement('button');b.textContent=t;
+      if(ci===kv)b.classList.add('sel');
+      b.onclick=()=>{state.key[q]=state.key[q]===ci?-1:ci;save();renderKey()};
+      d.querySelector('.ch').appendChild(b)});
+    box.appendChild(d);
+  });
+  $('sheetPrev').innerHTML=sheetSVG();
+}
+$('n').onchange=()=>{state.n=Math.max(1,Math.min(100,+$('n').value||20));fitKey();save();renderKey()};
+$('k').onchange=()=>{state.k=+$('k').value;fitKey();save();renderKey()};
+$('idl').onchange=()=>{state.idLen=+$('idl').value;save();renderKey()};
+$('lab').onchange=()=>{state.labels=$('lab').value;save();renderKey()};
+$('keyClear').onclick=()=>{state.key=state.key.map(()=>-1);save();renderKey()};
+// อ่านเฉลยรวดเดียว: ตัวอักษร ก-จ / A-E เป็นตัวเลือก (ตัวเลขข้างหน้าถือเป็นเลขข้อ ข้ามไป)
+// ถ้าไม่มีตัวอักษรเลย จะอ่านตัวเลข 1-5 เป็นตัวเลือก (1=ก/A, 2=ข/B ...)
+function parseQuick(text,k){
+  const abc=LABELS.abc.map(x=>x.toLowerCase()),letters=[];let outOfRange=0;
+  for(const ch of text){
+    let idx=LABELS.thai.indexOf(ch);if(idx<0)idx=abc.indexOf(ch.toLowerCase());
+    if(idx<0)continue;if(idx>=k)outOfRange++;else letters.push(idx);
+  }
+  if(letters.length||outOfRange)return{list:letters,outOfRange};
+  const nums=[...text].filter(c=>/[1-9]/.test(c)).map(c=>+c-1);
+  return{list:nums.filter(i=>i<k),outOfRange:nums.filter(i=>i>=k).length};
+}
+$('quickBtn').onclick=()=>{
+  const{list,outOfRange}=parseQuick($('quick').value,state.k),m=$('quickMsg');
+  if(!list.length){m.style.color='var(--bad)';m.textContent=`ไม่พบเฉลยที่อ่านได้ — พิมพ์เช่น ${lab().join('')} หรือเลข 1-${state.k} (ตอนนี้ตั้งไว้ ${state.k} ตัวเลือก)`;return}
+  const used=Math.min(list.length,state.n);
+  for(let i=0;i<used;i++)state.key[i]=list[i];
+  save();renderKey();
+  m.style.color='';
+  m.textContent=`ใส่เฉลยแล้ว ${used} ข้อ`+(list.length>state.n?` (เกินจำนวนข้อ ${list.length-state.n} ตัวถูกข้าม)`:list.length<state.n?` (ยังเหลือ ${state.n-list.length} ข้อที่ยังไม่ได้ตั้ง)`:'')+(outOfRange?` · ข้าม ${outOfRange} ตัวที่เกินจำนวนตัวเลือก`:'');
+};
+
+/* ====================== พิมพ์ ====================== */
+$('printBtn').onclick=()=>{
+  const two=$('printMode').value==='2up',svg=sheetSVG({mm:true});
+  let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
+  st.textContent=`@page{size:${two?'A4 landscape':'A5'};margin:0}`;
+  $('printArea').innerHTML=two?`<div class="pg"><div>${svg}</div><div>${svg}</div></div>`:svg;
+  window.print();
+};
+
+/* ====================== ประวัติ ====================== */
+function renderHist(){
+  const h=state.history,box=$('histBox');
+  if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
+  box.innerHTML='<table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table>';
+  box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('histClear').onclick=()=>{if(confirm('ลบผลที่บันทึกทั้งหมด? (ถ้าเข้าสู่ระบบอยู่ จะลบในคลาวด์ด้วย)')){const ids=state.history.map(r=>r.id);state.history=[];cloudDelRes(ids);renderHist()}};
+$('csvBtn').onclick=()=>{
+  if(!state.history.length)return;
+  const maxN=Math.max(...state.history.map(r=>r.ans.length));
+  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),
+    ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
+  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ผลสอบ.csv';a.click();
+};
+
+/* ====================== สำรองข้อมูล ====================== */
+const pad=n=>String(n).padStart(2,'0');
+const tstr=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`};
+$('bkOut').onclick=()=>{
+  const {delRes,delSub,...data}=db;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'omr-scanner',v:1,data},null,1)],{type:'application/json'}));
+  a.download='สำรองข้อมูล-'+tstr(Date.now()).slice(0,10)+'.json';a.click();
+};
+$('bkIn').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const o=JSON.parse(await f.text()),d=o.data;
+    if(o.app!=='omr-scanner'||!Array.isArray(d.subjects)||!d.subjects.length||!Array.isArray(d.history))throw new Error('ไม่ใช่ไฟล์สำรองของแอปนี้');
+    if(!confirm(`นำเข้า ${d.subjects.length} วิชา และผลคะแนน ${d.history.length} รายการ?\nข้อมูลปัจจุบันในเครื่องจะถูกแทนที่`))return;
+    db.subjects=d.subjects;db.history=d.history;db.active=0;
+    db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(!s.id)s.id=uuid()});db.history.forEach(h=>{if(!h.id)h.id=uuid()});fitKeyAll();save();
+    renderSubj();renderKey();renderHist();alert('นำเข้าสำเร็จ');
+  }catch(err){alert('นำเข้าไม่สำเร็จ: '+err.message)}
+};
+
+/* ====================== คลาวด์ (Supabase) ====================== */
+const SB_SQL=`-- รันครั้งเดียวใน Supabase: SQL Editor → New query → วาง → Run
+-- ข้อมูลแต่ละแถวเป็นของครูเจ้าของ (user_id) และมองเห็นได้เฉพาะเจ้าของเท่านั้น (Row Level Security)
+
+create table if not exists public.subjects (
+  id uuid primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  name text not null,
+  n int not null,
+  k int not null,
+  labels text not null,
+  id_len int not null default 5,
+  key jsonb not null default '[]',
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
+);
+
+create table if not exists public.results (
+  id uuid primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  subject_id uuid references public.subjects(id) on delete set null,
+  subject_name text not null,
+  student_id text not null default '',
+  student_name text not null default '',
+  score int not null,
+  total int not null,
+  answers jsonb not null,
+  labels text not null default 'thai',
+  taken_at timestamptz not null,
+  deleted_at timestamptz
+);
+
+-- ถ้าเคยรันเวอร์ชันก่อนหน้าแล้ว ให้เพิ่มคอลัมน์ด้วย:
+alter table public.subjects add column if not exists deleted_at timestamptz;
+alter table public.results add column if not exists deleted_at timestamptz;
+
+create index if not exists results_user_idx on public.results (user_id, subject_id, taken_at desc);
+
+alter table public.subjects enable row level security;
+alter table public.results enable row level security;
+
+drop policy if exists "own subjects" on public.subjects;
+create policy "own subjects" on public.subjects for all
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists "own results" on public.results;
+create policy "own results" on public.results for all
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+`;
+// โหมดฝังในเว็บโรงเรียน: ตั้งค่าผ่าน window.OMR_CONFIG (ดู config.js) — ไม่ตั้ง = โหมดเดี่ยวเหมือนเดิม
+const OC=window.OMR_CONFIG||{},T={subjects:OC.subjectsTable||'subjects',results:OC.resultsTable||'results'};
+let sb=null,sbUser=null,syncing=false,pushTimer=null,lastUser=null;
+const cmsg=(t,bad)=>{const e=$('cMsg');e.textContent=t;e.style.color=bad?'var(--bad)':''};
+const thErr=m=>/only request this after|security purposes/i.test(m)?'ขอลิงก์ได้อีกครั้งในอีกประมาณ 1 นาที รอสักครู่':/email rate limit|over_email_send_rate_limit/i.test(m)?'ระบบส่งอีเมลเกินโควตาชั่วคราว (ตัวส่งเริ่มต้นของ Supabase จำกัดจำนวนต่อชั่วโมง) ลองใหม่ภายหลัง':/Anonymous sign-ins|provide either an email/i.test(m)?'กรอกอีเมลและรหัสผ่านให้ครบก่อน':/rate limit|too many/i.test(m)?'ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่':/signups not allowed/i.test(m)?'ระบบปิดรับสมัครสมาชิกใหม่':/Invalid login/i.test(m)?'อีเมลหรือรหัสผ่านไม่ถูกต้อง':/not confirmed/i.test(m)?'ยังไม่ได้ยืนยันอีเมล — ตรวจกล่องจดหมาย':
+  /already registered/i.test(m)?'อีเมลนี้สมัครแล้ว ลองเข้าสู่ระบบ':/at least/i.test(m)?'รหัสผ่านต้องมีอย่างน้อย 6 ตัว':/valid email|invalid format/i.test(m)?'รูปแบบอีเมลไม่ถูกต้อง':m;
+function sbCfg(){
+  try{const o=JSON.parse(localStorage.getItem('omr-sb')||'null');if(o&&o.url&&o.anonKey)return o}catch(e){}
+  const c=window.SUPABASE_CONFIG;return c&&c.url&&c.anonKey?c:null;
+}
+const subjToRow=s=>({id:s.id,name:s.name,n:s.n,k:s.k,labels:s.labels,id_len:s.idLen,key:s.key,updated_at:new Date(s.upd||Date.now()).toISOString()});
+const rowToSubj=r=>({id:r.id,name:r.name,n:r.n,k:r.k,labels:r.labels,idLen:r.id_len,key:r.key,upd:Date.parse(r.updated_at)});
+const resToRow=(h,ok)=>({id:h.id,subject_id:h.subjectId&&ok.has(h.subjectId)?h.subjectId:null,subject_name:h.subject||'',student_id:h.sid||'',student_name:h.name||'',
+  score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString()});
+const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at)});
+
+function sbInit(client){
+  sb=client||null;sbUser=null;lastUser=null;
+  const c=sbCfg();
+  if(!sb&&c&&window.supabase){
+    try{sb=window.supabase.createClient(c.url,c.anonKey)}catch(e){sb=null;cmsg('ค่า URL/key ไม่ถูกต้อง: '+e.message,true)}
+  }
+  if(sb&&sb.auth&&sb.auth.onAuthStateChange)sb.auth.onAuthStateChange((ev,sess)=>{
+    sbUser=sess?sess.user:null;renderCloud();
+    if(sbUser&&sbUser.id!==lastUser){lastUser=sbUser.id;setTimeout(()=>{cloudSync();loadStudents()},0)}
+    if(!sbUser)lastUser=null;
+  });
+  renderCloud(c);
+}
+function renderCloud(c){
+  c=c||sbCfg();
+  const shared=!!OC.loginUrl;$('cForm').hidden=shared;$('cShared').hidden=!shared;$('cAdmin').hidden=shared;if(shared)$('cSharedLink').href=OC.loginUrl;
+  $('cNone').hidden=!(c&&!window.supabase&&!sb);
+  $('cCfg').hidden=!!c;
+  $('cLogin').hidden=!(sb&&!sbUser);
+  $('cUser').hidden=!(sb&&sbUser);
+  if(sbUser)$('cWho').textContent=sbUser.email||sbUser.id;
+}
+$('cSql').value=SB_SQL;
+$('cSqlCopy').onclick=async()=>{try{await navigator.clipboard.writeText(SB_SQL);cmsg('คัดลอก SQL แล้ว')}catch(e){$('cSql').select();document.execCommand('copy')}};
+$('cCfgSave').onclick=()=>{
+  const url=$('cUrl').value.trim().replace(/\/+$/,''),anonKey=$('cKey').value.trim();
+  if(!/^https:\/\//.test(url)||anonKey.length<20){cmsg('ใส่ Project URL (https://...) และ anon key ให้ครบ',true);return}
+  try{localStorage.setItem('omr-sb',JSON.stringify({url,anonKey}))}catch(e){}
+  cmsg('');sbInit();
+};
+// อ่านค่าฟอร์มล็อกอิน: ตรวจว่ากรอกครบก่อนส่ง (ช่องว่างจะทำให้ Supabase ตอบ "Anonymous sign-ins are disabled")
+function cCreds(){
+  const email=$('cEmail').value.trim(),password=$('cPw').value;
+  if(!email||!password){cmsg('กรอกอีเมลและรหัสผ่านให้ครบก่อน',true);return null}
+  return{email,password};
+}
+$('cIn').onclick=async()=>{
+  const c=cCreds();if(!c)return;
+  cmsg('กำลังเข้าสู่ระบบ…');
+  const{error}=await sb.auth.signInWithPassword(c);
+  cmsg(error?thErr(error.message):'',!!error);
+};
+let magicTimer=null;
+$('cMagic').onclick=async()=>{
+  const email=$('cEmail').value.trim();
+  if(!email)return cmsg('กรอกอีเมลก่อน',true);
+  if(!/^\S+@\S+\.\S+$/.test(email))return cmsg('รูปแบบอีเมลไม่ถูกต้อง',true);
+  const btn=$('cMagic');btn.disabled=true;cmsg('กำลังส่งลิงก์…');
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}});
+  if(error){btn.disabled=false;return cmsg(thErr(error.message),true)}
+  cmsg(`ส่งลิงก์ไปที่ ${email} แล้ว — เปิดอีเมลแล้วกดลิงก์ในอีเมล (ดูในกล่องจดหมายขยะด้วยถ้าไม่เจอ)`);
+  let left=60;btn.textContent=`ส่งอีกครั้งได้ใน ${left} วินาที`;
+  clearInterval(magicTimer);
+  magicTimer=setInterval(()=>{left--;if(left<=0){clearInterval(magicTimer);btn.disabled=false;btn.textContent='✉️ ส่งลิงก์เข้าสู่ระบบทางอีเมล'}else btn.textContent=`ส่งอีกครั้งได้ใน ${left} วินาที`},1000);
+};
+$('cPw').addEventListener('keydown',e=>{if(e.key==='Enter')$('cIn').click()});
+$('cEmail').addEventListener('keydown',e=>{if(e.key==='Enter')$('cMagic').click()});
+$('cShowPw').onchange=()=>{$('cPw').type=$('cShowPw').checked?'text':'password'};
+$('cUp').onclick=async()=>{
+  const c=cCreds();if(!c)return;
+  if(c.password.length<6)return cmsg('รหัสผ่านต้องมีอย่างน้อย 6 ตัว',true);
+  cmsg('กำลังสมัคร…');
+  const{data,error}=await sb.auth.signUp(c);
+  if(error)return cmsg(thErr(error.message),true);
+  if(!data.session)cmsg('สมัครแล้ว — ตรวจอีเมลเพื่อยืนยัน แล้วกลับมาเข้าสู่ระบบ');
+};
+$('cOut').onclick=async()=>{await sb.auth.signOut();cmsg('ออกจากระบบแล้ว ข้อมูลในเครื่องยังอยู่')};
+$('cSync').onclick=()=>cloudSync();
+
+async function flushDeletes(){
+  if(!sb||!sbUser)return;
+  const now=new Date().toISOString();
+  if(db.delRes&&db.delRes.length){await sb.from(T.results).update({deleted_at:now}).in('id',db.delRes).throwOnError();db.delRes=[]}
+  if(db.delSub&&db.delSub.length){await sb.from(T.subjects).update({deleted_at:now}).in('id',db.delSub).throwOnError();db.delSub=[]}
+}
+function cloudDelRes(ids){
+  (db.delRes=db.delRes||[]).push(...ids);save();
+  flushDeletes().then(save).catch(e=>cmsg('ลบในคลาวด์ไม่สำเร็จ (จะลองใหม่ตอนซิงก์): '+e.message,true));
+}
+async function pushSubjectsNow(){
+  const ch=db.subjects.filter(s=>s.upd>(s.pushed||0));if(!ch.length)return 0;
+  await sb.from(T.subjects).upsert(ch.map(subjToRow)).throwOnError();
+  ch.forEach(s=>s.pushed=s.upd);try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
+  return ch.length;
+}
+function cloudSchedule(){
+  if(!sb||!sbUser||syncing)return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(async()=>{
+    if(!sb||!sbUser||syncing)return;
+    try{if(await pushSubjectsNow())cmsg('บันทึกเฉลยขึ้นคลาวด์แล้ว ✓')}
+    catch(e){cmsg('ส่งขึ้นคลาวด์ไม่สำเร็จ: '+e.message,true)}
+  },1200);
+}
+async function cloudPushResult(h){
+  if(!sb||!sbUser)return;
+  try{
+    await pushSubjectsNow();
+    await sb.from(T.results).upsert(resToRow(h,new Set(db.subjects.map(s=>s.id)))).throwOnError();
+    cmsg('บันทึกผลสอบขึ้นคลาวด์แล้ว ✓');
+  }catch(e){cmsg('ส่งผลสอบขึ้นคลาวด์ไม่สำเร็จ (จะลองใหม่ตอนซิงก์): '+e.message,true)}
+}
+// ทะเบียนนักเรียน (โหมดฝัง): โหลดครั้งเดียวหลังล็อกอิน แล้วค้นจากรหัสที่อ่านได้
+let studentMap=new Map();
+async function loadStudents(){
+  if(!sb||!sbUser||!OC.studentsTable)return;
+  try{
+    let all=[];
+    for(let from=0;;from+=1000){
+      const{data}=await sb.from(OC.studentsTable).select('student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError();
+      all=all.concat(data);if(data.length<1000)break;
+    }
+    studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));
+    lookupStudent();
+  }catch(e){cmsg('โหลดรายชื่อนักเรียนไม่สำเร็จ: '+e.message,true)}
+}
+const stuFull=x=>`${x.prefix||''}${x.first_name} ${x.last_name||''}`.trim();
+function lookupStudent(){
+  const code=$('stuId').value.trim(),info=$('stuInfo');
+  if(!OC.studentsTable||!studentMap.size){info.textContent='';return}
+  if(!code){info.textContent='';return}
+  if(code.includes('?')){info.style.color='var(--warn)';info.textContent='อ่านรหัสไม่ครบ — แก้ช่องรหัสด้วยมือ';return}
+  const x=studentMap.get(code);
+  if(x){
+    info.style.color='var(--ok)';info.textContent=`✓ ${stuFull(x)} · ${x.class_level}${x.room?'/'+x.room:''}`;
+    const nm=$('stuName');if(!nm.value.trim()||nm.dataset.auto==='1'){nm.value=stuFull(x);nm.dataset.auto='1'}
+  }else{info.style.color='var(--bad)';info.textContent='ไม่พบรหัสนี้ในทะเบียนนักเรียน'}
+}
+$('stuId').addEventListener('input',lookupStudent);
+$('stuName').addEventListener('input',()=>{$('stuName').dataset.auto='0'});
+
+// วิชาเริ่มต้นที่ยังไม่เคยแก้ ไม่ต้องส่งขึ้นคลาวด์ (กันวิชาว่างซ้ำเมื่อเปิดเครื่องใหม่)
+const isPristine=s=>s.name==='วิชา 1'&&s.n===20&&s.k===4&&s.key.every(v=>v<0)&&!db.history.some(h=>h.subjectId===s.id);
+// ผสานข้อมูล: วิชา = ฉบับที่แก้ล่าสุดชนะ · ผลสอบ = รวมทั้งสองฝั่ง (ตาม id) · ที่ถูกลบ (deleted_at) จะหายทุกเครื่อง
+async function cloudSync(){
+  if(!sb||!sbUser||syncing)return;
+  syncing=true;cmsg('กำลังซิงก์…');
+  try{
+    await flushDeletes();
+    const csAll=(await sb.from(T.subjects).select('*').throwOnError()).data;
+    const crAll=(await sb.from(T.results).select('*').throwOnError()).data;
+    const cs=csAll.filter(r=>!r.deleted_at),cr=crAll.filter(r=>!r.deleted_at);
+    const goneSub=new Set(csAll.filter(r=>r.deleted_at).map(r=>r.id)),goneRes=new Set(crAll.filter(r=>r.deleted_at).map(r=>r.id));
+    const activeId=db.subjects[db.active]&&db.subjects[db.active].id;
+    db.subjects=db.subjects.filter(s=>!goneSub.has(s.id));
+    db.history=db.history.filter(h=>!goneRes.has(h.id));
+    if(cs.length)db.subjects=db.subjects.filter(s=>!(isPristine(s)&&!csAll.some(r=>r.id===s.id)));
+    if(!db.subjects.length&&!cs.length)db.subjects=[newSubject('วิชา 1')];
+    const loc=new Map(db.subjects.map(s=>[s.id,s])),inCloud=new Set(csAll.map(r=>r.id)),up=[];let pulledSub=0;
+    cs.forEach(r=>{const c=rowToSubj(r),l=loc.get(c.id);
+      if(!l){c.sig=sigOf(c);c.pushed=c.upd;db.subjects.push(c);pulledSub++}
+      else if(c.upd>l.upd){Object.assign(l,c);l.sig=sigOf(l);l.pushed=l.upd;pulledSub++}
+      else if(c.upd<l.upd)up.push(l);
+      else l.pushed=l.upd});
+    db.subjects.forEach(s=>{if(!inCloud.has(s.id))up.push(s)});
+    if(!db.subjects.length)db.subjects=[newSubject('วิชา 1')];
+    const ai=db.subjects.findIndex(s=>s.id===activeId);db.active=ai>=0?ai:0;
+    fitKeyAll();
+    if(up.length){await sb.from(T.subjects).upsert(up.map(subjToRow)).throwOnError();up.forEach(s=>s.pushed=s.upd)}
+    const haveLocal=new Set(db.history.map(h=>h.id)),haveCloud=new Set(crAll.map(r=>r.id));
+    let pulledRes=0;cr.forEach(r=>{if(!haveLocal.has(r.id)){db.history.push(rowToRes(r));pulledRes++}});
+    const upr=db.history.filter(h=>!haveCloud.has(h.id)),ok=new Set(db.subjects.map(s=>s.id));
+    if(upr.length)await sb.from(T.results).upsert(upr.map(h=>resToRow(h,ok))).throwOnError();
+    db.history.sort((a,b)=>b.t-a.t);
+    try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
+    renderSubj();renderKey();renderHist();
+    cmsg(`ซิงก์เสร็จ ✓ ดึงลงมา: ${pulledSub} วิชา, ${pulledRes} ผลสอบ · ส่งขึ้น: ${up.length} วิชา, ${upr.length} ผลสอบ`);
+  }catch(e){cmsg('ซิงก์ไม่สำเร็จ: '+(e.message||e),true)}
+  finally{syncing=false}
+}
+
+/* ====================== แท็บ ====================== */
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='t-'+b.dataset.t));
+  if(b.dataset.t!=='scan')stopCam();
+});
+/* ====================== วิชา ====================== */
+function renderSubj(){
+  $('subj').innerHTML=db.subjects.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join('');
+  $('subj').value=db.active;$('subjDel').disabled=db.subjects.length<2;
+}
+function switchSubj(i){
+  db.active=i;save();
+  if(cur){cur=null;$('resView').hidden=true;$('scanView').hidden=false;paused=false;stable=0}
+  renderSubj();renderKey();
+}
+$('subj').onchange=()=>switchSubj(+$('subj').value);
+$('subjAdd').onclick=()=>{
+  const name=(prompt('ชื่อวิชา','วิชา '+(db.subjects.length+1))||'').trim();if(!name)return;
+  db.subjects.push(newSubject(name));fitKeyAll();switchSubj(db.subjects.length-1);
+};
+$('subjRen').onclick=()=>{
+  const name=(prompt('เปลี่ยนชื่อวิชา',state.name)||'').trim();if(!name)return;
+  db.subjects[db.active].name=name;save();renderSubj();renderKey();
+};
+$('subjDel').onclick=()=>{
+  if(db.subjects.length<2||!confirm(`ลบวิชา "${state.name}" พร้อมเฉลย? (ผลคะแนนที่บันทึกไว้ยังอยู่)`))return;
+  const gone=db.subjects.splice(db.active,1)[0];(db.delSub=db.delSub||[]).push(gone.id);save();flushDeletes().catch(()=>{});switchSubj(Math.max(0,db.active-1));
+};
+function fitKeyAll(){const a=db.active;db.subjects.forEach((_,i)=>{db.active=i;fitKey()});db.active=a}
+fitKeyAll();
+renderSubj();renderKey();renderHist();sbInit();
+window.__omr={state,sheetSVG,process,layout};
+</script>
+</body>
+</html>
