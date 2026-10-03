@@ -44,7 +44,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         // Clean token fragment after Supabase sets the session
         if (window.location.hash && window.location.hash.includes("access_token")) {
@@ -79,10 +79,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // by ProtectedRoute on the dashboard itself (where the session token
         // is fully settled), so a transient "not allowed" here does nothing.
         if (!location.pathname.startsWith("/dashboard")) {
-          const { data: canAccess } = await supabase.rpc("can_access_dashboard");
-          if (canAccess === true) {
-            navigate("/dashboard", { replace: true });
-          }
+          // Never await a Supabase call directly inside this callback: the
+          // auth client holds its internal lock while it runs the callback,
+          // and rpc() needs that same lock -> deadlock, after which every
+          // later getSession()/request in the tab hangs until a reload.
+          // Defer it (same as the role check above).
+          setTimeout(async () => {
+            const { data: canAccess } = await supabase.rpc("can_access_dashboard");
+            if (canAccess === true) {
+              navigate("/dashboard", { replace: true });
+            }
+          }, 0);
         }
       }
 
