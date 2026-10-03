@@ -13,36 +13,39 @@
 @font-face{font-family:"OMR Sarabun";font-weight:700;size-adjust:122%;
   src:local("TH Sarabun New Bold"),local("THSarabunNew-Bold"),local("THSarabunNew Bold"),local("TH SarabunPSK Bold"),local("THSarabunPSK-Bold")}
 :root{--bg:#f4f6fb;--card:#fff;--ink:#1c2333;--mute:#6b7488;--line:#dfe4ee;--pri:#2f5bea;--ok:#12a150;--bad:#e5484d;--warn:#e8a200}
+html{font-size:20px}
 *{box-sizing:border-box}
 [hidden]{display:none!important} /* คลาสที่ตั้ง display (.row, .btn ฯลฯ) ต้องไม่เขียนทับ attribute hidden */
-body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "OMR Sarabun","Sarabun",Tahoma,system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.45 "OMR Sarabun","Sarabun",Tahoma,system-ui,sans-serif}
 header{background:var(--pri);color:#fff;padding:12px 16px}
-header h1{margin:0;font-size:1.15rem}
+header h1{margin:0;font-size:1.45rem}
+/* หัวข้อหนาขึ้น: ตัวหนาของฟอนต์ + เส้นขอบบางๆ เพิ่มน้ำหนักให้เห็นชัด */
+header h1,.card h2,.score,nav button.on{font-weight:700;-webkit-text-stroke:.5px currentColor}
 header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.homebtn{display:inline-block;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:6px 12px;border-radius:8px;font-size:.9rem;white-space:nowrap}
+.homebtn{display:inline-block;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:.95rem;white-space:nowrap}
 .homebtn:hover{background:rgba(255,255,255,.3)}
 nav{display:flex;position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
-nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:.9rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
+nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:1rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
 nav button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
 main{max-width:900px;margin:0 auto;padding:16px}
 section{display:none}section.on{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
-.card h2{margin:0 0 8px;font-size:1.05rem}
+.card h2{margin:0 0 10px;font-size:1.3rem}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-label{font-size:.9rem;color:var(--mute)}
-input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+label{font-size:.95rem;color:var(--mute)}
+input,select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
 input[type=number]{width:80px}
 input.wide{flex:1;min-width:180px}
-.btn{display:inline-block;font:inherit;padding:9px 16px;border:0;border-radius:8px;background:var(--pri);color:#fff;cursor:pointer;text-decoration:none;line-height:1.5}
+.btn{display:inline-block;font:inherit;padding:10px 18px;border:0;border-radius:8px;background:var(--pri);color:#fff;cursor:pointer;text-decoration:none;line-height:1.5}
 .btn.sec{background:#e8ecf7;color:var(--pri)}
 .btn.dng{background:#fde8e9;color:var(--bad)}
 .btn:disabled{opacity:.5;cursor:default}
-.hint{font-size:.85rem;color:var(--mute);margin:6px 0 0}
-.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.hint{font-size:.9rem;color:var(--mute);margin:6px 0 0}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
 .q{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:8px;border:1px solid var(--line)}
-.q .no{width:26px;text-align:right;font-size:.85rem;color:var(--mute)}
+.q .no{width:34px;text-align:right;font-size:.95rem;color:var(--mute)}
 .q .ch{flex:1;display:flex;gap:4px}
-.q button{flex:1;min-width:30px;height:32px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;font-size:.9rem;cursor:pointer;padding:0}
+.q button{flex:1;min-width:36px;height:40px;border:1px solid var(--line);border-radius:20px;background:#fff;font:inherit;font-size:1rem;cursor:pointer;padding:0}
 .q button.sel{background:var(--pri);border-color:var(--pri);color:#fff}
 .q.good{background:#e9f8ef;border-color:#a8e0bf}.q.good button.sel{background:var(--ok);border-color:var(--ok)}
 .q.wrong{background:#fdecec;border-color:#f3b4b6}.q.wrong button.sel{background:var(--bad);border-color:var(--bad)}
@@ -54,14 +57,17 @@ input.wide{flex:1;min-width:180px}
 .cam .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa4bd;text-align:center;padding:20px}
 .bar{height:6px;background:#2a3350;border-radius:3px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
-#status{margin-top:8px;font-weight:600}
+#status{margin-top:8px;font-weight:600;font-size:1.05rem}
 #status.ok{color:var(--ok)}#status.warn{color:var(--warn)}
 .score{font-size:2.6rem;font-weight:800;line-height:1.1}
 .score small{font-size:1rem;font-weight:400;color:var(--mute)}
 #resCanvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
-table{width:100%;border-collapse:collapse;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
 th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 td.r,th.r{text-align:right}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tscroll table{min-width:520px}
+@media(max-width:480px){th,td{padding:6px 4px}}
 #printArea{display:none}
 @media print{
   body>*:not(#printArea){display:none!important}
@@ -634,8 +640,8 @@ $('printBtn').onclick=()=>{
 function renderHist(){
   const h=state.history,box=$('histBox');
   if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
-  box.innerHTML='<table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table>';
+  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
