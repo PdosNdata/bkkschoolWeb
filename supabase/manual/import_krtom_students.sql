@@ -31,13 +31,13 @@ with parsed as (
 )
 select
   count(*)                                                        as total_in_krtom,
-  count(*) filter (where prefix is null)                          as without_prefix,
-  count(*) filter (where split_part(rest, ' ', 1) = '')           as empty_first_name,
-  count(*) filter (where rest !~ ' ')                             as single_word_name_no_last_name,
-  count(*) filter (where grade_label !~ '^[ปม]\.[1-6]$')          as unrecognised_class,
+  count(*) filter (where sp.prefix is null)                       as without_prefix,
+  count(*) filter (where split_part(sp.rest, ' ', 1) = '')        as empty_first_name,
+  count(*) filter (where sp.rest !~ ' ')                          as single_word_name_no_last_name,
+  count(*) filter (where sp.grade_label !~ '^[ปม]\.[1-6]$')       as unrecognised_class,
   count(*) filter (where s.student_code is not null)              as already_in_registry
-from split
-left join public.students s on s.student_code = split.student_code;
+from split sp
+left join public.students s on s.student_code = sp.student_code;
 
 -- ======================================================================
 -- STEP 2 — import (run after STEP 1 looks right)
