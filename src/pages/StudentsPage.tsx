@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import Header from "@/components/Header";
@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { withTimeout } from "@/lib/utils";
 import {
   CLASS_LEVELS,
   Student,
@@ -58,9 +59,21 @@ const StudentsPage = () => {
 
   const [toDelete, setToDelete] = useState<Student | null>(null);
 
+  // The server sometimes stores a row but the browser never gets the reply
+  // (same issue as the trainings page). Writes below are idempotent, and on a
+  // timeout we reload the list and tell the user it may already be saved.
+  const isTimeout = (e: unknown) => errMsg(e).includes("ใช้เวลานานเกินไป");
+  const pendingId = useRef<string | null>(null);
+  const timeoutToast = () =>
+    toast({
+      title: "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์",
+      description: "ข้อมูลอาจถูกบันทึกไปแล้ว — ตรวจดูในตารางก่อน (กดบันทึกหรือนำเข้าซ้ำได้ ไม่ทำให้ซ้ำ)",
+      variant: "destructive",
+    });
+
   const load = async () => {
     try {
-      setStudents(await fetchAllStudents());
+      setStudents(await withTimeout(fetchAllStudents(), 30000, "โหลดรายชื่อนักเรียน"));
     } catch (e) {
       console.error("Error loading students:", e);
       toast({ title: "โหลดรายชื่อนักเรียนไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
@@ -93,6 +106,7 @@ const StudentsPage = () => {
   }, [students, search, classFilter]);
 
   const openNew = () => {
+    pendingId.current = null;
     setForm({ ...emptyForm, class_level: classFilter !== "all" ? classFilter : "ป.1" });
     setEditing("new");
   };
@@ -128,10 +142,13 @@ const StudentsPage = () => {
     };
     setSaving(true);
     try {
-      const res =
+      const res = await withTimeout<{ error: { code?: string; message: string } | null }>(
         editing === "new"
-          ? await studentsTable().insert(payload)
-          : await studentsTable().update(payload).eq("id", (editing as Student).id);
+          ? studentsTable().upsert({ ...payload, id: (pendingId.current ??= crypto.randomUUID()) }, { onConflict: "id" })
+          : studentsTable().update(payload).eq("id", (editing as Student).id),
+        20000,
+        "บันทึกข้อมูลนักเรียน",
+      );
       if (res.error) {
         if (res.error.code === "23505") throw new Error(`รหัสนักเรียน ${code} มีอยู่ในระบบแล้ว`);
         throw res.error;
@@ -140,7 +157,12 @@ const StudentsPage = () => {
       setEditing(null);
       await load();
     } catch (e) {
-      toast({ title: "บันทึกไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+      if (isTimeout(e)) {
+        timeoutToast();
+        load();
+      } else {
+        toast({ title: "บันทึกไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+      }
     } finally {
       setSaving(false);
     }
@@ -148,14 +170,20 @@ const StudentsPage = () => {
 
   const confirmDelete = async () => {
     if (!toDelete) return;
-    const { error } = await studentsTable().delete().eq("id", toDelete.id);
-    if (error) {
-      toast({ title: "ลบไม่สำเร็จ", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      const { error } = await withTimeout<{ error: { message: string } | null }>(
+        studentsTable().delete().eq("id", toDelete.id),
+        20000,
+        "ลบนักเรียน",
+      );
+      if (error) throw error;
       toast({ title: "ลบแล้ว" });
-      await load();
+    } catch (e) {
+      if (isTimeout(e)) timeoutToast();
+      else toast({ title: "ลบไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
     }
     setToDelete(null);
+    await load();
   };
 
   const parsed = useMemo(() => parseStudentRows(importText), [importText]);
@@ -166,7 +194,11 @@ const StudentsPage = () => {
     try {
       for (let i = 0; i < parsed.rows.length; i += 200) {
         const chunk: StudentInput[] = parsed.rows.slice(i, i + 200);
-        const { error } = await studentsTable().upsert(chunk, { onConflict: "student_code" });
+        const { error } = await withTimeout<{ error: { message: string } | null }>(
+          studentsTable().upsert(chunk, { onConflict: "student_code" }),
+          30000,
+          "นำเข้ารายชื่อ",
+        );
         if (error) throw error;
       }
       toast({ title: `นำเข้าแล้ว ${parsed.rows.length} คน`, description: "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล" });
@@ -174,7 +206,12 @@ const StudentsPage = () => {
       setImportText("");
       await load();
     } catch (e) {
-      toast({ title: "นำเข้าไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+      if (isTimeout(e)) {
+        timeoutToast();
+        load();
+      } else {
+        toast({ title: "นำเข้าไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+      }
     } finally {
       setImporting(false);
     }

@@ -687,6 +687,8 @@ create policy "own results" on public.results for all
 // โหมดฝังในเว็บโรงเรียน: ตั้งค่าผ่าน window.OMR_CONFIG (ดู config.js) — ไม่ตั้ง = โหมดเดี่ยวเหมือนเดิม
 const OC=window.OMR_CONFIG||{},T={subjects:OC.subjectsTable||'subjects',results:OC.resultsTable||'results'};
 let sb=null,sbUser=null,syncing=false,pushTimer=null,lastUser=null;
+// เซิร์ฟเวอร์บางครั้งบันทึกแล้วแต่เบราว์เซอร์ไม่ได้รับคำตอบ → ตัดการรอเพื่อไม่ให้ซิงก์ค้างตลอด (การเขียนทุกจุดทำซ้ำได้ ไม่ซ้ำแถว)
+const tmo=(p,label)=>Promise.race([Promise.resolve(p),new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' ใช้เวลานานเกินไป กรุณาลองใหม่')),20000))]);
 const cmsg=(t,bad)=>{const e=$('cMsg');e.textContent=t;e.style.color=bad?'var(--bad)':''};
 const thErr=m=>/only request this after|security purposes/i.test(m)?'ขอลิงก์ได้อีกครั้งในอีกประมาณ 1 นาที รอสักครู่':/email rate limit|over_email_send_rate_limit/i.test(m)?'ระบบส่งอีเมลเกินโควตาชั่วคราว (ตัวส่งเริ่มต้นของ Supabase จำกัดจำนวนต่อชั่วโมง) ลองใหม่ภายหลัง':/Anonymous sign-ins|provide either an email/i.test(m)?'กรอกอีเมลและรหัสผ่านให้ครบก่อน':/rate limit|too many/i.test(m)?'ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่':/signups not allowed/i.test(m)?'ระบบปิดรับสมัครสมาชิกใหม่':/Invalid login/i.test(m)?'อีเมลหรือรหัสผ่านไม่ถูกต้อง':/not confirmed/i.test(m)?'ยังไม่ได้ยืนยันอีเมล — ตรวจกล่องจดหมาย':
   /already registered/i.test(m)?'อีเมลนี้สมัครแล้ว ลองเข้าสู่ระบบ':/at least/i.test(m)?'รหัสผ่านต้องมีอย่างน้อย 6 ตัว':/valid email|invalid format/i.test(m)?'รูปแบบอีเมลไม่ถูกต้อง':m;
@@ -772,8 +774,8 @@ $('cSync').onclick=()=>cloudSync();
 async function flushDeletes(){
   if(!sb||!sbUser)return;
   const now=new Date().toISOString();
-  if(db.delRes&&db.delRes.length){await sb.from(T.results).update({deleted_at:now}).in('id',db.delRes).throwOnError();db.delRes=[]}
-  if(db.delSub&&db.delSub.length){await sb.from(T.subjects).update({deleted_at:now}).in('id',db.delSub).throwOnError();db.delSub=[]}
+  if(db.delRes&&db.delRes.length){await tmo(sb.from(T.results).update({deleted_at:now}).in('id',db.delRes).throwOnError(),'ติดต่อคลาวด์');db.delRes=[]}
+  if(db.delSub&&db.delSub.length){await tmo(sb.from(T.subjects).update({deleted_at:now}).in('id',db.delSub).throwOnError(),'ติดต่อคลาวด์');db.delSub=[]}
 }
 function cloudDelRes(ids){
   (db.delRes=db.delRes||[]).push(...ids);save();
@@ -781,7 +783,7 @@ function cloudDelRes(ids){
 }
 async function pushSubjectsNow(){
   const ch=db.subjects.filter(s=>s.upd>(s.pushed||0));if(!ch.length)return 0;
-  await sb.from(T.subjects).upsert(ch.map(subjToRow)).throwOnError();
+  await tmo(sb.from(T.subjects).upsert(ch.map(subjToRow)).throwOnError(),'ติดต่อคลาวด์');
   ch.forEach(s=>s.pushed=s.upd);try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
   return ch.length;
 }
@@ -798,7 +800,7 @@ async function cloudPushResult(h){
   if(!sb||!sbUser)return;
   try{
     await pushSubjectsNow();
-    await sb.from(T.results).upsert(resToRow(h,new Set(db.subjects.map(s=>s.id)))).throwOnError();
+    await tmo(sb.from(T.results).upsert(resToRow(h,new Set(db.subjects.map(s=>s.id)))).throwOnError(),'ติดต่อคลาวด์');
     cmsg('บันทึกผลสอบขึ้นคลาวด์แล้ว ✓');
   }catch(e){cmsg('ส่งผลสอบขึ้นคลาวด์ไม่สำเร็จ (จะลองใหม่ตอนซิงก์): '+e.message,true)}
 }
@@ -809,7 +811,7 @@ async function loadStudents(){
   try{
     let all=[];
     for(let from=0;;from+=1000){
-      const{data}=await sb.from(OC.studentsTable).select('student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError();
+      const{data}=await tmo(sb.from(OC.studentsTable).select('student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
       all=all.concat(data);if(data.length<1000)break;
     }
     studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));
@@ -839,8 +841,8 @@ async function cloudSync(){
   syncing=true;cmsg('กำลังซิงก์…');
   try{
     await flushDeletes();
-    const csAll=(await sb.from(T.subjects).select('*').throwOnError()).data;
-    const crAll=(await sb.from(T.results).select('*').throwOnError()).data;
+    const csAll=(await tmo(sb.from(T.subjects).select('*').throwOnError(),'ติดต่อคลาวด์')).data;
+    const crAll=(await tmo(sb.from(T.results).select('*').throwOnError(),'ติดต่อคลาวด์')).data;
     const cs=csAll.filter(r=>!r.deleted_at),cr=crAll.filter(r=>!r.deleted_at);
     const goneSub=new Set(csAll.filter(r=>r.deleted_at).map(r=>r.id)),goneRes=new Set(crAll.filter(r=>r.deleted_at).map(r=>r.id));
     const activeId=db.subjects[db.active]&&db.subjects[db.active].id;
@@ -858,11 +860,11 @@ async function cloudSync(){
     if(!db.subjects.length)db.subjects=[newSubject('วิชา 1')];
     const ai=db.subjects.findIndex(s=>s.id===activeId);db.active=ai>=0?ai:0;
     fitKeyAll();
-    if(up.length){await sb.from(T.subjects).upsert(up.map(subjToRow)).throwOnError();up.forEach(s=>s.pushed=s.upd)}
+    if(up.length){await tmo(sb.from(T.subjects).upsert(up.map(subjToRow)).throwOnError(),'ติดต่อคลาวด์');up.forEach(s=>s.pushed=s.upd)}
     const haveLocal=new Set(db.history.map(h=>h.id)),haveCloud=new Set(crAll.map(r=>r.id));
     let pulledRes=0;cr.forEach(r=>{if(!haveLocal.has(r.id)){db.history.push(rowToRes(r));pulledRes++}});
     const upr=db.history.filter(h=>!haveCloud.has(h.id)),ok=new Set(db.subjects.map(s=>s.id));
-    if(upr.length)await sb.from(T.results).upsert(upr.map(h=>resToRow(h,ok))).throwOnError();
+    if(upr.length)await tmo(sb.from(T.results).upsert(upr.map(h=>resToRow(h,ok))).throwOnError(),'ติดต่อคลาวด์');
     db.history.sort((a,b)=>b.t-a.t);
     try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
     renderSubj();renderKey();renderHist();
