@@ -10,6 +10,9 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Tahoma,"Sarabun",system-ui,sans-serif}
 header{background:var(--pri);color:#fff;padding:12px 16px}
 header h1{margin:0;font-size:1.15rem}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.homebtn{display:inline-block;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:6px 12px;border-radius:8px;font-size:.9rem;white-space:nowrap}
+.homebtn:hover{background:rgba(255,255,255,.3)}
 nav{display:flex;position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
 nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:.9rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
 nav button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
@@ -64,12 +67,12 @@ td.r,th.r{text-align:right}
 <script>
 // Embedded in the school site: same Supabase project + same login session (localStorage), school tables.
 window.SUPABASE_CONFIG = {"url": "https://dhufwdxxfbahovnmjgrc.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodWZ3ZHh4ZmJhaG92bm1qZ3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTIwODAsImV4cCI6MjA2OTM4ODA4MH0.V-7Jlkq5ucQBznGXjtUKCse8sLLnNJ0mDTlcgme8G0c"};
-window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/", examFields: true };
+window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/", examFields: true, dashboardUrl: "/dashboard" };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<header><h1>📝 เฉลยปรนัย — สแกนตรวจกระดาษคำตอบด้วยกล้อง</h1></header>
+<header><h1>📝 เฉลยปรนัย — สแกนตรวจกระดาษคำตอบด้วยกล้อง</h1><a id="homeLink" class="homebtn" href="/dashboard" hidden>← กลับแดชบอร์ด</a></header>
 <nav id="tabs">
   <button data-t="key" class="on">1 ตั้งเฉลย</button>
   <button data-t="print">2 พิมพ์กระดาษ</button>
@@ -710,6 +713,8 @@ create policy "own results" on public.results for all
 `;
 // โหมดฝังในเว็บโรงเรียน: ตั้งค่าผ่าน window.OMR_CONFIG (ดู config.js) — ไม่ตั้ง = โหมดเดี่ยวเหมือนเดิม
 const OC=window.OMR_CONFIG||{},T={subjects:OC.subjectsTable||'subjects',results:OC.resultsTable||'results'};
+// ปุ่มกลับแดชบอร์ด (โหมดฝังในเว็บโรงเรียน: OMR_CONFIG.dashboardUrl)
+if(OC.dashboardUrl){const a=$('homeLink');a.href=OC.dashboardUrl;a.hidden=false}
 let sb=null,sbUser=null,syncing=false,pushTimer=null,lastUser=null;
 // เซิร์ฟเวอร์บางครั้งบันทึกแล้วแต่เบราว์เซอร์ไม่ได้รับคำตอบ → ตัดการรอเพื่อไม่ให้ซิงก์ค้างตลอด (การเขียนทุกจุดทำซ้ำได้ ไม่ซ้ำแถว)
 const tmo=(p,label)=>Promise.race([Promise.resolve(p),new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' ใช้เวลานานเกินไป กรุณาลองใหม่')),20000))]);

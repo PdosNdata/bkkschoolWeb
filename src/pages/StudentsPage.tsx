@@ -282,7 +282,7 @@ const StudentsPage = () => {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/dashboard">
-              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" />กลับ</Button>
+              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" />กลับแดชบอร์ด</Button>
             </Link>
             <h1 className="text-3xl font-bold text-primary">ข้อมูลนักเรียน</h1>
           </div>
