@@ -275,16 +275,55 @@ const StudentsPage = () => {
     }
   };
 
+  const half = Math.ceil(filtered.length / 2);
+
+  const renderTable = (list: Student[]) => (
+    <div className="overflow-x-auto">
+      <Table className="text-sm">
+        <TableHeader>
+          <TableRow className="h-8">
+            <TableHead className="h-8 w-[56px] px-2 sm:w-[72px]">รหัส</TableHead>
+            <TableHead className="h-8 px-2">ชื่อ-สกุล</TableHead>
+            <TableHead className="hidden h-8 w-[64px] whitespace-nowrap px-2 sm:table-cell">ชั้น/ห้อง</TableHead>
+            <TableHead className="h-8 w-[88px] px-0 sm:w-[96px] sm:px-1" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {list.map((s) => (
+            <TableRow key={s.id} className={s.is_active ? "" : "opacity-60"}>
+              <TableCell className="px-2 py-0.5 font-mono text-xs sm:text-sm lg:py-0">{s.student_code}</TableCell>
+              <TableCell className="px-2 py-0.5 lg:py-0">
+                {studentFullName(s)}
+                <span className="ml-1 whitespace-nowrap text-xs text-muted-foreground sm:hidden">{classLabel(s)}</span>
+                {!s.is_active && <Badge variant="outline" className="ml-2 px-1.5 py-0 text-[10px]">ไม่ได้ศึกษาแล้ว</Badge>}
+              </TableCell>
+              <TableCell className="hidden whitespace-nowrap px-2 py-0.5 sm:table-cell lg:py-0">{classLabel(s)}</TableCell>
+              <TableCell className="px-0 py-0.5 sm:px-1 lg:py-0">
+                <div className="flex justify-end whitespace-nowrap">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                  {isAdmin && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="ลบ" onClick={() => setToDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <main className="container mx-auto px-4 py-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <Link to="/dashboard">
               <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" />กลับแดชบอร์ด</Button>
             </Link>
-            <h1 className="text-3xl font-bold text-primary">ข้อมูลนักเรียน</h1>
+            <h1 className="text-2xl font-bold text-primary">ข้อมูลนักเรียน</h1>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="mr-2 h-4 w-4" />นำเข้าจาก Excel</Button>
@@ -293,11 +332,11 @@ const StudentsPage = () => {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="px-4 py-3">
             <CardTitle className="text-lg">
               ทะเบียนนักเรียน <span className="text-sm font-normal text-muted-foreground">({filtered.length} / {students.length} คน)</span>
             </CardTitle>
-            <div className="mt-3 flex flex-wrap gap-3">
+            <div className="mt-2 flex flex-wrap gap-3">
               <div className="relative min-w-[220px] flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input className="pl-9" placeholder="ค้นหาด้วยรหัสหรือชื่อ" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -311,7 +350,7 @@ const StudentsPage = () => {
               </Select>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3 pt-0">
             {loading ? (
               <p className="py-8 text-center text-muted-foreground">กำลังโหลด…</p>
             ) : filtered.length === 0 ? (
@@ -319,36 +358,15 @@ const StudentsPage = () => {
                 {students.length === 0 ? "ยังไม่มีรายชื่อนักเรียน — กด \"นำเข้าจาก Excel\" หรือ \"เพิ่มนักเรียน\"" : "ไม่พบรายชื่อที่ตรงกับการค้นหา"}
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>รหัส</TableHead>
-                      <TableHead>ชื่อ-สกุล</TableHead>
-                      <TableHead>ชั้น/ห้อง</TableHead>
-                      <TableHead>สถานะ</TableHead>
-                      <TableHead className="w-[150px]" />
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered.map((s) => (
-                      <TableRow key={s.id} className={s.is_active ? "" : "opacity-60"}>
-                        <TableCell className="font-mono">{s.student_code}</TableCell>
-                        <TableCell>{studentFullName(s)}</TableCell>
-                        <TableCell>{classLabel(s)}</TableCell>
-                        <TableCell>{s.is_active ? <Badge variant="secondary">กำลังศึกษา</Badge> : <Badge variant="outline">ไม่ได้ศึกษาแล้ว</Badge>}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
-                          {isAdmin && (
-                            <Button variant="ghost" size="icon" aria-label="ลบ" onClick={() => setToDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              <>
+                {/* phones/tablets: one list */}
+                <div className="lg:hidden">{renderTable(filtered)}</div>
+                {/* wide screens: split in two columns so a whole class fits on one screen */}
+                <div className="hidden gap-4 lg:grid lg:grid-cols-2">
+                  {renderTable(filtered.slice(0, half))}
+                  {filtered.length > half && renderTable(filtered.slice(half))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
