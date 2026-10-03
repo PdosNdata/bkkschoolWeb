@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, BarChart3, FileSpreadsheet, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/utils";
 import {
   CLASS_LEVELS,
+  ExamScore,
   Student,
   StudentInput,
   classLabel,
   errMsg,
   fetchAllStudents,
   parseStudentRows,
+  readSpreadsheetToText,
+  scoresReportTable,
   studentFullName,
   studentsTable,
 } from "@/lib/students";
@@ -56,8 +59,15 @@ const StudentsPage = () => {
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [readingFile, setReadingFile] = useState(false);
+  const [fileNote, setFileNote] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [toDelete, setToDelete] = useState<Student | null>(null);
+
+  const [scoresFor, setScoresFor] = useState<Student | null>(null);
+  const [scores, setScores] = useState<ExamScore[]>([]);
+  const [scoresLoading, setScoresLoading] = useState(false);
 
   // The server sometimes stores a row but the browser never gets the reply
   // (same issue as the trainings page). Writes below are idempotent, and on a
@@ -196,7 +206,44 @@ const StudentsPage = () => {
     await load();
   };
 
+  const openScores = async (s: Student) => {
+    setScoresFor(s);
+    setScores([]);
+    setScoresLoading(true);
+    try {
+      await ensureSession();
+      const { data, error } = await withTimeout<{ data: ExamScore[] | null; error: { message: string } | null }>(
+        scoresReportTable().select("*").eq("student_code", s.student_code).order("taken_at", { ascending: false }),
+        20000,
+        "ขั้นที่ 2: โหลดคะแนนสอบ",
+      );
+      if (error) throw error;
+      setScores(data ?? []);
+    } catch (e) {
+      toast({ title: "โหลดคะแนนสอบไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+    } finally {
+      setScoresLoading(false);
+    }
+  };
+
   const parsed = useMemo(() => parseStudentRows(importText), [importText]);
+
+  const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow picking the same file again
+    if (!file) return;
+    setReadingFile(true);
+    try {
+      const { text, sheet } = await readSpreadsheetToText(file);
+      setImportText(text);
+      setFileNote(`โหลดจากไฟล์ ${file.name}${sheet ? ` (ชีต "${sheet}")` : ""} — ตรวจรายการด้านล่างก่อนกดนำเข้า`);
+    } catch (err) {
+      setFileNote("");
+      toast({ title: "อ่านไฟล์ไม่สำเร็จ", description: errMsg(err), variant: "destructive" });
+    } finally {
+      setReadingFile(false);
+    }
+  };
 
   const runImport = async () => {
     if (!parsed.rows.length) return;
@@ -235,7 +282,7 @@ const StudentsPage = () => {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/dashboard">
-              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" />กลับ</Button>
+              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" />กลับแดชบอร์ด</Button>
             </Link>
             <h1 className="text-3xl font-bold text-primary">ข้อมูลนักเรียน</h1>
           </div>
@@ -280,7 +327,7 @@ const StudentsPage = () => {
                       <TableHead>ชื่อ-สกุล</TableHead>
                       <TableHead>ชั้น/ห้อง</TableHead>
                       <TableHead>สถานะ</TableHead>
-                      <TableHead className="w-[110px]" />
+                      <TableHead className="w-[150px]" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -291,6 +338,7 @@ const StudentsPage = () => {
                         <TableCell>{classLabel(s)}</TableCell>
                         <TableCell>{s.is_active ? <Badge variant="secondary">กำลังศึกษา</Badge> : <Badge variant="outline">ไม่ได้ศึกษาแล้ว</Badge>}</TableCell>
                         <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="icon" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
                           {isAdmin && (
                             <Button variant="ghost" size="icon" aria-label="ลบ" onClick={() => setToDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
@@ -361,15 +409,23 @@ const StudentsPage = () => {
           <DialogHeader>
             <DialogTitle>นำเข้ารายชื่อจาก Excel</DialogTitle>
             <DialogDescription>
-              คัดลอกตารางจาก Excel มาวาง โดยเรียงคอลัมน์: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น (เช่น ม.1), ห้อง</b>
+              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง ถ้ามีแถวหัวตาราง (เช่น รหัสนักเรียน, ชื่อ-สกุล, ชั้น, ห้อง, เพศ)
+              ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง</b>
               — รหัสที่มีอยู่แล้วจะถูกอัปเดต ไม่เพิ่มซ้ำ
             </DialogDescription>
           </DialogHeader>
+          <div className="flex flex-wrap items-center gap-3">
+            <input ref={fileRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsb,.csv,.tsv,.txt" onChange={onPickFile} />
+            <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={readingFile}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" />{readingFile ? "กำลังอ่านไฟล์…" : "เลือกไฟล์ Excel / CSV"}
+            </Button>
+            {fileNote && <span className="text-sm text-muted-foreground">{fileNote}</span>}
+          </div>
           <Textarea rows={10} className="font-mono text-xs" value={importText} onChange={(e) => setImportText(e.target.value)}
             placeholder={"64019\tเด็กชาย\tสมชาย\tใจดี\tช\tม.1\t1\n64020\tเด็กหญิง\tสมหญิง\tรักเรียน\tญ\tม.1\t1"} />
           {importText.trim() && (
             <div className="space-y-1 text-sm">
-              <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
+              <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.usedHeader && " (จับคู่คอลัมน์จากหัวตาราง)"}{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
               {parsed.errors.length > 0 && (
                 <ul className="max-h-24 list-disc overflow-y-auto pl-5 text-destructive">
                   {parsed.errors.slice(0, 20).map((e, i) => <li key={i}>{e}</li>)}
@@ -383,6 +439,51 @@ const StudentsPage = () => {
             <Button onClick={runImport} disabled={importing || parsed.rows.length === 0}>
               {importing ? "กำลังนำเข้า…" : `นำเข้า ${parsed.rows.length} คน`}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* exam scores of one student */}
+      <Dialog open={!!scoresFor} onOpenChange={(o) => !o && setScoresFor(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>คะแนนสอบ — {scoresFor && `${scoresFor.student_code} ${studentFullName(scoresFor)}`}</DialogTitle>
+            <DialogDescription>ผลจากระบบตรวจคำตอบปรนัย แสดงเฉพาะผลที่คุณเป็นผู้ตรวจเอง</DialogDescription>
+          </DialogHeader>
+          {scoresLoading ? (
+            <p className="py-6 text-center text-muted-foreground">กำลังโหลด…</p>
+          ) : scores.length === 0 ? (
+            <p className="py-6 text-center text-muted-foreground">ยังไม่มีผลสอบของนักเรียนคนนี้</p>
+          ) : (
+            <div className="max-h-[50vh] overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>วันที่</TableHead>
+                    <TableHead>วิชา</TableHead>
+                    <TableHead>การสอบ</TableHead>
+                    <TableHead>ภาคเรียน</TableHead>
+                    <TableHead className="text-right">คะแนน</TableHead>
+                    <TableHead className="text-right">%</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {scores.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell>{new Date(r.taken_at).toLocaleDateString("th-TH")}</TableCell>
+                      <TableCell>{r.subject_name}</TableCell>
+                      <TableCell>{[r.exam_kind, r.exam_name].filter(Boolean).join(" · ") || "-"}</TableCell>
+                      <TableCell>{r.semester && r.academic_year ? `${r.semester}/${r.academic_year}` : "-"}</TableCell>
+                      <TableCell className="text-right">{r.score}/{r.total}</TableCell>
+                      <TableCell className="text-right">{r.percent ?? "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScoresFor(null)}>ปิด</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

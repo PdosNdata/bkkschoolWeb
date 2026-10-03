@@ -51,52 +51,22 @@ export async function fetchAllStudents(): Promise<Student[]> {
   return all;
 }
 
-/** "ม2", "ม.2", "มัธยมศึกษาปีที่ 2", "ป.4" → "ม.2" / "ป.4"; "" if not recognised. */
-export function normalizeClass(raw: string): string {
-  const t = (raw ?? "")
-    .replace(/ประถมศึกษาปีที่/g, "ป.")
-    .replace(/มัธยมศึกษาปีที่/g, "ม.")
-    .replace(/\s+/g, "");
-  const m = t.match(/^([ปม])\.?([1-6])/);
-  return m ? `${m[1]}.${m[2]}` : "";
+// Exam results saved by the OMR checker (view omr_scores_report; see the
+// 20261004090000 migration). Callers only ever see their own results.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const scoresReportTable = () => (supabase as any).from("omr_scores_report");
+
+export interface ExamScore {
+  id: string;
+  taken_at: string;
+  subject_name: string;
+  exam_kind: string | null;
+  exam_name: string | null;
+  academic_year: number | null;
+  semester: number | null;
+  score: number;
+  total: number;
+  percent: number | null;
 }
 
-function normalizeGender(raw: string): "ช" | "ญ" | null {
-  const t = (raw ?? "").trim();
-  if (/^(ช|ชาย|m|male)$/i.test(t)) return "ช";
-  if (/^(ญ|หญิง|f|female)$/i.test(t)) return "ญ";
-  return null;
-}
-
-/**
- * Parse rows pasted from Excel/CSV. Column order:
- * รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ, เว้นได้), ชั้น, ห้อง (เว้นได้)
- */
-export function parseStudentRows(text: string): { rows: StudentInput[]; errors: string[] } {
-  const rows: StudentInput[] = [];
-  const errors: string[] = [];
-  const seen = new Set<string>();
-  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
-  lines.forEach((line, i) => {
-    const cells = (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
-    if (i === 0 && /รหัส/.test(cells[0] ?? "")) return; // header row
-    const [code, prefix, first, last, gender, cls, room] = cells;
-    const lineNo = i + 1;
-    const klass = normalizeClass(cls ?? "");
-    if (!code) return void errors.push(`แถว ${lineNo}: ไม่มีรหัสนักเรียน`);
-    if (!first) return void errors.push(`แถว ${lineNo}: ไม่มีชื่อ`);
-    if (!klass) return void errors.push(`แถว ${lineNo}: ชั้น "${cls ?? ""}" อ่านไม่ได้ (เช่น ป.4 หรือ ม.1)`);
-    if (seen.has(code)) return void errors.push(`แถว ${lineNo}: รหัส ${code} ซ้ำกับแถวก่อนหน้า`);
-    seen.add(code);
-    rows.push({
-      student_code: code,
-      prefix: prefix || null,
-      first_name: first,
-      last_name: last ?? "",
-      gender: normalizeGender(gender ?? ""),
-      class_level: klass,
-      room: room || null,
-    });
-  });
-  return { rows, errors };
-}
+export { normalizeClass, parseStudentRows, readSpreadsheetToText } from "./studentsImport";

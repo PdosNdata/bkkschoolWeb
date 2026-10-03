@@ -4,34 +4,48 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>เฉลยปรนัย – สแกนตรวจกระดาษคำตอบ</title>
+<style>@font-face{font-family:"Sarabun";font-weight:400;font-display:swap;src:url(/fonts/sarabun-thai-400-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:500;font-display:swap;src:url(/fonts/sarabun-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:600;font-display:swap;src:url(/fonts/sarabun-thai-600-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:700;font-display:swap;src:url(/fonts/sarabun-thai-700-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}</style>
 <style>
+/* TH Sarabun New (ฟอนต์ราชการ) ถ้าเครื่องมีติดตั้งอยู่ — ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายด้วย size-adjust
+   ถ้าไม่มี จะใช้ Sarabun (เว็บฟอนต์) แทนอัตโนมัติ */
+@font-face{font-family:"OMR Sarabun";font-weight:400;size-adjust:122%;
+  src:local("TH Sarabun New"),local("THSarabunNew"),local("TH SarabunPSK"),local("THSarabunPSK")}
+@font-face{font-family:"OMR Sarabun";font-weight:700;size-adjust:122%;
+  src:local("TH Sarabun New Bold"),local("THSarabunNew-Bold"),local("THSarabunNew Bold"),local("TH SarabunPSK Bold"),local("THSarabunPSK-Bold")}
 :root{--bg:#f4f6fb;--card:#fff;--ink:#1c2333;--mute:#6b7488;--line:#dfe4ee;--pri:#2f5bea;--ok:#12a150;--bad:#e5484d;--warn:#e8a200}
+html{font-size:20px}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Tahoma,"Sarabun",system-ui,sans-serif}
+[hidden]{display:none!important} /* คลาสที่ตั้ง display (.row, .btn ฯลฯ) ต้องไม่เขียนทับ attribute hidden */
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.45 "OMR Sarabun","Sarabun",Tahoma,system-ui,sans-serif}
 header{background:var(--pri);color:#fff;padding:12px 16px}
-header h1{margin:0;font-size:1.15rem}
+header h1{margin:0;font-size:1.45rem}
+/* หัวข้อหนาขึ้น: ตัวหนาของฟอนต์ + เส้นขอบบางๆ เพิ่มน้ำหนักให้เห็นชัด */
+header h1,.card h2,.score,nav button.on{font-weight:700;-webkit-text-stroke:.5px currentColor}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.homebtn{display:inline-block;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:.95rem;white-space:nowrap}
+.homebtn:hover{background:rgba(255,255,255,.3)}
 nav{display:flex;position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
-nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:.9rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
+nav button{flex:1;padding:12px 4px;border:0;background:none;font:inherit;font-size:1rem;color:var(--mute);border-bottom:3px solid transparent;cursor:pointer}
 nav button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
 main{max-width:900px;margin:0 auto;padding:16px}
 section{display:none}section.on{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
-.card h2{margin:0 0 8px;font-size:1.05rem}
+.card h2{margin:0 0 10px;font-size:1.3rem}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-label{font-size:.9rem;color:var(--mute)}
-input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+label{font-size:.95rem;color:var(--mute)}
+input,select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
 input[type=number]{width:80px}
 input.wide{flex:1;min-width:180px}
-.btn{display:inline-block;font:inherit;padding:9px 16px;border:0;border-radius:8px;background:var(--pri);color:#fff;cursor:pointer;text-decoration:none;line-height:1.5}
+.btn{display:inline-block;font:inherit;padding:10px 18px;border:0;border-radius:8px;background:var(--pri);color:#fff;cursor:pointer;text-decoration:none;line-height:1.5}
 .btn.sec{background:#e8ecf7;color:var(--pri)}
 .btn.dng{background:#fde8e9;color:var(--bad)}
 .btn:disabled{opacity:.5;cursor:default}
-.hint{font-size:.85rem;color:var(--mute);margin:6px 0 0}
-.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.hint{font-size:.9rem;color:var(--mute);margin:6px 0 0}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
 .q{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:8px;border:1px solid var(--line)}
-.q .no{width:26px;text-align:right;font-size:.85rem;color:var(--mute)}
+.q .no{width:34px;text-align:right;font-size:.95rem;color:var(--mute)}
 .q .ch{flex:1;display:flex;gap:4px}
-.q button{flex:1;min-width:30px;height:32px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;font-size:.9rem;cursor:pointer;padding:0}
+.q button{flex:1;min-width:36px;height:40px;border:1px solid var(--line);border-radius:20px;background:#fff;font:inherit;font-size:1rem;cursor:pointer;padding:0}
 .q button.sel{background:var(--pri);border-color:var(--pri);color:#fff}
 .q.good{background:#e9f8ef;border-color:#a8e0bf}.q.good button.sel{background:var(--ok);border-color:var(--ok)}
 .q.wrong{background:#fdecec;border-color:#f3b4b6}.q.wrong button.sel{background:var(--bad);border-color:var(--bad)}
@@ -43,14 +57,17 @@ input.wide{flex:1;min-width:180px}
 .cam .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa4bd;text-align:center;padding:20px}
 .bar{height:6px;background:#2a3350;border-radius:3px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
-#status{margin-top:8px;font-weight:600}
+#status{margin-top:8px;font-weight:600;font-size:1.05rem}
 #status.ok{color:var(--ok)}#status.warn{color:var(--warn)}
 .score{font-size:2.6rem;font-weight:800;line-height:1.1}
 .score small{font-size:1rem;font-weight:400;color:var(--mute)}
 #resCanvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
-table{width:100%;border-collapse:collapse;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
 th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
 td.r,th.r{text-align:right}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tscroll table{min-width:520px}
+@media(max-width:480px){th,td{padding:6px 4px}}
 #printArea{display:none}
 @media print{
   body>*:not(#printArea){display:none!important}
@@ -64,12 +81,12 @@ td.r,th.r{text-align:right}
 <script>
 // Embedded in the school site: same Supabase project + same login session (localStorage), school tables.
 window.SUPABASE_CONFIG = {"url": "https://dhufwdxxfbahovnmjgrc.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodWZ3ZHh4ZmJhaG92bm1qZ3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTIwODAsImV4cCI6MjA2OTM4ODA4MH0.V-7Jlkq5ucQBznGXjtUKCse8sLLnNJ0mDTlcgme8G0c"};
-window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/" };
+window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/", examFields: true, dashboardUrl: "/dashboard" };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<header><h1>📝 เฉลยปรนัย — สแกนตรวจกระดาษคำตอบด้วยกล้อง</h1></header>
+<header><h1>📝 เฉลยปรนัย — สแกนตรวจกระดาษคำตอบด้วยกล้อง</h1><a id="homeLink" class="homebtn" href="/dashboard" hidden>← กลับแดชบอร์ด</a></header>
 <nav id="tabs">
   <button data-t="key" class="on">1 ตั้งเฉลย</button>
   <button data-t="print">2 พิมพ์กระดาษ</button>
@@ -158,6 +175,12 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
           <button class="btn" id="saveBtn">💾 บันทึก</button>
           <button class="btn sec" id="againBtn">สแกนแผ่นต่อไป</button>
         </div>
+      </div>
+      <div id="examRow" class="row" hidden style="margin-top:10px">
+        <label>ประเภทการสอบ <select id="examKind"><option>ระหว่างเรียน</option><option>กลางภาค</option><option>ปลายภาค</option><option>อื่นๆ</option></select></label>
+        <input id="examName" placeholder="ชื่อการสอบ เช่น สอบหน่วยที่ 2" style="min-width:210px">
+        <label>ภาคเรียน <select id="examSem"><option value="1">1</option><option value="2">2</option></select></label>
+        <label>ปีการศึกษา <input id="examYear" type="number" min="2500" max="2700" style="width:90px"></label>
       </div>
     </div>
     <div class="card"><canvas id="resCanvas"></canvas>
@@ -293,7 +316,7 @@ function layout(n,k){
 // กระดาษขนาด A5 (ครึ่ง A4) 148x208 มม. = กรอบ 134x194 + ขอบขาวรอบละ 7 มม.
 function sheetSVG({mm=false,marks=[],idMarks=''}={}){
   const L=layout(state.n,state.k),lb=lab(),{w,h,mk,margin:m}=SHEET,W=w+2*m,H=h+2*m;
-  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="Tahoma,Sarabun,sans-serif">`;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="'OMR Sarabun','Sarabun',Tahoma,sans-serif">`;
   s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
   [[0,0],[w-mk,0],[w-mk,h-mk],[0,h-mk]].forEach(([x,y])=>s+=`<rect x="${x}" y="${y}" width="${mk}" height="${mk}" fill="#000"/>`);
   s+=`<circle cx="${SHEET.dot[0]}" cy="${SHEET.dot[1]}" r="2" fill="#000"/>`;
@@ -301,24 +324,24 @@ function sheetSVG({mm=false,marks=[],idMarks=''}={}){
   if(hasId){
     const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
     s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="8" y="31" font-size="3.2">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="71" y="9.5" font-size="2.6" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
-    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.4" text-anchor="middle">${v}</text>`;
+    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="31" font-size="3.7">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="71" y="9.5" font-size="3.1" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
+    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.9" text-anchor="middle">${v}</text>`;
     idLayout(state.idLen).forEach((row,d)=>{
-      s+=`<text x="73" y="${row[0].y+1}" font-size="2.6" text-anchor="end">${d+1}</text>`;
+      s+=`<text x="73" y="${row[0].y+1}" font-size="3" text-anchor="end">${d+1}</text>`;
       row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#fff" stroke="#000" stroke-width=".28"/>`);
     });
     (idMarks||'').split('').forEach((ch,d)=>{if(/\d/.test(ch)){const b=idLayout(state.idLen)[d][+ch];s+=`<circle cx="${b.x}" cy="${b.y}" r="1.8" fill="#222"/>`}});
   }else{
     s+=`<text x="${w/2}" y="14" font-size="4.2" text-anchor="middle" font-weight="bold" textLength="${Math.min(110,(12+state.name.length)*2.7)}" lengthAdjust="spacing">${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="97" y="23" font-size="3.2">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="97" y="23" font-size="3.7">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
   }
   for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)
-    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="2.8" text-anchor="middle">${lb[j]}</text>`;
+    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="3.3" text-anchor="middle">${lb[j]}</text>`;
   L.bubbles.forEach((row,q)=>{
-    s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="2.8" text-anchor="end">${q+1}</text>`;
+    s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="3.3" text-anchor="end">${q+1}</text>`;
     row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="${L.r}" fill="#fff" stroke="#000" stroke-width=".28"/>`);
   });
   marks.forEach(([q,c])=>{const b=L.bubbles[q][c];s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#222"/>`});
@@ -490,13 +513,24 @@ $('snapBtn').onclick=capture;
 
 /* ====================== ผลตรวจ ====================== */
 let cur=null;
+// ปีการศึกษาไทยเริ่มพฤษภาคม: พ.ค.-ต.ค. = ภาคเรียน 1, พ.ย.-เม.ย. = ภาคเรียน 2
+function examDefaults(){
+  const d=new Date(),m=d.getMonth()+1,be=d.getFullYear()+543;
+  const saved=db.exam||{};
+  return{kind:saved.kind||'ระหว่างเรียน',name:saved.name||'',sem:String(saved.sem||(m>=5&&m<=10?1:2)),year:saved.year||(m>=5?be:be-1)};
+}
+function showExamRow(){
+  const on=!!(window.OMR_CONFIG&&window.OMR_CONFIG.examFields);
+  $('examRow').hidden=!on;if(!on)return;
+  const x=examDefaults();$('examKind').value=x.kind;$('examName').value=x.name;$('examSem').value=x.sem;$('examYear').value=x.year;
+}
 function process(cv){
   const w=cv.width,h=cv.height,g=toGray(cv.getContext('2d').getImageData(0,0,w,h));
   const d=detectOn(cv,w,h);if(!d)return false;
   const full=d.pts.map(p=>[p[0]*d.sc,p[1]*d.sc]),o=solveOrientation(full,g,w,h);
   if(!o)return false;
   cur={cv,H:o.H,ans:readSheet(g,w,h,o.H,state.n,state.k),id:state.idLen?readId(g,w,h,o.H,state.idLen):''};
-  paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
+  paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';showExamRow();$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
   renderResult();return true;
 }
 function grade(ans){
@@ -539,7 +573,14 @@ function renderResult(){
 $('againBtn').onclick=()=>{cur=null;$('resView').hidden=true;$('scanView').hidden=false;paused=false;stable=0};
 $('saveBtn').onclick=()=>{
   if(!cur)return;const g=grade(cur.ans);
-  state.history.unshift({id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels});
+  const entry={id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels};
+  if(!$('examRow').hidden){
+    const ex={kind:$('examKind').value,name:$('examName').value.trim(),sem:+$('examSem').value,year:+$('examYear').value||null};
+    entry.exam=ex;db.exam={kind:ex.kind,name:ex.name,sem:ex.sem,year:ex.year}; // จำค่าไว้ใช้กับแผ่นถัดไป
+    const st=typeof studentMap!=='undefined'?studentMap.get(entry.sid):null;
+    if(st){entry.ref=st.id;entry.cls=st.class_level;entry.room=st.room||null}
+  }
+  state.history.unshift(entry);
   save();renderHist();cloudPushResult(state.history[0]);
   $('againBtn').click();setStatus('บันทึกแล้ว — พร้อมสแกนแผ่นต่อไป','ok');
 };
@@ -599,8 +640,8 @@ $('printBtn').onclick=()=>{
 function renderHist(){
   const h=state.history,box=$('histBox');
   if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
-  box.innerHTML='<table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table>';
+  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -608,8 +649,8 @@ $('histClear').onclick=()=>{if(confirm('ลบผลที่บันทึก�
 $('csvBtn').onclick=()=>{
   if(!state.history.length)return;
   const maxN=Math.max(...state.history.map(r=>r.ans.length));
-  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),
+  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ผลสอบ.csv';a.click();
@@ -686,6 +727,8 @@ create policy "own results" on public.results for all
 `;
 // โหมดฝังในเว็บโรงเรียน: ตั้งค่าผ่าน window.OMR_CONFIG (ดู config.js) — ไม่ตั้ง = โหมดเดี่ยวเหมือนเดิม
 const OC=window.OMR_CONFIG||{},T={subjects:OC.subjectsTable||'subjects',results:OC.resultsTable||'results'};
+// ปุ่มกลับแดชบอร์ด (โหมดฝังในเว็บโรงเรียน: OMR_CONFIG.dashboardUrl)
+if(OC.dashboardUrl){const a=$('homeLink');a.href=OC.dashboardUrl;a.hidden=false}
 let sb=null,sbUser=null,syncing=false,pushTimer=null,lastUser=null;
 // เซิร์ฟเวอร์บางครั้งบันทึกแล้วแต่เบราว์เซอร์ไม่ได้รับคำตอบ → ตัดการรอเพื่อไม่ให้ซิงก์ค้างตลอด (การเขียนทุกจุดทำซ้ำได้ ไม่ซ้ำแถว)
 const tmo=(p,label)=>Promise.race([Promise.resolve(p),new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' ใช้เวลานานเกินไป กรุณาลองใหม่')),20000))]);
@@ -699,8 +742,12 @@ function sbCfg(){
 const subjToRow=s=>({id:s.id,name:s.name,n:s.n,k:s.k,labels:s.labels,id_len:s.idLen,key:s.key,updated_at:new Date(s.upd||Date.now()).toISOString()});
 const rowToSubj=r=>({id:r.id,name:r.name,n:r.n,k:r.k,labels:r.labels,idLen:r.id_len,key:r.key,upd:Date.parse(r.updated_at)});
 const resToRow=(h,ok)=>({id:h.id,subject_id:h.subjectId&&ok.has(h.subjectId)?h.subjectId:null,subject_name:h.subject||'',student_id:h.sid||'',student_name:h.name||'',
-  score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString()});
-const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at)});
+  score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString(),
+  ...(OC.examFields?{exam_kind:h.exam?h.exam.kind:null,exam_name:h.exam&&h.exam.name?h.exam.name:null,academic_year:h.exam?h.exam.year:null,semester:h.exam?h.exam.sem:null,
+    class_level:h.cls||null,room:h.room||null,student_ref:h.ref||null}:{})});
+const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at),
+  ...(r.exam_kind||r.exam_name||r.academic_year?{exam:{kind:r.exam_kind,name:r.exam_name||'',sem:r.semester,year:r.academic_year}}:{}),
+  ...(r.student_ref?{ref:r.student_ref,cls:r.class_level,room:r.room}:{})});
 
 function sbInit(client){
   sb=client||null;sbUser=null;lastUser=null;
@@ -811,7 +858,7 @@ async function loadStudents(){
   try{
     let all=[];
     for(let from=0;;from+=1000){
-      const{data}=await tmo(sb.from(OC.studentsTable).select('student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
+      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
       all=all.concat(data);if(data.length<1000)break;
     }
     studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));

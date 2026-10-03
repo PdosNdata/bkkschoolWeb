@@ -129,7 +129,7 @@ const Dashboard = () => {
     icon: ClipboardCheck,
     color: "bg-lime-50 border-lime-200",
     iconColor: "text-lime-600",
-    href: "/omr/",
+    href: "/omr/index.html", // explicit file: the Vite dev server only serves public/omr/index.html at this URL (prod serves /omr/ too)
     external: true, // static app under public/omr — needs a real page load, not the SPA router
     roles: ["teacher", "admin"],
     everyone: true, // every staff account sees it
