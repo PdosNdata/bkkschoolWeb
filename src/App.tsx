@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import Swal from "sweetalert2";
@@ -19,6 +19,7 @@ import ActivityAllFormPage from "./pages/ActivityAllFormPage";
 import ActivityDetailPage from "./pages/ActivityDetailPage";
 import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
+import StudentsPage from "./pages/StudentsPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
 import PersonnelTrainingsPage from "./pages/PersonnelTrainingsPage";
@@ -41,10 +42,23 @@ const queryClient = new QueryClient();
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  // Which user this tab already knew about. Supabase re-emits SIGNED_IN for the
+  // *same* user whenever the browser tab regains focus; only a change from
+  // "nobody"/"another user" to a user is a real login worth redirecting for.
+  // (undefined = no INITIAL_SESSION seen yet -> treat the first SIGNED_IN as new.)
+  const knownUserId = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") {
+        knownUserId.current = session?.user?.id ?? null;
+      }
+
       if (event === "SIGNED_IN") {
+        const uid = session?.user?.id ?? null;
+        const isNewLogin = uid !== knownUserId.current;
+        knownUserId.current = uid;
+
         // Clean token fragment after Supabase sets the session
         if (window.location.hash && window.location.hash.includes("access_token")) {
           setTimeout(() => {
@@ -53,7 +67,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         // Check if user has a role, if not create one (for Google OAuth users)
-        if (session?.user) {
+        if (session?.user && isNewLogin) {
           setTimeout(async () => {
             const { data: existingRole } = await supabase
               .from('user_roles')
@@ -77,15 +91,23 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Auto-enter the dashboard only for allowed users. Denial is handled
         // by ProtectedRoute on the dashboard itself (where the session token
         // is fully settled), so a transient "not allowed" here does nothing.
-        if (!location.pathname.startsWith("/dashboard")) {
-          const { data: canAccess } = await supabase.rpc("can_access_dashboard");
-          if (canAccess === true) {
-            navigate("/dashboard", { replace: true });
-          }
+        if (isNewLogin && !location.pathname.startsWith("/dashboard")) {
+          // Never await a Supabase call directly inside this callback: the
+          // auth client holds its internal lock while it runs the callback,
+          // and rpc() needs that same lock -> deadlock, after which every
+          // later getSession()/request in the tab hangs until a reload.
+          // Defer it (same as the role check above).
+          setTimeout(async () => {
+            const { data: canAccess } = await supabase.rpc("can_access_dashboard");
+            if (canAccess === true) {
+              navigate("/dashboard", { replace: true });
+            }
+          }, 0);
         }
       }
 
       if (event === "SIGNED_OUT") {
+        knownUserId.current = null;
         if (location.pathname !== "/") {
           navigate("/", { replace: true });
         }
@@ -316,6 +338,14 @@ const App = () => {
                     <AdminPage />
                   </ProtectedRoute>
                 } 
+              />
+              <Route
+                path="/students"
+                element={
+                  <ProtectedRoute>
+                    <StudentsPage />
+                  </ProtectedRoute>
+                }
               />
               <Route 
                 path="/personnel" 

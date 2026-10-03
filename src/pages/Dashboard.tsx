@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -113,6 +113,27 @@ const Dashboard = () => {
     roles: ["teacher", "admin"],
     everyone: true, // every staff account sees it; only admins can add people
     permissionName: "personnel_system"
+  }, {
+    title: "ข้อมูลนักเรียน",
+    description: "ทะเบียนรายชื่อนักเรียน ใช้ร่วมกันทุกระบบ",
+    icon: Users,
+    color: "bg-emerald-50 border-emerald-200",
+    iconColor: "text-emerald-600",
+    href: "/students",
+    roles: ["teacher", "admin"],
+    everyone: true, // every staff account sees it
+    permissionName: "students_system"
+  }, {
+    title: "ระบบตรวจคำตอบปรนัย",
+    description: "สแกนกระดาษคำตอบด้วยกล้อง ตรวจเทียบเฉลย อ่านรหัสนักเรียนอัตโนมัติ",
+    icon: ClipboardCheck,
+    color: "bg-lime-50 border-lime-200",
+    iconColor: "text-lime-600",
+    href: "/omr/",
+    external: true, // static app under public/omr — needs a real page load, not the SPA router
+    roles: ["teacher", "admin"],
+    everyone: true, // every staff account sees it
+    permissionName: "omr_system"
   }, {
     title: "นำเข้าข้อมูลครู",
     description: "นำเข้ารายชื่ออีเมลครูจาก Google Form ให้เข้าใช้ระบบ",
@@ -261,7 +282,10 @@ const Dashboard = () => {
             {systemCards.map((system, index) => {
             const IconComponent = system.icon;
             
-            return <Link key={index} to={system.href}>
+            const external = "external" in system && system.external;
+            const Wrapper: React.ElementType = external ? "a" : Link;
+            const wrapperProps = external ? { href: system.href } : { to: system.href };
+            return <Wrapper key={index} {...wrapperProps}>
               <Card className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
@@ -284,7 +308,7 @@ const Dashboard = () => {
                   </CardDescription>
                 </CardContent>
               </Card>
-            </Link>;
+            </Wrapper>;
           })}
           </div>
         </div>
