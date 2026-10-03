@@ -64,7 +64,7 @@ td.r,th.r{text-align:right}
 <script>
 // Embedded in the school site: same Supabase project + same login session (localStorage), school tables.
 window.SUPABASE_CONFIG = {"url": "https://dhufwdxxfbahovnmjgrc.supabase.co", "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodWZ3ZHh4ZmJhaG92bm1qZ3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MTIwODAsImV4cCI6MjA2OTM4ODA4MH0.V-7Jlkq5ucQBznGXjtUKCse8sLLnNJ0mDTlcgme8G0c"};
-window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/" };
+window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results", studentsTable: "students", loginUrl: "/", examFields: true };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -158,6 +158,12 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
           <button class="btn" id="saveBtn">💾 บันทึก</button>
           <button class="btn sec" id="againBtn">สแกนแผ่นต่อไป</button>
         </div>
+      </div>
+      <div id="examRow" class="row" hidden style="margin-top:10px">
+        <label>ประเภทการสอบ <select id="examKind"><option>ระหว่างเรียน</option><option>กลางภาค</option><option>ปลายภาค</option><option>อื่นๆ</option></select></label>
+        <input id="examName" placeholder="ชื่อการสอบ เช่น สอบหน่วยที่ 2" style="min-width:210px">
+        <label>ภาคเรียน <select id="examSem"><option value="1">1</option><option value="2">2</option></select></label>
+        <label>ปีการศึกษา <input id="examYear" type="number" min="2500" max="2700" style="width:90px"></label>
       </div>
     </div>
     <div class="card"><canvas id="resCanvas"></canvas>
@@ -490,13 +496,24 @@ $('snapBtn').onclick=capture;
 
 /* ====================== ผลตรวจ ====================== */
 let cur=null;
+// ปีการศึกษาไทยเริ่มพฤษภาคม: พ.ค.-ต.ค. = ภาคเรียน 1, พ.ย.-เม.ย. = ภาคเรียน 2
+function examDefaults(){
+  const d=new Date(),m=d.getMonth()+1,be=d.getFullYear()+543;
+  const saved=db.exam||{};
+  return{kind:saved.kind||'ระหว่างเรียน',name:saved.name||'',sem:String(saved.sem||(m>=5&&m<=10?1:2)),year:saved.year||(m>=5?be:be-1)};
+}
+function showExamRow(){
+  const on=!!(window.OMR_CONFIG&&window.OMR_CONFIG.examFields);
+  $('examRow').hidden=!on;if(!on)return;
+  const x=examDefaults();$('examKind').value=x.kind;$('examName').value=x.name;$('examSem').value=x.sem;$('examYear').value=x.year;
+}
 function process(cv){
   const w=cv.width,h=cv.height,g=toGray(cv.getContext('2d').getImageData(0,0,w,h));
   const d=detectOn(cv,w,h);if(!d)return false;
   const full=d.pts.map(p=>[p[0]*d.sc,p[1]*d.sc]),o=solveOrientation(full,g,w,h);
   if(!o)return false;
   cur={cv,H:o.H,ans:readSheet(g,w,h,o.H,state.n,state.k),id:state.idLen?readId(g,w,h,o.H,state.idLen):''};
-  paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
+  paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';showExamRow();$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
   renderResult();return true;
 }
 function grade(ans){
@@ -539,7 +556,14 @@ function renderResult(){
 $('againBtn').onclick=()=>{cur=null;$('resView').hidden=true;$('scanView').hidden=false;paused=false;stable=0};
 $('saveBtn').onclick=()=>{
   if(!cur)return;const g=grade(cur.ans);
-  state.history.unshift({id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels});
+  const entry={id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels};
+  if(!$('examRow').hidden){
+    const ex={kind:$('examKind').value,name:$('examName').value.trim(),sem:+$('examSem').value,year:+$('examYear').value||null};
+    entry.exam=ex;db.exam={kind:ex.kind,name:ex.name,sem:ex.sem,year:ex.year}; // จำค่าไว้ใช้กับแผ่นถัดไป
+    const st=typeof studentMap!=='undefined'?studentMap.get(entry.sid):null;
+    if(st){entry.ref=st.id;entry.cls=st.class_level;entry.room=st.room||null}
+  }
+  state.history.unshift(entry);
   save();renderHist();cloudPushResult(state.history[0]);
   $('againBtn').click();setStatus('บันทึกแล้ว — พร้อมสแกนแผ่นต่อไป','ok');
 };
@@ -600,7 +624,7 @@ function renderHist(){
   const h=state.history,box=$('histBox');
   if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
   box.innerHTML='<table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table>';
+    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table>';
   box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -608,8 +632,8 @@ $('histClear').onclick=()=>{if(confirm('ลบผลที่บันทึก�
 $('csvBtn').onclick=()=>{
   if(!state.history.length)return;
   const maxN=Math.max(...state.history.map(r=>r.ans.length));
-  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),
+  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ผลสอบ.csv';a.click();
@@ -699,8 +723,12 @@ function sbCfg(){
 const subjToRow=s=>({id:s.id,name:s.name,n:s.n,k:s.k,labels:s.labels,id_len:s.idLen,key:s.key,updated_at:new Date(s.upd||Date.now()).toISOString()});
 const rowToSubj=r=>({id:r.id,name:r.name,n:r.n,k:r.k,labels:r.labels,idLen:r.id_len,key:r.key,upd:Date.parse(r.updated_at)});
 const resToRow=(h,ok)=>({id:h.id,subject_id:h.subjectId&&ok.has(h.subjectId)?h.subjectId:null,subject_name:h.subject||'',student_id:h.sid||'',student_name:h.name||'',
-  score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString()});
-const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at)});
+  score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString(),
+  ...(OC.examFields?{exam_kind:h.exam?h.exam.kind:null,exam_name:h.exam&&h.exam.name?h.exam.name:null,academic_year:h.exam?h.exam.year:null,semester:h.exam?h.exam.sem:null,
+    class_level:h.cls||null,room:h.room||null,student_ref:h.ref||null}:{})});
+const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at),
+  ...(r.exam_kind||r.exam_name||r.academic_year?{exam:{kind:r.exam_kind,name:r.exam_name||'',sem:r.semester,year:r.academic_year}}:{}),
+  ...(r.student_ref?{ref:r.student_ref,cls:r.class_level,room:r.room}:{})});
 
 function sbInit(client){
   sb=client||null;sbUser=null;lastUser=null;
@@ -811,7 +839,7 @@ async function loadStudents(){
   try{
     let all=[];
     for(let from=0;;from+=1000){
-      const{data}=await tmo(sb.from(OC.studentsTable).select('student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
+      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
       all=all.concat(data);if(data.length<1000)break;
     }
     studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));

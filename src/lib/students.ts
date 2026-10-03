@@ -51,4 +51,22 @@ export async function fetchAllStudents(): Promise<Student[]> {
   return all;
 }
 
+// Exam results saved by the OMR checker (view omr_scores_report; see the
+// 20261004090000 migration). Callers only ever see their own results.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const scoresReportTable = () => (supabase as any).from("omr_scores_report");
+
+export interface ExamScore {
+  id: string;
+  taken_at: string;
+  subject_name: string;
+  exam_kind: string | null;
+  exam_name: string | null;
+  academic_year: number | null;
+  semester: number | null;
+  score: number;
+  total: number;
+  percent: number | null;
+}
+
 export { normalizeClass, parseStudentRows, readSpreadsheetToText } from "./studentsImport";

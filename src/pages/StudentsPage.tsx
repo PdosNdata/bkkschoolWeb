@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, FileSpreadsheet, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, BarChart3, FileSpreadsheet, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/utils";
 import {
   CLASS_LEVELS,
+  ExamScore,
   Student,
   StudentInput,
   classLabel,
@@ -26,6 +27,7 @@ import {
   fetchAllStudents,
   parseStudentRows,
   readSpreadsheetToText,
+  scoresReportTable,
   studentFullName,
   studentsTable,
 } from "@/lib/students";
@@ -62,6 +64,10 @@ const StudentsPage = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [toDelete, setToDelete] = useState<Student | null>(null);
+
+  const [scoresFor, setScoresFor] = useState<Student | null>(null);
+  const [scores, setScores] = useState<ExamScore[]>([]);
+  const [scoresLoading, setScoresLoading] = useState(false);
 
   // The server sometimes stores a row but the browser never gets the reply
   // (same issue as the trainings page). Writes below are idempotent, and on a
@@ -200,6 +206,26 @@ const StudentsPage = () => {
     await load();
   };
 
+  const openScores = async (s: Student) => {
+    setScoresFor(s);
+    setScores([]);
+    setScoresLoading(true);
+    try {
+      await ensureSession();
+      const { data, error } = await withTimeout<{ data: ExamScore[] | null; error: { message: string } | null }>(
+        scoresReportTable().select("*").eq("student_code", s.student_code).order("taken_at", { ascending: false }),
+        20000,
+        "ขั้นที่ 2: โหลดคะแนนสอบ",
+      );
+      if (error) throw error;
+      setScores(data ?? []);
+    } catch (e) {
+      toast({ title: "โหลดคะแนนสอบไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+    } finally {
+      setScoresLoading(false);
+    }
+  };
+
   const parsed = useMemo(() => parseStudentRows(importText), [importText]);
 
   const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,7 +327,7 @@ const StudentsPage = () => {
                       <TableHead>ชื่อ-สกุล</TableHead>
                       <TableHead>ชั้น/ห้อง</TableHead>
                       <TableHead>สถานะ</TableHead>
-                      <TableHead className="w-[110px]" />
+                      <TableHead className="w-[150px]" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -312,6 +338,7 @@ const StudentsPage = () => {
                         <TableCell>{classLabel(s)}</TableCell>
                         <TableCell>{s.is_active ? <Badge variant="secondary">กำลังศึกษา</Badge> : <Badge variant="outline">ไม่ได้ศึกษาแล้ว</Badge>}</TableCell>
                         <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="icon" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
                           {isAdmin && (
                             <Button variant="ghost" size="icon" aria-label="ลบ" onClick={() => setToDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
@@ -412,6 +439,51 @@ const StudentsPage = () => {
             <Button onClick={runImport} disabled={importing || parsed.rows.length === 0}>
               {importing ? "กำลังนำเข้า…" : `นำเข้า ${parsed.rows.length} คน`}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* exam scores of one student */}
+      <Dialog open={!!scoresFor} onOpenChange={(o) => !o && setScoresFor(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>คะแนนสอบ — {scoresFor && `${scoresFor.student_code} ${studentFullName(scoresFor)}`}</DialogTitle>
+            <DialogDescription>ผลจากระบบตรวจคำตอบปรนัย แสดงเฉพาะผลที่คุณเป็นผู้ตรวจเอง</DialogDescription>
+          </DialogHeader>
+          {scoresLoading ? (
+            <p className="py-6 text-center text-muted-foreground">กำลังโหลด…</p>
+          ) : scores.length === 0 ? (
+            <p className="py-6 text-center text-muted-foreground">ยังไม่มีผลสอบของนักเรียนคนนี้</p>
+          ) : (
+            <div className="max-h-[50vh] overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>วันที่</TableHead>
+                    <TableHead>วิชา</TableHead>
+                    <TableHead>การสอบ</TableHead>
+                    <TableHead>ภาคเรียน</TableHead>
+                    <TableHead className="text-right">คะแนน</TableHead>
+                    <TableHead className="text-right">%</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {scores.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell>{new Date(r.taken_at).toLocaleDateString("th-TH")}</TableCell>
+                      <TableCell>{r.subject_name}</TableCell>
+                      <TableCell>{[r.exam_kind, r.exam_name].filter(Boolean).join(" · ") || "-"}</TableCell>
+                      <TableCell>{r.semester && r.academic_year ? `${r.semester}/${r.academic_year}` : "-"}</TableCell>
+                      <TableCell className="text-right">{r.score}/{r.total}</TableCell>
+                      <TableCell className="text-right">{r.percent ?? "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScoresFor(null)}>ปิด</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
