@@ -64,12 +64,20 @@ const StudentsPage = () => {
   // timeout we reload the list and tell the user it may already be saved.
   const isTimeout = (e: unknown) => errMsg(e).includes("ใช้เวลานานเกินไป");
   const pendingId = useRef<string | null>(null);
-  const timeoutToast = () =>
+  const timeoutToast = (e: unknown) =>
     toast({
       title: "ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์",
-      description: "ข้อมูลอาจถูกบันทึกไปแล้ว — ตรวจดูในตารางก่อน (กดบันทึกหรือนำเข้าซ้ำได้ ไม่ทำให้ซ้ำ)",
+      description: `${errMsg(e)} — ข้อมูลอาจถูกบันทึกไปแล้ว ตรวจดูในตารางก่อน (กดบันทึกหรือนำเข้าซ้ำได้ ไม่ทำให้ซ้ำ)`,
       variant: "destructive",
     });
+  // Step 1 of every write: make sure the login session is usable. A stalled
+  // token refresh would otherwise hold back the write itself, so label it.
+  const ensureSession = async () => {
+    const {
+      data: { session },
+    } = await withTimeout(supabase.auth.getSession(), 10000, "ขั้นที่ 1: ตรวจสอบการเข้าสู่ระบบ");
+    if (!session) throw new Error("หมดเวลาเข้าสู่ระบบ กรุณาล็อกอินใหม่");
+  };
 
   const load = async () => {
     try {
@@ -142,12 +150,13 @@ const StudentsPage = () => {
     };
     setSaving(true);
     try {
+      await ensureSession();
       const res = await withTimeout<{ error: { code?: string; message: string } | null }>(
         editing === "new"
           ? studentsTable().upsert({ ...payload, id: (pendingId.current ??= crypto.randomUUID()) }, { onConflict: "id" })
           : studentsTable().update(payload).eq("id", (editing as Student).id),
-        20000,
-        "บันทึกข้อมูลนักเรียน",
+        15000,
+        "ขั้นที่ 2: บันทึกข้อมูลนักเรียน",
       );
       if (res.error) {
         if (res.error.code === "23505") throw new Error(`รหัสนักเรียน ${code} มีอยู่ในระบบแล้ว`);
@@ -158,7 +167,7 @@ const StudentsPage = () => {
       await load();
     } catch (e) {
       if (isTimeout(e)) {
-        timeoutToast();
+        timeoutToast(e);
         load();
       } else {
         toast({ title: "บันทึกไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
@@ -171,15 +180,16 @@ const StudentsPage = () => {
   const confirmDelete = async () => {
     if (!toDelete) return;
     try {
+      await ensureSession();
       const { error } = await withTimeout<{ error: { message: string } | null }>(
         studentsTable().delete().eq("id", toDelete.id),
-        20000,
-        "ลบนักเรียน",
+        15000,
+        "ขั้นที่ 2: ลบนักเรียน",
       );
       if (error) throw error;
       toast({ title: "ลบแล้ว" });
     } catch (e) {
-      if (isTimeout(e)) timeoutToast();
+      if (isTimeout(e)) timeoutToast(e);
       else toast({ title: "ลบไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
     }
     setToDelete(null);
@@ -192,12 +202,13 @@ const StudentsPage = () => {
     if (!parsed.rows.length) return;
     setImporting(true);
     try {
+      await ensureSession();
       for (let i = 0; i < parsed.rows.length; i += 200) {
         const chunk: StudentInput[] = parsed.rows.slice(i, i + 200);
         const { error } = await withTimeout<{ error: { message: string } | null }>(
           studentsTable().upsert(chunk, { onConflict: "student_code" }),
-          30000,
-          "นำเข้ารายชื่อ",
+          20000,
+          "ขั้นที่ 2: นำเข้ารายชื่อ",
         );
         if (error) throw error;
       }
@@ -207,7 +218,7 @@ const StudentsPage = () => {
       await load();
     } catch (e) {
       if (isTimeout(e)) {
-        timeoutToast();
+        timeoutToast(e);
         load();
       } else {
         toast({ title: "นำเข้าไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
