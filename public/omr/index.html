@@ -4,10 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>เฉลยปรนัย – สแกนตรวจกระดาษคำตอบ</title>
+<style>@font-face{font-family:"Sarabun";font-weight:400;font-display:swap;src:url(/fonts/sarabun-thai-400-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:500;font-display:swap;src:url(/fonts/sarabun-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:600;font-display:swap;src:url(/fonts/sarabun-thai-600-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:700;font-display:swap;src:url(/fonts/sarabun-thai-700-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}</style>
 <style>
+/* TH Sarabun New (ฟอนต์ราชการ) ถ้าเครื่องมีติดตั้งอยู่ — ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายด้วย size-adjust
+   ถ้าไม่มี จะใช้ Sarabun (เว็บฟอนต์) แทนอัตโนมัติ */
+@font-face{font-family:"OMR Sarabun";font-weight:400;size-adjust:122%;
+  src:local("TH Sarabun New"),local("THSarabunNew"),local("TH SarabunPSK"),local("THSarabunPSK")}
+@font-face{font-family:"OMR Sarabun";font-weight:700;size-adjust:122%;
+  src:local("TH Sarabun New Bold"),local("THSarabunNew-Bold"),local("THSarabunNew Bold"),local("TH SarabunPSK Bold"),local("THSarabunPSK-Bold")}
 :root{--bg:#f4f6fb;--card:#fff;--ink:#1c2333;--mute:#6b7488;--line:#dfe4ee;--pri:#2f5bea;--ok:#12a150;--bad:#e5484d;--warn:#e8a200}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Tahoma,"Sarabun",system-ui,sans-serif}
+[hidden]{display:none!important} /* คลาสที่ตั้ง display (.row, .btn ฯลฯ) ต้องไม่เขียนทับ attribute hidden */
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 "OMR Sarabun","Sarabun",Tahoma,system-ui,sans-serif}
 header{background:var(--pri);color:#fff;padding:12px 16px}
 header h1{margin:0;font-size:1.15rem}
 header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -302,7 +310,7 @@ function layout(n,k){
 // กระดาษขนาด A5 (ครึ่ง A4) 148x208 มม. = กรอบ 134x194 + ขอบขาวรอบละ 7 มม.
 function sheetSVG({mm=false,marks=[],idMarks=''}={}){
   const L=layout(state.n,state.k),lb=lab(),{w,h,mk,margin:m}=SHEET,W=w+2*m,H=h+2*m;
-  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="Tahoma,Sarabun,sans-serif">`;
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="'OMR Sarabun','Sarabun',Tahoma,sans-serif">`;
   s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
   [[0,0],[w-mk,0],[w-mk,h-mk],[0,h-mk]].forEach(([x,y])=>s+=`<rect x="${x}" y="${y}" width="${mk}" height="${mk}" fill="#000"/>`);
   s+=`<circle cx="${SHEET.dot[0]}" cy="${SHEET.dot[1]}" r="2" fill="#000"/>`;
@@ -310,24 +318,24 @@ function sheetSVG({mm=false,marks=[],idMarks=''}={}){
   if(hasId){
     const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
     s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="8" y="31" font-size="3.2">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="71" y="9.5" font-size="2.6" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
-    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.4" text-anchor="middle">${v}</text>`;
+    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="31" font-size="3.7">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="71" y="9.5" font-size="3.1" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
+    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.9" text-anchor="middle">${v}</text>`;
     idLayout(state.idLen).forEach((row,d)=>{
-      s+=`<text x="73" y="${row[0].y+1}" font-size="2.6" text-anchor="end">${d+1}</text>`;
+      s+=`<text x="73" y="${row[0].y+1}" font-size="3" text-anchor="end">${d+1}</text>`;
       row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#fff" stroke="#000" stroke-width=".28"/>`);
     });
     (idMarks||'').split('').forEach((ch,d)=>{if(/\d/.test(ch)){const b=idLayout(state.idLen)[d][+ch];s+=`<circle cx="${b.x}" cy="${b.y}" r="1.8" fill="#222"/>`}});
   }else{
     s+=`<text x="${w/2}" y="14" font-size="4.2" text-anchor="middle" font-weight="bold" textLength="${Math.min(110,(12+state.name.length)*2.7)}" lengthAdjust="spacing">${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.2">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="97" y="23" font-size="3.2">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="97" y="23" font-size="3.7">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
   }
   for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)
-    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="2.8" text-anchor="middle">${lb[j]}</text>`;
+    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="3.3" text-anchor="middle">${lb[j]}</text>`;
   L.bubbles.forEach((row,q)=>{
-    s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="2.8" text-anchor="end">${q+1}</text>`;
+    s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="3.3" text-anchor="end">${q+1}</text>`;
     row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="${L.r}" fill="#fff" stroke="#000" stroke-width=".28"/>`);
   });
   marks.forEach(([q,c])=>{const b=L.bubbles[q][c];s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#222"/>`});
