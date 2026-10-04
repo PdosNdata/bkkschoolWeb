@@ -140,6 +140,9 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   <div class="card">
     <h2>กระดาษคำตอบ</h2>
     <p class="hint" style="margin:0 0 10px">พิมพ์แล้วให้ผู้สอบระบายวงกลมให้ทึบด้วยปากกาหรือดินสอสีเข้ม ห้ามตัดหรือบังสี่เหลี่ยมดำที่มุมทั้ง 4 ด้าน · ในหน้าต่างพิมพ์ให้ตั้ง "หน้าต่อแผ่น = 1" และสเกลเป็นค่าเริ่มต้น/100%</p>
+    <div class="row" id="printIdRow" style="margin-bottom:10px" hidden>
+      <label>รหัสนักเรียน (พิมพ์ลงช่องให้ล่วงหน้า) <input id="printId" inputmode="numeric" autocomplete="off" placeholder="เว้นว่าง = ให้นักเรียนเขียนเอง" style="width:230px"></label>
+    </div>
     <div class="row" style="margin-bottom:10px"><label>รูปแบบการพิมพ์
       <select id="printMode"><option value="2up">A4 แนวนอน — 2 ใบต่อแผ่น (ตัดครึ่งเป็น A5)</option><option value="a5">A5 — 1 ใบต่อแผ่น</option></select></label></div>
     <button class="btn" id="printBtn">🖨️ พิมพ์กระดาษคำตอบ</button>
@@ -318,7 +321,9 @@ function layout(n,k){
   return {bubbles,r,C,x0,colW,y0,R,bx,sp};
 }
 // กระดาษขนาด A5 (ครึ่ง A4) 148x208 มม. = กรอบ 134x194 + ขอบขาวรอบละ 7 มม.
-function sheetSVG({mm=false,marks=[],idMarks=''}={}){
+// รหัสที่ครูพิมพ์ไว้ล่วงหน้า: เฉพาะตัวเลข และไม่เกินจำนวนหลักของวิชานี้ (กระดาษไม่มีช่องรหัส = ไม่ใช้)
+const printIdText=()=>state.idLen?($('printId').value||'').replace(/\D/g,'').slice(0,state.idLen):'';
+function sheetSVG({mm=false,marks=[],idMarks='',idText=''}={}){
   const L=layout(state.n,state.k),lb=lab(),{w,h,mk,margin:m}=SHEET,W=w+2*m,H=h+2*m;
   let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-m} ${-m} ${W} ${H}" ${mm?`width="${W}mm" height="${H}mm"`:'style="width:100%;height:auto;display:block"'} font-family="'OMR Sarabun','Sarabun',Tahoma,sans-serif">`;
   s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
@@ -329,7 +334,14 @@ function sheetSVG({mm=false,marks=[],idMarks=''}={}){
     const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
     s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
     s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="8" y="31" font-size="3.7">เลขที่</text><line x1="18" y1="31.4" x2="40" y2="31.4" stroke="#000" stroke-width=".25"/>';
+    s+='<text x="8" y="29" font-size="3.7">เลขที่</text><line x1="18" y1="29.4" x2="40" y2="29.4" stroke="#000" stroke-width=".25"/>';
+    // ช่องเขียนรหัสนักเรียน (หลักละ 1 ช่อง) — ไม่ได้ใช้ตอนสแกน แค่ให้เขียนแล้วระบายวงกลมให้ตรง
+    s+='<text x="8" y="36" font-size="3.1" font-weight="bold">รหัสนักเรียน</text>';
+    for(let d=0;d<state.idLen;d++){
+      const bx=30+d*5.4;
+      s+=`<rect x="${bx}" y="31.6" width="5.4" height="5.6" fill="#fff" stroke="#000" stroke-width=".3"/>`;
+      if(idText[d])s+=`<text x="${bx+2.7}" y="35.7" font-size="4.4" text-anchor="middle">${esc(idText[d])}</text>`;
+    }
     s+='<text x="71" y="9.5" font-size="3.1" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
     for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.9" text-anchor="middle">${v}</text>`;
     idLayout(state.idLen).forEach((row,d)=>{
@@ -602,8 +614,10 @@ function renderKey(){
       d.querySelector('.ch').appendChild(b)});
     box.appendChild(d);
   });
-  $('sheetPrev').innerHTML=sheetSVG();
+  $('printIdRow').hidden=!state.idLen;$('printId').maxLength=state.idLen||1;
+  $('sheetPrev').innerHTML=sheetSVG({idText:printIdText()});
 }
+$('printId').addEventListener('input',()=>{$('printId').value=printIdText();$('sheetPrev').innerHTML=sheetSVG({idText:printIdText()})});
 $('code').onchange=()=>{state.code=$('code').value.trim();save();renderSubj();renderKey()};
 $('n').onchange=()=>{state.n=Math.max(1,Math.min(100,+$('n').value||20));fitKey();save();renderKey()};
 $('k').onchange=()=>{state.k=+$('k').value;fitKey();save();renderKey()};
@@ -634,7 +648,7 @@ $('quickBtn').onclick=()=>{
 
 /* ====================== พิมพ์ ====================== */
 $('printBtn').onclick=()=>{
-  const two=$('printMode').value==='2up',svg=sheetSVG({mm:true});
+  const two=$('printMode').value==='2up',svg=sheetSVG({mm:true,idText:printIdText()});
   let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
   st.textContent=`@page{size:${two?'A4 landscape':'A5'};margin:0}`;
   $('printArea').innerHTML=two?`<div class="pg"><div>${svg}</div><div>${svg}</div></div>`:svg;
