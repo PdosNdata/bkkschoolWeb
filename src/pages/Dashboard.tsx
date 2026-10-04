@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -171,6 +171,15 @@ const Dashboard = () => {
     href: "/home-slider-form",
     roles: ["admin"],
     permissionName: "home_slider"
+  }, {
+    title: "จัดวางหน้าหลัก",
+    description: "ลากสลับตำแหน่ง/ซ่อน-แสดงบล็อกต่าง ๆ ในหน้าหลักของเว็บไซต์",
+    icon: LayoutGrid,
+    color: "bg-lime-50 border-lime-200",
+    iconColor: "text-lime-600",
+    href: "/home-layout",
+    roles: ["admin"],
+    permissionName: "home_layout"
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",

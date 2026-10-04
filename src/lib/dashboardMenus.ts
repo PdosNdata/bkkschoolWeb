@@ -26,5 +26,6 @@ export const DASHBOARD_MENU_PERMISSIONS: DashboardMenuPermission[] = [
   { permissionName: "menu_permissions", label: "จัดการสิทธิ์เมนู" },
   { permissionName: "textbook_system", label: "ระบบหนังสือเรียน" },
   { permissionName: "home_slider", label: "จัดการสไลด์หน้าแรก" },
+  { permissionName: "home_layout", label: "จัดวางหน้าหลัก" },
   { permissionName: "admin_panel", label: "Admin" },
 ];

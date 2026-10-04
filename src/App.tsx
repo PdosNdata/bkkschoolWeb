@@ -34,6 +34,7 @@ import DocumentDownloadsPage from "./pages/DocumentDownloadsPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import TeacherImportPage from "./pages/TeacherImportPage";
 import HomeSliderFormPage from "./pages/HomeSliderFormPage";
+import HomeLayoutPage from "./pages/HomeLayoutPage";
 import NotFound from "./pages/NotFound";
 
 
@@ -320,6 +321,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <MediaFormPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/home-layout"
+                element={
+                  <ProtectedRoute>
+                    <HomeLayoutPage />
                   </ProtectedRoute>
                 }
               />
