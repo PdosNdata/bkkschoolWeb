@@ -566,7 +566,7 @@ const StudentsPage = () => {
                   {scores.map((r) => (
                     <TableRow key={r.id}>
                       <TableCell>{new Date(r.taken_at).toLocaleDateString("th-TH")}</TableCell>
-                      <TableCell>{r.subject_name}</TableCell>
+                      <TableCell>{[r.subject_code, r.subject_name].filter(Boolean).join(" ")}</TableCell>
                       <TableCell>{[r.exam_kind, r.exam_name].filter(Boolean).join(" · ") || "-"}</TableCell>
                       <TableCell>{r.semester && r.academic_year ? `${r.semester}/${r.academic_year}` : "-"}</TableCell>
                       <TableCell className="text-right">{r.score}/{r.total}</TableCell>

@@ -109,6 +109,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   <div class="card">
     <h2>ตั้งค่าข้อสอบ</h2>
     <div class="row">
+      <label>รหัสวิชา <input id="code" maxlength="20" placeholder="เช่น ว22104" style="width:140px"></label>
       <label>จำนวนข้อ <input id="n" type="number" min="1" max="100"></label>
       <label>ตัวเลือก
         <select id="k"><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
@@ -261,7 +262,7 @@ const SKEY='omr-state-v1';
 const uuid=()=>{if(crypto.randomUUID)try{return crypto.randomUUID()}catch(e){}
   const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;
   const h=[...b].map(x=>x.toString(16).padStart(2,'0')).join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`};
-const newSubject=name=>({id:uuid(),name,n:20,k:4,labels:'thai',key:[],idLen:5,upd:0});
+const newSubject=(name,code='')=>({id:uuid(),name,code,n:20,k:4,labels:'thai',key:[],idLen:5,upd:0});
 let db={subjects:[],active:0,history:[]};
 try{
   const o=JSON.parse(localStorage.getItem(SKEY)||'{}');
@@ -269,7 +270,7 @@ try{
   else if(o.key){db.subjects=[Object.assign(newSubject('วิชา 1'),{n:o.n,k:o.k,labels:o.labels,key:o.key})];db.history=o.history||[]}
 }catch(e){}
 if(!db.subjects.length)db.subjects=[newSubject('วิชา 1')];
-db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(!s.id)s.id=uuid()});
+db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});
 db.history.forEach(h=>{if(!h.id)h.id=uuid()});
 if(db.active>=db.subjects.length)db.active=0;
 // state = มุมมองของวิชาที่เลือกอยู่ (n,k,labels,key) + history รวมทุกวิชา
@@ -280,9 +281,10 @@ const state={
   get key(){return db.subjects[db.active].key},set key(v){db.subjects[db.active].key=v},
   get idLen(){return db.subjects[db.active].idLen},set idLen(v){db.subjects[db.active].idLen=v},
   get name(){return db.subjects[db.active].name},
+  get code(){return db.subjects[db.active].code||''},set code(v){db.subjects[db.active].code=v},
   get history(){return db.history},set history(v){db.history=v}
 };
-const sigOf=s=>JSON.stringify([s.name,s.n,s.k,s.labels,s.key,s.idLen]);
+const sigOf=s=>JSON.stringify([s.name,s.code,s.n,s.k,s.labels,s.key,s.idLen]);
 function save(){
   db.subjects.forEach(s=>{const g=sigOf(s);if(s.sig!==g){s.sig=g;s.upd=Date.now()}});
   try{localStorage.setItem(SKEY,JSON.stringify(db))}catch(e){}
@@ -320,7 +322,7 @@ function sheetSVG({mm=false,marks=[],idMarks=''}={}){
   s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
   [[0,0],[w-mk,0],[w-mk,h-mk],[0,h-mk]].forEach(([x,y])=>s+=`<rect x="${x}" y="${y}" width="${mk}" height="${mk}" fill="#000"/>`);
   s+=`<circle cx="${SHEET.dot[0]}" cy="${SHEET.dot[1]}" r="2" fill="#000"/>`;
-  const title='กระดาษคำตอบ '+state.name,hasId=state.idLen>0;
+  const title='กระดาษคำตอบ '+(state.code?state.code+' ':'')+state.name,hasId=state.idLen>0;
   if(hasId){
     const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
     s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
@@ -573,7 +575,7 @@ function renderResult(){
 $('againBtn').onclick=()=>{cur=null;$('resView').hidden=true;$('scanView').hidden=false;paused=false;stable=0};
 $('saveBtn').onclick=()=>{
   if(!cur)return;const g=grade(cur.ans);
-  const entry={id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels};
+  const entry={id:uuid(),subjectId:db.subjects[db.active].id,subject:state.name,subjectCode:state.code,sid:$('stuId').value.trim(),name:$('stuName').value.trim()||'(ไม่ระบุชื่อ)',score:g.right,total:g.total,t:Date.now(),ans:[...cur.ans],labels:state.labels};
   if(!$('examRow').hidden){
     const ex={kind:$('examKind').value,name:$('examName').value.trim(),sem:+$('examSem').value,year:+$('examYear').value||null};
     entry.exam=ex;db.exam={kind:ex.kind,name:ex.name,sem:ex.sem,year:ex.year}; // จำค่าไว้ใช้กับแผ่นถัดไป
@@ -587,7 +589,7 @@ $('saveBtn').onclick=()=>{
 
 /* ====================== ตั้งเฉลย ====================== */
 function renderKey(){
-  $('n').value=state.n;$('k').value=state.k;$('lab').value=state.labels;$('idl').value=state.idLen;
+  $('code').value=state.code;$('n').value=state.n;$('k').value=state.k;$('lab').value=state.labels;$('idl').value=state.idLen;
   const lb=lab(),box=$('keyGrid');box.innerHTML='';
   state.key.forEach((kv,q)=>{
     const d=document.createElement('div');d.className='q';
@@ -600,6 +602,7 @@ function renderKey(){
   });
   $('sheetPrev').innerHTML=sheetSVG();
 }
+$('code').onchange=()=>{state.code=$('code').value.trim();save();renderSubj();renderKey()};
 $('n').onchange=()=>{state.n=Math.max(1,Math.min(100,+$('n').value||20));fitKey();save();renderKey()};
 $('k').onchange=()=>{state.k=+$('k').value;fitKey();save();renderKey()};
 $('idl').onchange=()=>{state.idLen=+$('idl').value;save();renderKey()};
@@ -641,7 +644,7 @@ function renderHist(){
   const h=state.history,box=$('histBox');
   if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
   box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map((r,i)=>`<tr><td>${esc(r.subject||'-')}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
+    h.map((r,i)=>`<tr><td>${esc((r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-'))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -649,8 +652,8 @@ $('histClear').onclick=()=>{if(confirm('ลบผลที่บันทึก�
 $('csvBtn').onclick=()=>{
   if(!state.history.length)return;
   const maxN=Math.max(...state.history.map(r=>r.ans.length));
-  const rows=[['วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  state.history.forEach(r=>rows.push([r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
+  const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  state.history.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ผลสอบ.csv';a.click();
@@ -671,7 +674,7 @@ $('bkIn').onchange=async e=>{
     if(o.app!=='omr-scanner'||!Array.isArray(d.subjects)||!d.subjects.length||!Array.isArray(d.history))throw new Error('ไม่ใช่ไฟล์สำรองของแอปนี้');
     if(!confirm(`นำเข้า ${d.subjects.length} วิชา และผลคะแนน ${d.history.length} รายการ?\nข้อมูลปัจจุบันในเครื่องจะถูกแทนที่`))return;
     db.subjects=d.subjects;db.history=d.history;db.active=0;
-    db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(!s.id)s.id=uuid()});db.history.forEach(h=>{if(!h.id)h.id=uuid()});fitKeyAll();save();
+    db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});db.history.forEach(h=>{if(!h.id)h.id=uuid()});fitKeyAll();save();
     renderSubj();renderKey();renderHist();alert('นำเข้าสำเร็จ');
   }catch(err){alert('นำเข้าไม่สำเร็จ: '+err.message)}
 };
@@ -739,15 +742,16 @@ function sbCfg(){
   try{const o=JSON.parse(localStorage.getItem('omr-sb')||'null');if(o&&o.url&&o.anonKey)return o}catch(e){}
   const c=window.SUPABASE_CONFIG;return c&&c.url&&c.anonKey?c:null;
 }
-const subjToRow=s=>({id:s.id,name:s.name,n:s.n,k:s.k,labels:s.labels,id_len:s.idLen,key:s.key,updated_at:new Date(s.upd||Date.now()).toISOString()});
-const rowToSubj=r=>({id:r.id,name:r.name,n:r.n,k:r.k,labels:r.labels,idLen:r.id_len,key:r.key,upd:Date.parse(r.updated_at)});
+const subjToRow=s=>({id:s.id,name:s.name,...(OC.examFields?{code:s.code||''}:{}),n:s.n,k:s.k,labels:s.labels,id_len:s.idLen,key:s.key,updated_at:new Date(s.upd||Date.now()).toISOString()});
+const rowToSubj=r=>({id:r.id,name:r.name,...('code' in r?{code:r.code||''}:{}),n:r.n,k:r.k,labels:r.labels,idLen:r.id_len,key:r.key,upd:Date.parse(r.updated_at)});
 const resToRow=(h,ok)=>({id:h.id,subject_id:h.subjectId&&ok.has(h.subjectId)?h.subjectId:null,subject_name:h.subject||'',student_id:h.sid||'',student_name:h.name||'',
   score:h.score,total:h.total,answers:h.ans,labels:h.labels||'thai',taken_at:new Date(h.t).toISOString(),
   ...(OC.examFields?{exam_kind:h.exam?h.exam.kind:null,exam_name:h.exam&&h.exam.name?h.exam.name:null,academic_year:h.exam?h.exam.year:null,semester:h.exam?h.exam.sem:null,
-    class_level:h.cls||null,room:h.room||null,student_ref:h.ref||null}:{})});
+    class_level:h.cls||null,room:h.room||null,student_ref:h.ref||null,subject_code:h.subjectCode||null}:{})});
 const rowToRes=r=>({id:r.id,subjectId:r.subject_id,subject:r.subject_name,sid:r.student_id,name:r.student_name,score:r.score,total:r.total,ans:r.answers,labels:r.labels,t:Date.parse(r.taken_at),
   ...(r.exam_kind||r.exam_name||r.academic_year?{exam:{kind:r.exam_kind,name:r.exam_name||'',sem:r.semester,year:r.academic_year}}:{}),
-  ...(r.student_ref?{ref:r.student_ref,cls:r.class_level,room:r.room}:{})});
+  ...(r.student_ref?{ref:r.student_ref,cls:r.class_level,room:r.room}:{}),
+  ...(r.subject_code?{subjectCode:r.subject_code}:{})});
 
 function sbInit(client){
   sb=client||null;sbUser=null;lastUser=null;
@@ -928,7 +932,7 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
 });
 /* ====================== วิชา ====================== */
 function renderSubj(){
-  $('subj').innerHTML=db.subjects.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join('');
+  $('subj').innerHTML=db.subjects.map((s,i)=>`<option value="${i}">${esc((s.code?s.code+' ':'')+s.name)}</option>`).join('');
   $('subj').value=db.active;$('subjDel').disabled=db.subjects.length<2;
 }
 function switchSubj(i){
@@ -939,7 +943,8 @@ function switchSubj(i){
 $('subj').onchange=()=>switchSubj(+$('subj').value);
 $('subjAdd').onclick=()=>{
   const name=(prompt('ชื่อวิชา','วิชา '+(db.subjects.length+1))||'').trim();if(!name)return;
-  db.subjects.push(newSubject(name));fitKeyAll();switchSubj(db.subjects.length-1);
+  const code=(prompt('รหัสวิชา (เว้นว่างได้) เช่น ว22104','')||'').trim();
+  db.subjects.push(newSubject(name,code));fitKeyAll();switchSubj(db.subjects.length-1);
 };
 $('subjRen').onclick=()=>{
   const name=(prompt('เปลี่ยนชื่อวิชา',state.name)||'').trim();if(!name)return;
