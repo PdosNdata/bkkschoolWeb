@@ -143,6 +143,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
     <div class="row" id="printIdRow" style="margin-bottom:10px" hidden>
       <label>รหัสนักเรียน (พิมพ์ลงช่องให้ล่วงหน้า) <input id="printId" inputmode="numeric" autocomplete="off" placeholder="เว้นว่าง = ให้นักเรียนเขียนเอง" style="width:230px"></label>
     </div>
+    <p class="hint" id="printCodeHint" style="margin:0 0 10px"></p>
     <div class="row" style="margin-bottom:10px"><label>รูปแบบการพิมพ์
       <select id="printMode"><option value="2up">A4 แนวนอน — 2 ใบต่อแผ่น (ตัดครึ่งเป็น A5)</option><option value="a5">A5 — 1 ใบต่อแผ่น</option></select></label></div>
     <button class="btn" id="printBtn">🖨️ พิมพ์กระดาษคำตอบ</button>
@@ -303,15 +304,20 @@ const lab=()=>LABELS[state.labels].slice(0,state.k);
 
 /* ====================== เลย์เอาต์กระดาษ (หน่วย มม. ใช้ร่วมทั้งพิมพ์และสแกน) ====================== */
 const SHEET={w:134,h:194,mk:8,markerC:[[4,4],[130,4],[130,190],[4,190]],dot:[24,4],margin:7};
-// ช่องรหัสนักเรียน: แถวละ 1 หลัก ตัวเลข 0-9 อยู่มุมขวาบนของหัวกระดาษ
-function idLayout(len){
-  const rows=[];
-  for(let d=0;d<len;d++){const l=[];for(let v=0;v<10;v++)l.push({x:76+v*5,y:13.5+d*4.4});rows.push(l)}
-  return rows;
+// หัวกระดาษมุมขวาบน: ตารางวงกลมรหัสนักเรียน + รหัสวิชา แบบคอลัมน์ (1 คอลัมน์ = 1 หลัก, แถว 0-9 เรียงลงมา)
+const HB={y0:16,pv:3.9,r:1.75,pc:4,idX:72.5,subjX:97};   // มม. (กรอบกระดาษ 134 x 194)
+const SUBJ_LETTERS=['ท','ค','ว','ส','พ','ศ','ง','อ','จ','ก'];   // อักษรนำรหัสวิชา = กลุ่มสาระ (10 แถวเท่าตัวเลข 0-9)
+const SUBJ_RE=/^[ทควสพศงอจก][0-9]{5}$/;
+const hbY=v=>HB.y0+v*HB.pv;
+function idLayout(len){            // [หลัก][ค่า 0-9] → {x,y}
+  return Array.from({length:len},(_,d)=>Array.from({length:10},(_,v)=>({x:HB.idX+d*HB.pc,y:hbY(v)})));
+}
+function subjLayout(){             // letter = คอลัมน์อักษร, digits = 5 คอลัมน์เลข
+  const col=x=>Array.from({length:10},(_,v)=>({x,y:hbY(v)}));
+  return {letter:col(HB.subjX+6.2),digits:Array.from({length:5},(_,i)=>col(HB.subjX+14.8+i*HB.pc)),letterLabelX:HB.subjX+3,digitLabelX:HB.subjX+11.6};
 }
 function layout(n,k){
-  const hasId=state.idLen>0;
-  const R=25,y0=hasId?42:32,pitch=hasId?5.5:6,r=2.2,sp=5.2,bx=9;
+  const R=25,y0=58,pitch=5,r=2.1,sp=5.2,bx=9;
   const C=Math.ceil(n/R),colW=Math.min(40,SHEET.w/C),x0=(SHEET.w-C*colW)/2,bubbles=[];
   for(let q=0;q<n;q++){
     const col=Math.floor(q/R),row=q%R,cy=y0+(row+.5)*pitch,list=[];
@@ -329,30 +335,38 @@ function sheetSVG({mm=false,marks=[],idMarks='',idText=''}={}){
   s+=`<rect x="${-m}" y="${-m}" width="${W}" height="${H}" fill="#fff"/>`;
   [[0,0],[w-mk,0],[w-mk,h-mk],[0,h-mk]].forEach(([x,y])=>s+=`<rect x="${x}" y="${y}" width="${mk}" height="${mk}" fill="#000"/>`);
   s+=`<circle cx="${SHEET.dot[0]}" cy="${SHEET.dot[1]}" r="2" fill="#000"/>`;
-  const title='กระดาษคำตอบ '+(state.code?state.code+' ':'')+state.name,hasId=state.idLen>0;
+  const title='กระดาษคำตอบ '+state.name,hasId=state.idLen>0;
+  const tl=title.length*2>54?' textLength="54" lengthAdjust="spacingAndGlyphs"':'';
+  s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
+  s+='<text x="8" y="22" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="22.4" x2="60" y2="22.4" stroke="#000" stroke-width=".25"/>';
+  s+='<text x="8" y="29" font-size="3.7">เลขที่</text><line x1="18" y1="29.4" x2="36" y2="29.4" stroke="#000" stroke-width=".25"/>';
+  // ช่องเขียน (ไม่ได้ใช้ตอนสแกน): รหัสนักเรียน = เว้นว่างให้นักเรียนเขียน, รหัสวิชา = พิมพ์ไว้ให้
+  const box=(x,y,ch)=>`<rect x="${x}" y="${y}" width="5" height="5.6" fill="#fff" stroke="#000" stroke-width=".3"/>`+(ch?`<text x="${x+2.5}" y="${y+4.1}" font-size="4.4" text-anchor="middle">${esc(ch)}</text>`:'');
   if(hasId){
-    const est=title.length*2,tl=est>62?` textLength="62" lengthAdjust="spacingAndGlyphs"`:'';
-    s+=`<text x="8" y="14" font-size="4.2" font-weight="bold"${tl}>${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="68" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="8" y="29" font-size="3.7">เลขที่</text><line x1="18" y1="29.4" x2="40" y2="29.4" stroke="#000" stroke-width=".25"/>';
-    // ช่องเขียนรหัสนักเรียน (หลักละ 1 ช่อง) — ไม่ได้ใช้ตอนสแกน แค่ให้เขียนแล้วระบายวงกลมให้ตรง
     s+='<text x="8" y="36" font-size="3.1" font-weight="bold">รหัสนักเรียน</text>';
-    for(let d=0;d<state.idLen;d++){
-      const bx=30+d*5.4;
-      s+=`<rect x="${bx}" y="31.6" width="5.4" height="5.6" fill="#fff" stroke="#000" stroke-width=".3"/>`;
-      if(idText[d])s+=`<text x="${bx+2.7}" y="35.7" font-size="4.4" text-anchor="middle">${esc(idText[d])}</text>`;
-    }
-    s+='<text x="71" y="9.5" font-size="3.1" text-anchor="end" font-weight="bold">รหัสนักเรียน</text>';
-    for(let v=0;v<10;v++)s+=`<text x="${76+v*5}" y="10.2" font-size="2.9" text-anchor="middle">${v}</text>`;
-    idLayout(state.idLen).forEach((row,d)=>{
-      s+=`<text x="73" y="${row[0].y+1}" font-size="3" text-anchor="end">${d+1}</text>`;
-      row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="2" fill="#fff" stroke="#000" stroke-width=".28"/>`);
-    });
-    (idMarks||'').split('').forEach((ch,d)=>{if(/\d/.test(ch)){const b=idLayout(state.idLen)[d][+ch];s+=`<circle cx="${b.x}" cy="${b.y}" r="1.8" fill="#222"/>`}});
-  }else{
-    s+=`<text x="${w/2}" y="14" font-size="4.2" text-anchor="middle" font-weight="bold" textLength="${Math.min(110,(12+state.name.length)*2.7)}" lengthAdjust="spacing">${esc(title)}</text>`;
-    s+='<text x="8" y="23" font-size="3.7">ชื่อ-สกุล</text><line x1="22" y1="23.4" x2="92" y2="23.4" stroke="#000" stroke-width=".25"/>';
-    s+='<text x="97" y="23" font-size="3.7">เลขที่</text><line x1="107" y1="23.4" x2="126" y2="23.4" stroke="#000" stroke-width=".25"/>';
+    for(let d=0;d<state.idLen;d++)s+=box(30+d*5,31.6,idText[d]);
+  }
+  s+='<text x="8" y="44" font-size="3.1" font-weight="bold">รหัสวิชา</text>';
+  for(let i=0;i<6;i++)s+=box(30+i*5,39.6,[...state.code][i]);
+  const bub=(x,y)=>`<circle cx="${x}" cy="${y}" r="${HB.r}" fill="#fff" stroke="#000" stroke-width=".28"/>`;
+  const dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="${HB.r-0.15}" fill="#111"/>`;
+  const lbl=(x,y,t,anchor='end')=>`<text x="${x}" y="${y+1}" font-size="2.9" text-anchor="${anchor}">${t}</text>`;
+  // วงกลมรหัสนักเรียน (ว่าง)
+  if(hasId){
+    s+=`<text x="${HB.idX-3.5}" y="11.5" font-size="3" font-weight="bold">รหัสนักเรียน</text>`;
+    for(let v=0;v<10;v++)s+=lbl(HB.idX-2.6,hbY(v),v);
+    idLayout(state.idLen).forEach(colb=>colb.forEach(b=>s+=bub(b.x,b.y)));
+    (idMarks||'').split('').forEach((ch,d)=>{if(/\d/.test(ch)&&d<state.idLen){const b=idLayout(state.idLen)[d][+ch];s+=dot(b.x,b.y)}});
+  }
+  // วงกลมรหัสวิชา (ระบายไว้ให้ตามรหัสวิชาที่ตั้ง ถ้ารูปแบบถูกต้อง)
+  const SL=subjLayout();
+  s+=`<text x="${HB.subjX}" y="11.5" font-size="3" font-weight="bold">รหัสวิชา</text>`;
+  for(let v=0;v<10;v++){s+=lbl(SL.letterLabelX,hbY(v),SUBJ_LETTERS[v]);s+=lbl(SL.digitLabelX,hbY(v),v)}
+  SL.letter.forEach(b=>s+=bub(b.x,b.y));SL.digits.forEach(colb=>colb.forEach(b=>s+=bub(b.x,b.y)));
+  if(SUBJ_RE.test(state.code)){
+    const c=[...state.code];
+    s+=dot(SL.letter[SUBJ_LETTERS.indexOf(c[0])].x,hbY(SUBJ_LETTERS.indexOf(c[0])));
+    for(let i=0;i<5;i++)s+=dot(SL.digits[i][+c[i+1]].x,hbY(+c[i+1]));
   }
   for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)
     s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="3.3" text-anchor="middle">${lb[j]}</text>`;
@@ -458,12 +472,23 @@ function readSheet(g,w,h,H,n,k){
 }
 
 // อ่านรหัสนักเรียน: ตัวเลข หรือ ? ถ้าว่าง/ระบายซ้อน
+// อ่านคอลัมน์ของวงกลม 10 ตัว → ดัชนีที่ระบาย, -1 = ว่าง, -2 = ระบายหลายตัว
+function readCol(means){
+  const base=median(means),dr=means.map(v=>base-v),thr=Math.max(12,base*.2);
+  const o=dr.map((v,i)=>i).sort((a,b)=>dr[b]-dr[a]);
+  if(dr[o[0]]<thr)return -1;
+  if(dr[o[1]]>thr&&dr[o[1]]>.6*dr[o[0]])return -2;
+  return o[0];
+}
+const sampleCol=(g,w,h,H,col)=>col.map(b=>sampleDisc(g,w,h,H,b.x,b.y,HB.r*.6));
 function readId(g,w,h,H,len){
-  return idLayout(len).map(row=>{
-    const m=row.map(b=>sampleDisc(g,w,h,H,b.x,b.y,1.2)),base=median(m),dr=m.map(v=>base-v),thr=Math.max(12,base*.2);
-    const o=dr.map((v,i)=>i).sort((a,b)=>dr[b]-dr[a]);
-    return dr[o[0]]<thr||(dr[o[1]]>thr&&dr[o[1]]>.6*dr[o[0]])?'?':String(o[0]);
-  }).join('');
+  return idLayout(len).map(col=>{const i=readCol(sampleCol(g,w,h,H,col));return i<0?'?':String(i)}).join('');
+}
+// รหัสวิชาบนกระดาษ: '' = ไม่ได้ระบายเลย (กระดาษที่ไม่มีรหัส), มี ? = อ่านไม่ครบ
+function readSubject(g,w,h,H){
+  const SL=subjLayout(),idx=[SL.letter,...SL.digits].map(col=>readCol(sampleCol(g,w,h,H,col)));
+  if(idx.every(i=>i===-1))return '';
+  return idx.map((i,k)=>i<0?'?':(k===0?SUBJ_LETTERS[i]:String(i))).join('');
 }
 
 /* ====================== กล้อง + ตรวจจับสด ====================== */
@@ -545,7 +570,14 @@ function process(cv){
   const d=detectOn(cv,w,h);if(!d)return false;
   const full=d.pts.map(p=>[p[0]*d.sc,p[1]*d.sc]),o=solveOrientation(full,g,w,h);
   if(!o)return false;
-  cur={cv,H:o.H,ans:readSheet(g,w,h,o.H,state.n,state.k),id:state.idLen?readId(g,w,h,o.H,state.idLen):''};
+  // รหัสวิชาที่ระบายไว้บนกระดาษ → เลือกวิชา/เฉลยให้ตรงอัตโนมัติ (ต้องทำก่อนอ่านคำตอบ เพราะจำนวนข้อ/ตัวเลือกต่างกันตามวิชา)
+  const sc=readSubject(g,w,h,o.H);let note='';
+  if(sc&&!sc.includes('?')){
+    const i=db.subjects.findIndex(x=>(x.code||'').trim()===sc);
+    if(i>=0&&i!==db.active){db.active=i;save();renderSubj();renderKey();note=`เลือกวิชา ${sc} ${state.name} ให้อัตโนมัติจากรหัสบนกระดาษ`}
+    else if(i<0)note=`⚠ รหัสวิชาบนกระดาษ ${sc} ไม่มีในรายการวิชา — ตรวจด้วยวิชา "${(state.code?state.code+' ':'')+state.name}"`;
+  }else if(sc)note=`⚠ อ่านรหัสวิชาบนกระดาษไม่ครบ (${sc}) — ตรวจด้วยวิชา "${(state.code?state.code+' ':'')+state.name}"`;
+  cur={cv,H:o.H,ans:readSheet(g,w,h,o.H,state.n,state.k),id:state.idLen?readId(g,w,h,o.H,state.idLen):'',subjCode:sc,note};
   paused=true;$('scanView').hidden=true;$('resView').hidden=false;$('stuName').value='';showExamRow();$('stuId').value=cur.id;$('stuName').dataset.auto='';$('stuId').parentElement.hidden=!state.idLen;lookupStudent();
   renderResult();return true;
 }
@@ -568,12 +600,12 @@ function renderResult(){
     });
   });
   if(state.idLen){const idc=cur.id,rows=idLayout(state.idLen);
-    rows.forEach((row,d)=>{const v=idc[d];if(v==null||v==='?')return;const b=row[+v],[px,py]=applyH(H,b.x,b.y),r=2*ppm(H,b.x,b.y);
+    rows.forEach((row,d)=>{const v=idc[d];if(v==null||v==='?')return;const b=row[+v],[px,py]=applyH(H,b.x,b.y),r=HB.r*ppm(H,b.x,b.y);
       x.strokeStyle='#2f8cff';x.lineWidth=Math.max(2,r*.4);x.beginPath();x.arc(px,py,r*1.25,0,7);x.stroke()})}
   const{right,total}=grade(ans);
   $('score').innerHTML=`${right} <small>/ ${total} คะแนน${total?` (${Math.round(right*100/total)}%)`:''}</small>`;
   const blank=ans.filter(a=>a===-1).length,multi=ans.filter(a=>a===-2).length;
-  $('scoreSub').textContent=(total?'':'ยังไม่ได้ตั้งเฉลย · ')+`เว้นว่าง ${blank} ข้อ · ระบายซ้อน ${multi} ข้อ`;
+  $('scoreSub').textContent=(cur.note?cur.note+' · ':'')+(total?'':'ยังไม่ได้ตั้งเฉลย · ')+`เว้นว่าง ${blank} ข้อ · ระบายซ้อน ${multi} ข้อ`;
   const box=$('resGrid');box.innerHTML='';
   ans.forEach((a,q)=>{
     const key=state.key[q],d=document.createElement('div');
@@ -614,6 +646,9 @@ function renderKey(){
       d.querySelector('.ch').appendChild(b)});
     box.appendChild(d);
   });
+  const ch=$('printCodeHint'),okCode=SUBJ_RE.test(state.code);
+  ch.textContent=okCode?`✓ รหัสวิชา ${state.code} จะถูกพิมพ์ลงช่อง และระบายวงกลมไว้ให้บนกระดาษ (ตอนสแกน ระบบเลือกวิชานี้ให้อัตโนมัติ)`:(state.code?`⚠ รหัสวิชา "${state.code}" ระบายวงกลมไม่ได้ — ต้องเป็นอักษรไทย 1 ตัว (ท ค ว ส พ ศ ง อ จ ก) ตามด้วยตัวเลข 5 หลัก เช่น ว22104 (กระดาษจะพิมพ์ช่องรหัสแต่ไม่ระบายวงกลม)`:'ยังไม่ได้ตั้งรหัสวิชา — ไปที่แท็บ "ตั้งเฉลย" ใส่รหัสวิชา (เช่น ว22104) เพื่อให้ระบายวงกลมรหัสวิชาไว้บนกระดาษ');
+  ch.style.color=okCode?'var(--ok)':'var(--warn)';
   $('printIdRow').hidden=!state.idLen;$('printId').maxLength=state.idLen||1;
   $('sheetPrev').innerHTML=sheetSVG({idText:printIdText()});
 }
