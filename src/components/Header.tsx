@@ -160,7 +160,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
           <Link
             to="/"
             onClick={(e) => handleMenuClick(e, null)}
-            className="flex items-center space-x-2 min-w-0 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
+            className="flex items-center space-x-2 min-w-0 rounded-xl px-2 py-1 -ml-2 cursor-pointer transition-all duration-300 hover:bg-purple-200/50 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_3px_10px_rgba(126,34,206,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
           >
             <img
               src={schoolLogo}
@@ -174,7 +174,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
             />
             {/* On tablets (md) the glass nav needs the room, so only the logo shows */}
             <div className="flex flex-col min-w-0 md:hidden lg:flex">
-              <span className="font-bold text-primary text-sm sm:text-lg leading-tight hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
+              <span className="font-bold text-primary text-sm sm:text-lg leading-tight transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
               <span className="hidden sm:block text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
           </Link>
