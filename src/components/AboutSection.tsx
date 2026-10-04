@@ -81,25 +81,25 @@ const AboutSection = () => {
 
         {/* Values */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="bg-gradient-vision border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105">
+          <Card className="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 shadow-blue-500/40 relative overflow-hidden border-0 ring-1 ring-white/30 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
             <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-white/25 ring-2 ring-white/50 backdrop-blur-sm shadow-inner rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">วิสัยทัศน์</h3>
-              <p className="text-white/90">โรงเรียนบ้านค้อดอนแคน เป็นแหล่งเรียนรู้คู่คุณธรรม นำชุมชนพัฒนาการศึกษาตามหลักปรัชญาของเศรษฐกิจพอเพียง นักเรียนมีคุณภาพตามมาตรฐาน ครูเป็นครูมืออาชีพ</p>
+              <h3 className="text-xl font-bold text-white mb-3">วิสัยทัศน์</h3>
+              <p className="text-white/95">โรงเรียนบ้านค้อดอนแคน เป็นแหล่งเรียนรู้คู่คุณธรรม นำชุมชนพัฒนาการศึกษาตามหลักปรัชญาของเศรษฐกิจพอเพียง นักเรียนมีคุณภาพตามมาตรฐาน ครูเป็นครูมืออาชีพ</p>
             </CardContent>
           </Card>
 
           <HoverCard>
             <HoverCardTrigger asChild>
-              <Card className="bg-gradient-mission border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
+              <Card className="bg-gradient-to-br from-rose-500 via-pink-600 to-fuchsia-700 shadow-rose-500/40 relative overflow-hidden border-0 ring-1 ring-white/30 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-white/25 ring-2 ring-white/50 backdrop-blur-sm shadow-inner rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Heart className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">พันธกิจ</h3>
-                  <p className="text-white/90">จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่  ๓  ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้  และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
+                  <h3 className="text-xl font-bold text-white mb-3">พันธกิจ</h3>
+                  <p className="text-white/95">จัดการศึกษาตั้งแต่อนุบาลถึงชั้นมัธยมศึกษาปีที่  ๓  ให้ทั่วถึงทุกคนในเขตบริการและได้คุณภาพตามเกณฑ์มาตรฐานการศึกษาขั้นพื้นฐานพร้อมทั้งพัฒนาระบบบริหารแหล่งเรียนรู้  และการจัดประสบการณ์ให้เด็กปฐมวัยอย่างมีคุณภาพ</p>
                 </CardContent>
               </Card>
             </HoverCardTrigger>
@@ -122,13 +122,13 @@ const AboutSection = () => {
 
           <HoverCard>
             <HoverCardTrigger asChild>
-              <Card className="bg-gradient-values border-0 shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-105 cursor-pointer">
+              <Card className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 shadow-emerald-500/40 relative overflow-hidden border-0 ring-1 ring-white/30 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-white/25 ring-2 ring-white/50 backdrop-blur-sm shadow-inner rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Star className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-900">เป้าประสงค์</h3>
-                  <p className="text-stone-950">
+                  <h3 className="text-xl font-bold text-white mb-3">เป้าประสงค์</h3>
+                  <p className="text-white/95">
                     ความซื่อสัตย์ ความรับผิดชอบ 
                     การมีจิตสาธารณะ และการใฝ่เรียนรู้
                   </p>
