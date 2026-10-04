@@ -234,7 +234,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
             {userName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="font-medium flex items-center gap-2 rounded-full border border-white/70 bg-white/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_3px_10px_rgba(88,28,135,0.15)] hover:bg-white/70">
+                  <Button variant="ghost" className="font-medium flex items-center gap-2 rounded-full border border-white/70 bg-white/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_3px_10px_rgba(88,28,135,0.15)] transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-300 hover:bg-gradient-to-b hover:from-purple-500 hover:to-purple-700 hover:text-white hover:shadow-[0_6px_14px_rgba(126,34,206,0.45),inset_0_1px_0_rgba(255,255,255,0.45)] data-[state=open]:bg-gradient-to-b data-[state=open]:from-purple-500 data-[state=open]:to-purple-700 data-[state=open]:text-white focus-visible:ring-purple-500">
                     <span>{userName}</span>
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={avatarUrl ?? undefined} alt={`โปรไฟล์ของ ${userName ?? ''}`} loading="lazy" />
