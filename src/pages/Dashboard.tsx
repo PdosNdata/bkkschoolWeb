@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import DashboardCard from "@/components/dashboard/DashboardCard";
 import NewsForm from "@/components/NewsForm";
 import { supabase } from "@/integrations/supabase/client";
 const Dashboard = () => {
@@ -59,7 +60,7 @@ const Dashboard = () => {
   {
     title: "โครงการด้วยรักและห่วงใย",
     description: "บันทึกกิจกรรมโครงการด้วยรักและห่วงใยของโรงเรียน",
-    icon: GraduationCap,
+    icon: HeartHandshake,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/activities-form",
@@ -88,7 +89,7 @@ const Dashboard = () => {
   }, {
     title: "คลังสื่อออนไลน์",
     description: "จัดการสื่อการเรียนรู้ วิดีโอ เอกสาร และลิงค์ต่างๆ",
-    icon: Megaphone,
+    icon: Clapperboard,
     color: "bg-orange-50 border-orange-200",
     iconColor: "text-orange-600",
     href: "/media-form",
@@ -279,37 +280,18 @@ const Dashboard = () => {
         <div className="mb-8">
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {systemCards.map((system, index) => {
-            const IconComponent = system.icon;
-            
-            const external = "external" in system && system.external;
-            const Wrapper: React.ElementType = external ? "a" : Link;
-            const wrapperProps = external ? { href: system.href } : { to: system.href };
-            return <Wrapper key={index} {...wrapperProps}>
-              <Card className={`group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${system.color} hover:scale-105`}>
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-lg shadow-sm bg-violet-200">
-                      <IconComponent className={`h-8 w-8 ${system.iconColor}`} />
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        เข้าใช้งาน
-                      </Button>
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors mt-4">
-                    {system.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <CardDescription className="text-sm text-muted-foreground leading-relaxed">
-                    {system.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Wrapper>;
-          })}
+            {systemCards.map((system, index) => (
+              <DashboardCard
+                key={system.permissionName ?? index}
+                index={index}
+                title={system.title}
+                description={system.description}
+                icon={system.icon}
+                themeKey={system.permissionName}
+                href={system.href}
+                external={"external" in system && !!system.external}
+              />
+            ))}
           </div>
         </div>
 
