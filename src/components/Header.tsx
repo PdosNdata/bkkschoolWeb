@@ -8,8 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 import UserSettingsModal from "./UserSettingsModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Menu } from "lucide-react";
+import { User as UserIcon, Menu, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import schoolLogo from "@/assets/school-logo-optimized.webp";
+// Raised glass items: lift + glossy purple fill when highlighted (hover/keyboard)
+const MENU_ITEM =
+  "group cursor-pointer gap-3 rounded-xl px-3 py-2.5 text-[0.95rem] font-semibold text-gray-800 transition-all duration-200 focus:-translate-y-px focus:bg-gradient-to-b focus:from-purple-500 focus:to-purple-700 focus:text-white focus:shadow-[0_6px_14px_rgba(126,34,206,0.4),inset_0_1px_0_rgba(255,255,255,0.4)]";
+const MENU_ICON =
+  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors group-focus:bg-white/25 group-focus:text-white";
+
 const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -238,15 +244,28 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={10}
+                  className="w-56 overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-b from-white/90 to-purple-50/80 p-1.5 backdrop-blur-xl backdrop-saturate-150 shadow-[0_18px_44px_rgba(88,28,135,0.28),0_2px_6px_rgba(88,28,135,0.12),inset_0_1px_0_rgba(255,255,255,1),inset_0_-2px_6px_rgba(88,28,135,0.08)]"
+                >
+                  <DropdownMenuItem
+                    onClick={() => navigate("/dashboard")}
+                    className={MENU_ITEM}
+                  >
+                    <span className={MENU_ICON}><LayoutDashboard className="h-4 w-4" /></span>
                     แดชบอร์ด
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
+                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)} className={MENU_ITEM}>
+                    <span className={MENU_ICON}><Settings className="h-4 w-4" /></span>
                     ตั้งค่า
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <DropdownMenuSeparator className="mx-2 my-1.5 bg-gradient-to-r from-transparent via-purple-300/70 to-transparent" />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className={`${MENU_ITEM} text-red-600 focus:from-red-500 focus:to-rose-600 focus:shadow-[0_6px_14px_rgba(225,29,72,0.4),inset_0_1px_0_rgba(255,255,255,0.4)]`}
+                  >
+                    <span className={`${MENU_ICON} bg-red-100 text-red-600 group-focus:bg-white/25 group-focus:text-white`}><LogOut className="h-4 w-4" /></span>
                     ลงชื่อออก
                   </DropdownMenuItem>
                 </DropdownMenuContent>
