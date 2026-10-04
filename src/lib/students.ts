@@ -60,6 +60,7 @@ export interface ExamScore {
   id: string;
   taken_at: string;
   subject_name: string;
+  subject_code: string | null;
   exam_kind: string | null;
   exam_name: string | null;
   academic_year: number | null;
