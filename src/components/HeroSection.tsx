@@ -1,10 +1,59 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Award, Lightbulb, Download } from "lucide-react";
+import { BookOpen, Users, Award, Lightbulb, Download, ArrowRight, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+interface FeatureCard {
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+  gradient: string;
+  glow: string;
+  href?: string;
+}
+
+const FEATURE_CARDS: FeatureCard[] = [
+  {
+    title: "หลักสูตรทันสมัย",
+    description: "พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น",
+    Icon: BookOpen,
+    gradient: "from-blue-500 via-blue-600 to-indigo-700",
+    glow: "shadow-blue-500/40",
+  },
+  {
+    title: "ครูที่มีประสบการณ์",
+    description: "ทีมงานที่มีประสบการณ์",
+    Icon: Users,
+    gradient: "from-emerald-500 via-emerald-600 to-teal-700",
+    glow: "shadow-emerald-500/40",
+    href: "/public-personnel-report",
+  },
+  {
+    title: "ผลงานที่โดดเด่น",
+    description: "รางวัลระดับจังหวัดและประเทศ",
+    Icon: Award,
+    gradient: "from-rose-500 via-rose-600 to-pink-700",
+    glow: "shadow-rose-500/40",
+  },
+  {
+    title: "นวัตกรรมการเรียนรู้",
+    description: "แผนการสอน · นวัตกรรม · หลักสูตรโรงเรียน",
+    Icon: Lightbulb,
+    gradient: "from-orange-500 via-orange-600 to-red-600",
+    glow: "shadow-orange-500/40",
+    href: "/documents",
+  },
+  {
+    title: "ดาวน์โหลดเอกสาร",
+    description: "แบบฟอร์มและเอกสารของโรงเรียน",
+    Icon: Download,
+    gradient: "from-violet-500 via-purple-600 to-fuchsia-700",
+    glow: "shadow-violet-500/40",
+    href: "/document-downloads",
+  },
+];
+
 const HeroSection = () => {
   const navigate = useNavigate();
   
@@ -98,56 +147,38 @@ const HeroSection = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <Card className="bg-gradient-to-t from-blue-50 to-blue-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-6 h-6 text-blue-500" />
-              </div>
-              <h3 className="text-blue-900 font-semibold mb-2">หลักสูตรทันสมัย</h3>
-              <p className="text-blue-700/90 text-sm">พัฒนาการเรียนรู้ด้วยการเรียนรู้ที่หลากหลาย ภูมิปัญญาท้องถิ่น</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          {FEATURE_CARDS.map(({ title, description, Icon, gradient, glow, href }) => {
+            const clickable = !!href;
+            return (
+              <div
+                key={title}
+                role={clickable ? "link" : undefined}
+                tabIndex={clickable ? 0 : undefined}
+                onClick={clickable ? () => navigate(href) : undefined}
+                onKeyDown={clickable ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(href); } } : undefined}
+                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 text-center text-white shadow-lg ${glow} ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70 ${clickable ? "cursor-pointer" : ""}`}
+              >
+                {/* soft decorative bubbles */}
+                <span aria-hidden className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-white/15 transition-transform duration-500 group-hover:scale-125" />
+                <span aria-hidden className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-white/10 transition-transform duration-500 group-hover:scale-125" />
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
 
-          <Card className="bg-gradient-to-t from-green-50 to-green-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/public-personnel-report')}>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-green-600" />
+                <div className="relative">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/25 shadow-inner ring-2 ring-white/50 backdrop-blur-sm transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                    <Icon className="h-7 w-7 text-white drop-shadow" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-bold leading-snug drop-shadow-sm">{title}</h3>
+                  <p className="text-sm font-medium leading-relaxed text-white/95">{description}</p>
+                  {clickable && (
+                    <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-white/25 px-3 py-1 text-xs font-semibold backdrop-blur-sm transition-colors group-hover:bg-white/40">
+                      เข้าดู <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  )}
+                </div>
               </div>
-              <h3 className="text-green-900 font-semibold mb-2">ครูที่มีประสบการณ์</h3>
-              <p className="text-green-700/90 text-sm">ทีมงานที่มีประสบการณ์</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-t from-rose-50 to-rose-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-6 h-6 text-rose-500" />
-              </div>
-              <h3 className="text-rose-900 font-semibold mb-2">ผลงานที่โดดเด่น</h3>
-              <p className="text-rose-700/90 text-sm">รางวัลระดับจังหวัดและประเทศ</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-t from-amber-50 to-amber-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/documents')}>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-amber-900 font-semibold mb-2">นวัตกรรมการเรียนรู้</h3>
-              <p className="text-amber-800/90 text-sm">แผนการสอน · นวัตกรรม · หลักสูตรโรงเรียน</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-t from-violet-50 to-violet-100 border border-black/5 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer" onClick={() => navigate('/document-downloads')}>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Download className="w-6 h-6 text-violet-600" />
-              </div>
-              <h3 className="text-violet-900 font-semibold mb-2">ดาวน์โหลดเอกสาร</h3>
-              <p className="text-violet-800/90 text-sm">แบบฟอร์มและเอกสารของโรงเรียน</p>
-            </CardContent>
-          </Card>
+            );
+          })}
         </div>
       </div>
     </section>;
