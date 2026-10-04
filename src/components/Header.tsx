@@ -145,7 +145,9 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border shadow-elegant">
+    <header className="sticky top-0 z-50 border-b border-white/50 bg-gradient-to-b from-white/75 via-white/55 to-white/40 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(88,28,135,0.14),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(255,255,255,0.6)]">
+      {/* glass specular highlight along the top edge */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between gap-2 min-h-16 py-2">
           {/* Logo + Title - clickable to home */}
@@ -164,7 +166,8 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
               sizes="32px"
               style={{ maxWidth: '32px', height: 'auto' }}
             />
-            <div className="flex flex-col min-w-0">
+            {/* On tablets (md) the glass nav needs the room, so only the logo shows */}
+            <div className="flex flex-col min-w-0 md:hidden lg:flex">
               <span className="font-bold text-primary text-sm sm:text-lg leading-tight hover:text-primary-glow transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
               <span className="hidden sm:block text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
             </div>
@@ -173,13 +176,13 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
           {(isHome || !userName) && (
             <>
               {/* Desktop Navigation */}
-              <nav className="hidden md:flex space-x-8">
+              <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 rounded-full border border-white/70 bg-white/35 p-1.5 backdrop-blur-md shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),inset_0_-2px_5px_rgba(88,28,135,0.10),0_4px_14px_rgba(88,28,135,0.12)]">
                 {menuItems.map((item) => (
                   <Link
                     key={item.name}
                     to={item.href}
                     onClick={(e) => handleMenuClick(e, item.id)}
-                    className="text-foreground hover:bg-purple-600 hover:text-white transition-all duration-300 font-medium px-3 py-2 rounded-md"
+                    className="whitespace-nowrap rounded-full px-3 lg:px-4 py-2 text-sm lg:text-base font-semibold text-gray-800 transition-all duration-300 hover:-translate-y-0.5 hover:bg-gradient-to-b hover:from-purple-500 hover:to-purple-700 hover:text-white hover:shadow-[0_6px_14px_rgba(126,34,206,0.45),inset_0_1px_0_rgba(255,255,255,0.45)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
                   >
                     {item.name}
                   </Link>
@@ -191,8 +194,8 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                 <SheetTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    size="sm" 
-                    className="md:hidden"
+                    size="sm"
+                    className="md:hidden rounded-full border border-white/70 bg-white/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_3px_10px_rgba(88,28,135,0.15)]"
                     onClick={() => setIsMobileMenuOpen(true)}
                   >
                     <Menu className="h-5 w-5" />
@@ -225,7 +228,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
             {userName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="font-medium flex items-center gap-2">
+                  <Button variant="ghost" className="font-medium flex items-center gap-2 rounded-full border border-white/70 bg-white/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_3px_10px_rgba(88,28,135,0.15)] hover:bg-white/70">
                     <span>{userName}</span>
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={avatarUrl ?? undefined} alt={`โปรไฟล์ของ ${userName ?? ''}`} loading="lazy" />
@@ -249,7 +252,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" size="sm" onClick={() => setIsAuthModalOpen(true)}>
+              <Button variant="default" size="sm" className="rounded-full shadow-[0_4px_14px_rgba(126,34,206,0.35),inset_0_1px_0_rgba(255,255,255,0.4)] hover:-translate-y-0.5 transition-all" onClick={() => setIsAuthModalOpen(true)}>
                 เข้าสู่ระบบ
               </Button>
             )}
