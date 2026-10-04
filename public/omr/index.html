@@ -69,6 +69,7 @@ td.r,th.r{text-align:right}
 .tscroll table{min-width:520px}
 @media(max-width:480px){th,td{padding:6px 4px}}
 #printArea{display:none}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;max-width:92vw;background:var(--bad);color:#fff;padding:10px 18px;border-radius:12px;box-shadow:0 8px 24px rgb(0 0 0/.25);font-size:.95rem}
 @media print{
   body>*:not(#printArea){display:none!important}
   #printArea{display:block;padding:0}
@@ -193,7 +194,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
 </section>
 
 <section id="t-hist">
-  <div class="card">
+  <div class="card" id="cloudCard">
     <h2>บัญชีและคลาวด์ (Supabase)</h2>
     <div id="cNone" hidden class="hint">โหลดไลบรารี Supabase ไม่ได้ (ออฟไลน์?) — ยังใช้งานแบบเก็บในเครื่องได้ตามปกติ</div>
     <div id="cCfg" hidden>
@@ -252,6 +253,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   </div>
 </section>
 </main>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <div id="printArea"></div>
 
 <script>
@@ -735,7 +737,10 @@ if(OC.dashboardUrl){const a=$('homeLink');a.href=OC.dashboardUrl;a.hidden=false}
 let sb=null,sbUser=null,syncing=false,pushTimer=null,lastUser=null;
 // เซิร์ฟเวอร์บางครั้งบันทึกแล้วแต่เบราว์เซอร์ไม่ได้รับคำตอบ → ตัดการรอเพื่อไม่ให้ซิงก์ค้างตลอด (การเขียนทุกจุดทำซ้ำได้ ไม่ซ้ำแถว)
 const tmo=(p,label)=>Promise.race([Promise.resolve(p),new Promise((_,rej)=>setTimeout(()=>rej(new Error(label+' ใช้เวลานานเกินไป กรุณาลองใหม่')),20000))]);
-const cmsg=(t,bad)=>{const e=$('cMsg');e.textContent=t;e.style.color=bad?'var(--bad)':''};
+const cmsg=(t,bad)=>{
+  const e=$('cMsg');e.textContent=t;e.style.color=bad?'var(--bad)':'';
+  if(OC.loginUrl&&bad&&t){const x=$('toast');x.textContent=t;x.hidden=false;clearTimeout(cmsg.t);cmsg.t=setTimeout(()=>{x.hidden=true},8000)}
+};
 const thErr=m=>/only request this after|security purposes/i.test(m)?'ขอลิงก์ได้อีกครั้งในอีกประมาณ 1 นาที รอสักครู่':/email rate limit|over_email_send_rate_limit/i.test(m)?'ระบบส่งอีเมลเกินโควตาชั่วคราว (ตัวส่งเริ่มต้นของ Supabase จำกัดจำนวนต่อชั่วโมง) ลองใหม่ภายหลัง':/Anonymous sign-ins|provide either an email/i.test(m)?'กรอกอีเมลและรหัสผ่านให้ครบก่อน':/rate limit|too many/i.test(m)?'ลองบ่อยเกินไป รอสักครู่แล้วลองใหม่':/signups not allowed/i.test(m)?'ระบบปิดรับสมัครสมาชิกใหม่':/Invalid login/i.test(m)?'อีเมลหรือรหัสผ่านไม่ถูกต้อง':/not confirmed/i.test(m)?'ยังไม่ได้ยืนยันอีเมล — ตรวจกล่องจดหมาย':
   /already registered/i.test(m)?'อีเมลนี้สมัครแล้ว ลองเข้าสู่ระบบ':/at least/i.test(m)?'รหัสผ่านต้องมีอย่างน้อย 6 ตัว':/valid email|invalid format/i.test(m)?'รูปแบบอีเมลไม่ถูกต้อง':m;
 function sbCfg(){
@@ -774,6 +779,8 @@ function renderCloud(c){
   $('cLogin').hidden=!(sb&&!sbUser);
   $('cUser').hidden=!(sb&&sbUser);
   if(sbUser)$('cWho').textContent=sbUser.email||sbUser.id;
+  // เว็บโรงเรียน: ล็อกอินอยู่แล้ว → ไม่ต้องแสดงการ์ดบัญชี/ซิงก์ (ยังซิงก์อัตโนมัติ); ถ้ายังไม่ล็อกอินให้แสดงปุ่มไปล็อกอิน
+  $('cloudCard').hidden=shared&&!!sbUser;
 }
 $('cSql').value=SB_SQL;
 $('cSqlCopy').onclick=async()=>{try{await navigator.clipboard.writeText(SB_SQL);cmsg('คัดลอก SQL แล้ว')}catch(e){$('cSql').select();document.execCommand('copy')}};
