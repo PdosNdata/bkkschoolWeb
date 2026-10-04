@@ -268,7 +268,7 @@ const SKEY='omr-state-v1';
 const uuid=()=>{if(crypto.randomUUID)try{return crypto.randomUUID()}catch(e){}
   const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;
   const h=[...b].map(x=>x.toString(16).padStart(2,'0')).join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`};
-const newSubject=(name,code='')=>({id:uuid(),name,code,n:20,k:4,labels:'thai',key:[],idLen:5,upd:0});
+const newSubject=(name,code='')=>({id:uuid(),name,code,n:20,k:4,labels:'thai',key:[],idLen:4,upd:0});
 let db={subjects:[],active:0,history:[]};
 try{
   const o=JSON.parse(localStorage.getItem(SKEY)||'{}');
@@ -276,7 +276,10 @@ try{
   else if(o.key){db.subjects=[Object.assign(newSubject('วิชา 1'),{n:o.n,k:o.k,labels:o.labels,key:o.key})];db.history=o.history||[]}
 }catch(e){}
 if(!db.subjects.length)db.subjects=[newSubject('วิชา 1')];
-db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});
+db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=4;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});
+// รหัสนักเรียนของโรงเรียนเป็น 4 หลัก (เช่น 5719): วิชาที่ยังเป็นค่าเริ่มต้นเดิม (5 หลัก) ปรับเป็น 4 หลักให้ครั้งเดียว
+const migrateIdLen4=d=>{if(!d.idLen4){d.subjects.forEach(s=>{if(s.idLen===5)s.idLen=4});d.idLen4=true}};
+migrateIdLen4(db);
 db.history.forEach(h=>{if(!h.id)h.id=uuid()});
 if(db.active>=db.subjects.length)db.active=0;
 // state = มุมมองของวิชาที่เลือกอยู่ (n,k,labels,key) + history รวมทุกวิชา
@@ -725,7 +728,7 @@ $('bkIn').onchange=async e=>{
     if(o.app!=='omr-scanner'||!Array.isArray(d.subjects)||!d.subjects.length||!Array.isArray(d.history))throw new Error('ไม่ใช่ไฟล์สำรองของแอปนี้');
     if(!confirm(`นำเข้า ${d.subjects.length} วิชา และผลคะแนน ${d.history.length} รายการ?\nข้อมูลปัจจุบันในเครื่องจะถูกแทนที่`))return;
     db.subjects=d.subjects;db.history=d.history;db.active=0;
-    db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=5;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});db.history.forEach(h=>{if(!h.id)h.id=uuid()});fitKeyAll();save();
+    db.subjects.forEach(s=>{if(s.idLen==null)s.idLen=4;if(s.code==null)s.code='';if(!s.id)s.id=uuid()});db.idLen4=!!d.idLen4;migrateIdLen4(db);db.history.forEach(h=>{if(!h.id)h.id=uuid()});fitKeyAll();save();
     renderSubj();renderKey();renderHist();alert('นำเข้าสำเร็จ');
   }catch(err){alert('นำเข้าไม่สำเร็จ: '+err.message)}
 };
