@@ -309,11 +309,13 @@ const StudentsPage = () => {
 
   const half = Math.ceil(filtered.length / 2);
 
-  const renderTable = (list: Student[]) => (
+  // `offset` keeps the running number continuous when the list is split in two columns
+  const renderTable = (list: Student[], offset = 0) => (
     <div className="overflow-x-auto">
       <Table className="text-sm">
         <TableHeader>
           <TableRow className="h-8">
+            <TableHead className="h-8 w-[26px] px-0 text-right sm:w-[34px] sm:px-1">ที่</TableHead>
             <TableHead className="h-8 w-[56px] px-2 sm:w-[72px]">รหัส</TableHead>
             <TableHead className="h-8 px-2">ชื่อ-สกุล</TableHead>
             <TableHead className="hidden h-8 w-[64px] whitespace-nowrap px-2 sm:table-cell">ชั้น/ห้อง</TableHead>
@@ -321,8 +323,9 @@ const StudentsPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {list.map((s) => (
+          {list.map((s, i) => (
             <TableRow key={s.id} className={s.is_active ? "" : "opacity-60"}>
+              <TableCell className="px-0 py-0.5 text-right text-xs text-muted-foreground sm:px-1 sm:text-sm lg:py-0">{offset + i + 1}</TableCell>
               <TableCell className="px-2 py-0.5 font-mono text-xs sm:text-sm lg:py-0">{s.student_code}</TableCell>
               <TableCell className="px-2 py-0.5 lg:py-0">
                 {studentFullName(s)}
@@ -357,7 +360,7 @@ const StudentsPage = () => {
             </Link>
             <h1 className="text-2xl font-bold text-primary">ข้อมูลนักเรียน</h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setSummaryOpen(true)}><Users className="mr-2 h-4 w-4" />สรุปจำนวนนักเรียน</Button>
             <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="mr-2 h-4 w-4" />นำเข้าจาก Excel</Button>
             <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />เพิ่มนักเรียน</Button>
@@ -397,7 +400,7 @@ const StudentsPage = () => {
                 {/* wide screens: split in two columns so a whole class fits on one screen */}
                 <div className="hidden gap-4 lg:grid lg:grid-cols-2">
                   {renderTable(filtered.slice(0, half))}
-                  {filtered.length > half && renderTable(filtered.slice(half))}
+                  {filtered.length > half && renderTable(filtered.slice(half), half)}
                 </div>
               </>
             )}
