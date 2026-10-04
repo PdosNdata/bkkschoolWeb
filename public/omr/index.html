@@ -320,7 +320,7 @@ function subjLayout(){             // letter = คอลัมน์อักษ
   return {letter:col(HB.subjX+6.2),digits:Array.from({length:5},(_,i)=>col(HB.subjX+14.8+i*HB.pc)),letterLabelX:HB.subjX+3,digitLabelX:HB.subjX+11.6};
 }
 function layout(n,k){
-  const R=25,y0=58,pitch=5,r=2.1,sp=5.2,bx=9;
+  const R=25,y0=64,pitch=4.8,r=2.0,sp=5.2,bx=9;
   const C=Math.ceil(n/R),colW=Math.min(40,SHEET.w/C),x0=(SHEET.w-C*colW)/2,bubbles=[];
   for(let q=0;q<n;q++){
     const col=Math.floor(q/R),row=q%R,cy=y0+(row+.5)*pitch,list=[];
@@ -371,8 +371,11 @@ function sheetSVG({mm=false,marks=[],idMarks='',idText=''}={}){
     s+=dot(SL.letter[SUBJ_LETTERS.indexOf(c[0])].x,hbY(SUBJ_LETTERS.indexOf(c[0])));
     for(let i=0;i<5;i++)s+=dot(SL.digits[i][+c[i+1]].x,hbY(+c[i+1]));
   }
-  for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)
-    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-1.6}" font-size="3.3" text-anchor="middle">${lb[j]}</text>`;
+  // หัวตัวเลือก 3 ชุดซ้อนกัน: ก ข ค ง / A B C D / 1 2 3 4 (ให้ตรงกับข้อสอบที่ใช้ชุดตัวเลือกต่างกัน)
+  const HEADS=[LABELS.thai,LABELS.abc,['1','2','3','4','5']];
+  for(let c=0;c<L.C;c++)for(let j=0;j<state.k;j++)HEADS.forEach((set,li)=>{
+    s+=`<text x="${L.x0+c*L.colW+L.bx+j*L.sp}" y="${L.y0-8.4+li*2.6}" font-size="2.5"${li===0?' font-weight="bold"':''} text-anchor="middle">${set[j]}</text>`;
+  });
   L.bubbles.forEach((row,q)=>{
     s+=`<text x="${row[0].x-3.2}" y="${row[0].y+1}" font-size="3.3" text-anchor="end">${q+1}</text>`;
     row.forEach(b=>s+=`<circle cx="${b.x}" cy="${b.y}" r="${L.r}" fill="#fff" stroke="#000" stroke-width=".28"/>`);
