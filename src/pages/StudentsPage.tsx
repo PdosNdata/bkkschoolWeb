@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, BarChart3, FileSpreadsheet, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, BarChart3, Copy, FileSpreadsheet, Pencil, Plus, Printer, Search, Trash2, Upload, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { withTimeout } from "@/lib/utils";
+import { summarizeByClass, summaryToPrintHtml, summaryToTsv } from "@/lib/studentsSummary";
 import {
   CLASS_LEVELS,
   ExamScore,
@@ -56,6 +57,7 @@ const StudentsPage = () => {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
 
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
@@ -275,6 +277,36 @@ const StudentsPage = () => {
     }
   };
 
+  const summary = useMemo(() => summarizeByClass(students), [students]);
+
+  const copySummary = async () => {
+    const tsv = summaryToTsv(summary.rows);
+    try {
+      await navigator.clipboard.writeText(tsv);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = tsv;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+    toast({ title: "คัดลอกแล้ว", description: "วางลงใน Excel หรือ Google Sheets ได้เลย" });
+  };
+
+  const printSummary = () => {
+    const w = window.open("", "_blank");
+    if (!w) {
+      toast({ title: "เบราว์เซอร์บล็อกหน้าต่างพิมพ์", description: "อนุญาตป๊อปอัปสำหรับเว็บนี้ แล้วลองใหม่", variant: "destructive" });
+      return;
+    }
+    const asOf = new Date().toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
+    w.document.write(summaryToPrintHtml(summary.rows, "โรงเรียนบ้านค้อดอนแคน", asOf));
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+  };
+
   const half = Math.ceil(filtered.length / 2);
 
   const renderTable = (list: Student[]) => (
@@ -326,6 +358,7 @@ const StudentsPage = () => {
             <h1 className="text-2xl font-bold text-primary">ข้อมูลนักเรียน</h1>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setSummaryOpen(true)}><Users className="mr-2 h-4 w-4" />สรุปจำนวนนักเรียน</Button>
             <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="mr-2 h-4 w-4" />นำเข้าจาก Excel</Button>
             <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />เพิ่มนักเรียน</Button>
           </div>
@@ -417,6 +450,50 @@ const StudentsPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>ยกเลิก</Button>
             <Button onClick={save} disabled={saving}>{saving ? "กำลังบันทึก…" : "บันทึก"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* head-count by class */}
+      <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>สรุปจำนวนนักเรียน</DialogTitle>
+            <DialogDescription>แยกตามชั้น ชาย หญิง รวม (นับเฉพาะนักเรียนที่กำลังศึกษา)</DialogDescription>
+          </DialogHeader>
+          <Table className="text-sm sm:text-base">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-2 sm:px-4">ชั้น</TableHead>
+                <TableHead className="px-2 text-right sm:px-4">หญิง</TableHead>
+                <TableHead className="px-2 text-right sm:px-4">ชาย</TableHead>
+                <TableHead className="px-2 text-right sm:px-4">รวม</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {summary.rows.map((r) => (
+                <TableRow
+                  key={r.label}
+                  className={r.kind === "grand" ? "bg-muted font-bold" : r.kind === "subtotal" ? "bg-muted/50 font-semibold" : ""}
+                >
+                  <TableCell className="whitespace-nowrap px-2 py-1.5 sm:px-4">{r.label}</TableCell>
+                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.female}</TableCell>
+                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.male}</TableCell>
+                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.total}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {(summary.noGender > 0 || summary.otherClass > 0) && (
+            <div className="space-y-1 text-sm text-amber-700">
+              {summary.noGender > 0 && <p>มี {summary.noGender} คนที่ไม่มีข้อมูลเพศ — นับในช่อง "รวม" เท่านั้น (แก้ไขเพศได้ในหน้ารายชื่อ)</p>}
+              {summary.otherClass > 0 && <p>มี {summary.otherClass} คนที่ชั้นไม่อยู่ในตาราง (ป.1–ม.3) — ไม่ถูกนับ</p>}
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={copySummary}><Copy className="mr-2 h-4 w-4" />คัดลอกไป Excel</Button>
+            <Button variant="outline" onClick={printSummary}><Printer className="mr-2 h-4 w-4" />พิมพ์</Button>
+            <Button onClick={() => setSummaryOpen(false)}>ปิด</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
