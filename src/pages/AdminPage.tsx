@@ -43,6 +43,10 @@ interface UserFormRow {
   action: 'approve' | 'delete' | '';
 }
 
+// Bigger, purple ticks so the on/off pattern reads at a glance
+const CHECK_CLASS =
+  "h-5 w-5 border-slate-400 data-[state=checked]:border-purple-600 data-[state=checked]:bg-purple-600 data-[state=checked]:text-white";
+
 const AdminPage = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -166,9 +170,8 @@ const AdminPage = () => {
   };
 
   const handleSelectAllPermission = (permissionName: string, granted: boolean) => {
-    userRoles.forEach(user => {
-      handlePermissionChange(user.user_id, permissionName, granted);
-    });
+    const ids = new Set(filteredUsers.map((user) => user.user_id));
+    ids.forEach((userId) => handlePermissionChange(userId, permissionName, granted));
   };
 
   const getUserPermission = (userId: string, permissionName: string): boolean => {
@@ -629,94 +632,141 @@ const AdminPage = () => {
           <p className="text-lg text-muted-foreground">กำหนดสิทธิ์การเข้าใช้งานระบบสำหรับผู้ใช้</p>
         </div>
 
-        <div className="w-full max-w-6xl mx-auto space-y-8">
+        <div className="w-full max-w-7xl mx-auto space-y-8">
 
           {/* Menu Permissions Management Section */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle>จัดการสิทธิ์เมนู</CardTitle>
               <CardDescription>
-                กำหนดสิทธิ์การเข้าใช้เมนูต่าง ๆ สำหรับแต่ละผู้ใช้
+                ติ๊กเพื่อให้ผู้ใช้เห็นเมนูนั้นในแดชบอร์ด · ติ๊ก "ทั้งหมด" ใต้ชื่อเมนูเพื่อเลือกทั้งคอลัมน์ · ติ๊ก "ทั้งแถว" เพื่อเลือกทุกเมนูให้ผู้ใช้คนนั้น
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {filteredUsers.length === 0 ? (
+              {groupedUserRoles.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   ไม่มีผู้ใช้ในระบบ กรุณาเพิ่มผู้ใช้ก่อน
                 </p>
               ) : (
-                <div className="space-y-6">
-                  <div className="overflow-x-auto">
-                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-60">ผู้ใช้</TableHead>
-                          {availablePermissions.map((permission) => (
-                            <TableHead key={permission.value} className="text-center min-w-32">
-                              <div className="space-y-2">
-                                <div className="text-xs font-medium">{permission.label}</div>
-                                <div className="flex items-center justify-center space-x-1">
-                                  <Checkbox
-                                    id={`select-all-${permission.value}`}
-                                    checked={filteredUsers.every(user => getUserPermission(user.user_id, permission.value))}
-                                    onCheckedChange={(checked) => 
-                                      handleSelectAllPermission(permission.value, checked === true)
-                                    }
-                                  />
-                                  <Label 
-                                    htmlFor={`select-all-${permission.value}`}
-                                    className="text-xs text-muted-foreground"
-                                  >
-                                    เลือกทั้งหมด
-                                  </Label>
-                                </div>
-                              </div>
-                            </TableHead>
-                          ))}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers.map((user) => (
-                          <TableRow key={user.user_id}>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium text-sm">{user.email}</p>
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {user.roles.map((role, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs">
-                                      {getRoleLabel(role)}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            </TableCell>
-                            {availablePermissions.map((permission) => (
-                              <TableCell key={permission.value} className="text-center">
-                                <Checkbox
-                                  checked={getUserPermission(user.user_id, permission.value)}
-                                  onCheckedChange={(checked) => 
-                                    handlePermissionChange(user.user_id, permission.value, checked === true)
-                                  }
-                                />
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                  
-                  {/* Save All Permissions Button */}
-                  {pendingPermissions.length > 0 && (
-                    <div className="flex justify-center pt-4 border-t">
+                <div className="space-y-3">
+                  {/* Toolbar: search + live save */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative w-full sm:w-72">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="ค้นหาผู้ใช้ด้วยอีเมล..."
+                        className="pl-9"
+                      />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      แสดง {filteredUsers.length} จาก {groupedUserRoles.length} คน
+                    </span>
+                    <div className="ml-auto flex items-center gap-3">
+                      {pendingPermissions.length > 0 && (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                          ยังไม่บันทึก {pendingPermissions.length} รายการ
+                        </span>
+                      )}
                       <Button
                         onClick={saveAllPermissions}
-                        disabled={isSubmitting}
-                        size="lg"
-                        className="bg-primary hover:bg-primary/90"
+                        disabled={isSubmitting || pendingPermissions.length === 0}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
-                        {isSubmitting ? "กำลังบันทึก..." : `บันทึกทั้งหมด (${pendingPermissions.length} รายการ)`}
+                        {isSubmitting ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
                       </Button>
+                    </div>
+                  </div>
+
+                  {filteredUsers.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">ไม่พบผู้ใช้ที่ค้นหา</p>
+                  ) : (
+                    <div className="max-h-[72vh] overflow-auto rounded-xl border bg-white shadow-sm">
+                      <table className="w-full border-separate border-spacing-0 text-sm">
+                        <thead>
+                          <tr>
+                            <th className="sticky left-0 top-0 z-30 min-w-[13.5rem] border-b bg-slate-100 px-3 py-2 text-left text-xs font-semibold text-slate-600">
+                              ผู้ใช้
+                            </th>
+                            {availablePermissions.map((permission) => {
+                              const granted = filteredUsers.filter((user) => getUserPermission(user.user_id, permission.value)).length;
+                              const allOn = granted === filteredUsers.length;
+                              return (
+                                <th
+                                  key={permission.value}
+                                  className="sticky top-0 z-20 min-w-[3.75rem] border-b bg-slate-100 px-0.5 py-2 align-top"
+                                >
+                                  <div className="flex h-full flex-col items-center justify-between gap-1.5">
+                                    <span className="text-[11px] font-semibold leading-tight text-slate-700">{permission.label}</span>
+                                    <label
+                                      htmlFor={`select-all-${permission.value}`}
+                                      className="flex cursor-pointer flex-col items-center gap-0.5 text-[10px] font-normal text-slate-500"
+                                    >
+                                      <Checkbox
+                                        id={`select-all-${permission.value}`}
+                                        checked={allOn}
+                                        onCheckedChange={(checked) =>
+                                          handleSelectAllPermission(permission.value, checked === true)
+                                        }
+                                        className={CHECK_CLASS}
+                                      />
+                                      ทั้งหมด ({granted}/{filteredUsers.length})
+                                    </label>
+                                  </div>
+                                </th>
+                              );
+                            })}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredUsers.map((user) => {
+                            const rowAll = availablePermissions.every((permission) => getUserPermission(user.user_id, permission.value));
+                            return (
+                              <tr key={user.user_id} className="group">
+                                <td className="sticky left-0 z-10 border-b bg-white px-3 py-2 group-hover:bg-purple-50">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <p className="max-w-[11.5rem] truncate text-sm font-medium" title={user.email}>{user.email}</p>
+                                      <div className="mt-0.5 flex flex-wrap gap-1">
+                                        {user.roles.map((role, index) => (
+                                          <Badge key={index} variant="outline" className="px-1.5 py-0 text-[10px]">
+                                            {getRoleLabel(role)}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <label className="flex shrink-0 cursor-pointer flex-col items-center gap-0.5 text-[10px] text-slate-500" title="เลือกทุกเมนูให้ผู้ใช้คนนี้">
+                                      <Checkbox
+                                        checked={rowAll}
+                                        onCheckedChange={(checked) =>
+                                          availablePermissions.forEach((permission) =>
+                                            handlePermissionChange(user.user_id, permission.value, checked === true),
+                                          )
+                                        }
+                                        className={CHECK_CLASS}
+                                      />
+                                      ทั้งแถว
+                                    </label>
+                                  </div>
+                                </td>
+                                {availablePermissions.map((permission) => (
+                                  <td key={permission.value} className="border-b px-1 py-2 text-center group-hover:bg-purple-50">
+                                    <Checkbox
+                                      checked={getUserPermission(user.user_id, permission.value)}
+                                      onCheckedChange={(checked) =>
+                                        handlePermissionChange(user.user_id, permission.value, checked === true)
+                                      }
+                                      aria-label={`${permission.label} — ${user.email}`}
+                                      className={CHECK_CLASS}
+                                    />
+                                  </td>
+                                ))}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
