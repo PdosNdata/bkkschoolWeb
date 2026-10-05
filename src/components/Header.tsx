@@ -160,7 +160,7 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
           <Link
             to="/"
             onClick={(e) => handleMenuClick(e, null)}
-            className="flex items-center space-x-2 min-w-0 rounded-xl px-2 py-1 -ml-2 cursor-pointer transition-all duration-300 hover:bg-purple-200/50 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_3px_10px_rgba(126,34,206,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+            className="group flex items-center space-x-2 min-w-0 rounded-full pl-3 pr-4 py-1.5 -ml-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:bg-gradient-to-b hover:from-purple-500 hover:to-purple-700 hover:shadow-[0_6px_14px_rgba(126,34,206,0.45),inset_0_1px_0_rgba(255,255,255,0.45)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
           >
             <img
               src={schoolLogo}
@@ -174,8 +174,8 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
             />
             {/* On tablets (md) the glass nav needs the room, so only the logo shows */}
             <div className="flex flex-col min-w-0 md:hidden lg:flex">
-              <span className="font-bold text-primary text-sm sm:text-lg leading-tight transition-colors duration-300">โรงเรียนบ้านค้อดอนแคน</span>
-              <span className="hidden sm:block text-xs text-muted-foreground">Ban Kho Don Khaen School</span>
+              <span className="font-bold text-primary text-sm sm:text-lg leading-tight transition-colors duration-300 group-hover:text-white">โรงเรียนบ้านค้อดอนแคน</span>
+              <span className="hidden sm:block text-xs text-muted-foreground transition-colors duration-300 group-hover:text-white/90">Ban Kho Don Khaen School</span>
             </div>
           </Link>
 
