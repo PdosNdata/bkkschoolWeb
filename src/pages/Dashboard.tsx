@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -180,6 +180,15 @@ const Dashboard = () => {
     href: "/home-layout",
     roles: ["admin"],
     permissionName: "home_layout"
+  }, {
+    title: "ปรับสไตล์การ์ด",
+    description: "เลือกสี การไล่ระดับสี ความหนากรอบ และเงาของการ์ดบนหน้าหลัก",
+    icon: Palette,
+    color: "bg-fuchsia-50 border-fuchsia-200",
+    iconColor: "text-fuchsia-600",
+    href: "/card-styles",
+    roles: ["admin"],
+    permissionName: "card_styles"
   }, {
     title: "Admin",
     description: "จัดการระบบ ผู้ใช้งาน และการตั้งค่า",

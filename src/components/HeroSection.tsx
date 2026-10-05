@@ -4,17 +4,7 @@ import { BookOpen, Users, Award, Lightbulb, Download, ArrowRight, type LucideIco
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-// Accent colours cycled across the activity cards (full class strings so
-// Tailwind can see them).
-const ACTIVITY_THEMES = [
-  { border: "from-rose-400 via-pink-500 to-orange-400", tint: "from-rose-50 to-white", title: "text-rose-700", btn: "from-rose-500 to-pink-600", glow: "shadow-rose-400/40", ring: "ring-rose-400" },
-  { border: "from-emerald-400 via-green-500 to-teal-500", tint: "from-emerald-50 to-white", title: "text-emerald-700", btn: "from-emerald-500 to-teal-600", glow: "shadow-emerald-400/40", ring: "ring-emerald-400" },
-  { border: "from-sky-400 via-blue-500 to-indigo-500", tint: "from-sky-50 to-white", title: "text-blue-700", btn: "from-sky-500 to-blue-600", glow: "shadow-blue-400/40", ring: "ring-blue-400" },
-  { border: "from-amber-400 via-orange-500 to-red-500", tint: "from-amber-50 to-white", title: "text-orange-700", btn: "from-amber-500 to-orange-600", glow: "shadow-orange-400/40", ring: "ring-orange-400" },
-  { border: "from-violet-400 via-purple-500 to-fuchsia-500", tint: "from-violet-50 to-white", title: "text-purple-700", btn: "from-violet-500 to-purple-600", glow: "shadow-purple-400/40", ring: "ring-purple-400" },
-  { border: "from-cyan-400 via-teal-500 to-emerald-500", tint: "from-cyan-50 to-white", title: "text-teal-700", btn: "from-cyan-500 to-teal-600", glow: "shadow-teal-400/40", ring: "ring-teal-400" },
-];
-
+import { cardParts, useCardStyles } from "@/lib/cardStyles";
 interface FeatureCard {
   title: string;
   description: string;
@@ -66,6 +56,7 @@ const FEATURE_CARDS: FeatureCard[] = [
 ];
 
 const HeroSection = () => {
+  const styles = useCardStyles();
   const navigate = useNavigate();
   
   const { data: activities = [] } = useQuery({
@@ -123,7 +114,7 @@ const HeroSection = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {activities.length > 0 ? (
                   activities.map((activity, index) => {
-                    const t = ACTIVITY_THEMES[index % ACTIVITY_THEMES.length];
+                    const t = cardParts(styles[`activity.${(index % 6) + 1}`]);
                     const open = () => navigate(`/activities/${activity.id}`);
                     return (
                       <div
@@ -132,9 +123,10 @@ const HeroSection = () => {
                         tabIndex={0}
                         onClick={open}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}
-                        className={`group cursor-pointer rounded-2xl bg-gradient-to-br ${t.border} p-[3px] shadow-lg ${t.glow} transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 ${t.ring}`}
+                        className={`group cursor-pointer rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2`}
+                        style={t.outer}
                       >
-                        <div className={`flex h-full flex-col overflow-hidden rounded-[0.85rem] bg-gradient-to-b ${t.tint}`}>
+                        <div className="flex h-full flex-col overflow-hidden" style={t.inner}>
                           <div className="relative h-36 overflow-hidden">
                             {activity.images && activity.images.length > 0 ? (
                               <img
@@ -144,19 +136,19 @@ const HeroSection = () => {
                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
                             ) : (
-                              <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${t.border}`}>
+                              <div className="flex h-full w-full items-center justify-center" style={t.fallback}>
                                 <span className="px-4 text-center text-sm font-semibold text-white drop-shadow">{activity.title}</span>
                               </div>
                             )}
                             <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
-                            <span className={`absolute left-2 top-2 rounded-full bg-gradient-to-r ${t.btn} px-2.5 py-0.5 text-[11px] font-bold text-white shadow`}>
+                            <span className="absolute left-2 top-2 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={t.btn}>
                               กิจกรรม
                             </span>
                           </div>
                           <div className="flex flex-1 flex-col p-4">
-                            <h5 className={`mb-2 text-center text-sm font-bold leading-snug ${t.title}`}>{activity.title}</h5>
+                            <h5 className="mb-2 text-center text-sm font-bold leading-snug" style={t.titleStyle}>{activity.title}</h5>
                             <p className="mb-3 line-clamp-2 text-center text-xs leading-relaxed text-gray-700">{activity.content}</p>
-                            <span className={`mx-auto mt-auto inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${t.btn} px-4 py-1.5 text-xs font-semibold text-white shadow-md transition-all group-hover:gap-2 group-hover:shadow-lg`}>
+                            <span className="mx-auto mt-auto inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-semibold text-white shadow-md transition-all group-hover:gap-2 group-hover:shadow-lg" style={t.btn}>
                               อ่านต่อ <ArrowRight className="h-3 w-3" />
                             </span>
                           </div>
@@ -186,7 +178,7 @@ const HeroSection = () => {
                 tabIndex={clickable ? 0 : undefined}
                 onClick={clickable ? () => navigate(href) : undefined}
                 onKeyDown={clickable ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(href); } } : undefined}
-                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 text-center text-white shadow-lg ${glow} ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70 ${clickable ? "cursor-pointer" : ""}`}
+                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 text-center text-white shadow-lg ${glow} ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-2 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70 ${clickable ? "cursor-pointer" : ""}`}
               >
                 {/* soft decorative bubbles */}
                 <span aria-hidden className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-white/15 transition-transform duration-500 group-hover:scale-125" />

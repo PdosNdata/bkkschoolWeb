@@ -5,17 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowRight, ArrowLeft, Newspaper, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { cardParts, useCardStyles } from "@/lib/cardStyles";
 import NewsDetailModal from "./NewsDetailModal";
 
 const NEWS_PAGE_SIZE = 3;
-
-// One vivid colour family per news category (full class strings for Tailwind)
-const NEWS_THEMES: Record<string, { border: string; tint: string; title: string; btn: string; glow: string; ring: string }> = {
-  general: { border: "from-sky-400 via-blue-500 to-indigo-500", tint: "from-sky-50 to-white", title: "text-blue-700", btn: "from-sky-500 to-blue-600", glow: "shadow-blue-400/40", ring: "ring-blue-400" },
-  academic: { border: "from-violet-400 via-purple-500 to-fuchsia-500", tint: "from-violet-50 to-white", title: "text-purple-700", btn: "from-violet-500 to-purple-600", glow: "shadow-purple-400/40", ring: "ring-purple-400" },
-  activity: { border: "from-emerald-400 via-green-500 to-teal-500", tint: "from-emerald-50 to-white", title: "text-emerald-700", btn: "from-emerald-500 to-teal-600", glow: "shadow-emerald-400/40", ring: "ring-emerald-400" },
-  announcement: { border: "from-rose-400 via-red-500 to-orange-500", tint: "from-rose-50 to-white", title: "text-rose-700", btn: "from-rose-500 to-red-600", glow: "shadow-rose-400/40", ring: "ring-rose-400" },
-};
 
 interface NewsItem {
   id: string;
@@ -29,6 +22,7 @@ interface NewsItem {
 }
 
 const NewsSection = () => {
+  const styles = useCardStyles();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
@@ -172,7 +166,7 @@ const NewsSection = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {news.map((item) => {
-              const t = NEWS_THEMES[item.category] ?? NEWS_THEMES.general;
+              const t = cardParts(styles[`news.${item.category}`] ?? styles["news.general"]);
               return (
                 <div
                   key={item.id}
@@ -180,9 +174,10 @@ const NewsSection = () => {
                   tabIndex={0}
                   onClick={() => openNewsDetail(item)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openNewsDetail(item); } }}
-                  className={`group cursor-pointer rounded-2xl bg-gradient-to-br ${t.border} p-[3px] shadow-lg ${t.glow} transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 ${t.ring}`}
+                  className={`group cursor-pointer rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2`}
+                  style={t.outer}
                 >
-                  <div className={`flex h-full flex-col overflow-hidden rounded-[0.85rem] bg-gradient-to-b ${t.tint}`}>
+                  <div className="flex h-full flex-col overflow-hidden" style={t.inner}>
                     <div className="relative h-48 overflow-hidden">
                       {item.cover_image ? (
                         <img
@@ -195,24 +190,24 @@ const NewsSection = () => {
                           decoding="async"
                         />
                       ) : (
-                        <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${t.border}`}>
+                        <div className="flex h-full w-full items-center justify-center" style={t.fallback}>
                           <Newspaper className="h-12 w-12 text-white/90 drop-shadow" />
                         </div>
                       )}
                       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
-                      <span className={`absolute left-3 top-3 rounded-full bg-gradient-to-r ${t.btn} px-3 py-1 text-xs font-bold text-white shadow`}>
+                      <span className="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold text-white shadow" style={t.btn}>
                         {getCategoryName(item.category)}
                       </span>
                     </div>
 
                     <div className="flex flex-1 flex-col p-5">
-                      <h3 className={`mb-2 line-clamp-2 text-lg font-bold leading-snug ${t.title}`}>{item.title}</h3>
+                      <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-snug" style={t.titleStyle}>{item.title}</h3>
                       <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-gray-700">{item.content}</p>
                       <div className="mb-4 mt-auto flex items-center justify-between gap-2 text-xs text-gray-600">
                         <span className="flex min-w-0 items-center"><User className="mr-1 h-4 w-4 shrink-0" /><span className="truncate">{item.author_name}</span></span>
                         <span className="flex shrink-0 items-center"><Calendar className="mr-1 h-4 w-4" />{formatDate(item.published_date)}</span>
                       </div>
-                      <span className={`inline-flex w-fit items-center gap-1 rounded-full bg-gradient-to-r ${t.btn} px-5 py-2 text-sm font-semibold text-white shadow-md transition-all group-hover:gap-2 group-hover:shadow-lg`}>
+                      <span className="inline-flex w-fit items-center gap-1 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition-all group-hover:gap-2 group-hover:shadow-lg" style={t.btn}>
                         อ่านต่อ <ArrowRight className="h-4 w-4" />
                       </span>
                     </div>
