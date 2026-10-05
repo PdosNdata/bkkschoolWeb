@@ -122,7 +122,8 @@ const Dashboard = () => {
     iconColor: "text-emerald-600",
     href: "/students",
     roles: ["teacher", "admin"],
-    permissionName: "students_system" // admins, or accounts an admin approved
+    everyone: true, // every staff account sees it (view-only unless approved)
+    permissionName: "students_system"
   }, {
     title: "ระบบตรวจคำตอบปรนัย",
     description: "สแกนกระดาษคำตอบด้วยกล้อง ตรวจเทียบเฉลย อ่านรหัสนักเรียนอัตโนมัติ",

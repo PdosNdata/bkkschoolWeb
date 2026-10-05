@@ -19,7 +19,6 @@ import ActivityAllFormPage from "./pages/ActivityAllFormPage";
 import ActivityDetailPage from "./pages/ActivityDetailPage";
 import AdminPage from "./pages/AdminPage";
 import PersonnelPage from "./pages/PersonnelPage";
-import MenuPermissionGate from "./components/MenuPermissionGate";
 import StudentsPage from "./pages/StudentsPage";
 import PersonnelFormPage from "./pages/PersonnelFormPage";
 import PersonnelReportPage from "./pages/PersonnelReportPage";
@@ -362,7 +361,7 @@ const App = () => {
                 path="/students"
                 element={
                   <ProtectedRoute>
-                    <MenuPermissionGate permission="students_system"><StudentsPage /></MenuPermissionGate>
+                    <StudentsPage />
                   </ProtectedRoute>
                 }
               />

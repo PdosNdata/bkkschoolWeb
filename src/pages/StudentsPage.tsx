@@ -50,6 +50,8 @@ const StudentsPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Add / edit / import need admin or the "students_system" menu permission; everyone else is view-only
+  const [canEdit, setCanEdit] = useState(false);
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("all");
 
@@ -111,7 +113,19 @@ const StudentsPage = () => {
         .select("role")
         .eq("user_id", user.id)
         .eq("approved", true);
-      setIsAdmin((roles ?? []).some((r) => r.role === "admin"));
+      const admin = (roles ?? []).some((r) => r.role === "admin");
+      setIsAdmin(admin);
+      if (admin) {
+        setCanEdit(true);
+        return;
+      }
+      const { data: perms } = await supabase
+        .from("user_permissions")
+        .select("permission_name")
+        .eq("user_id", user.id)
+        .eq("permission_name", "students_system")
+        .eq("granted", true);
+      setCanEdit((perms ?? []).length > 0);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -336,7 +350,9 @@ const StudentsPage = () => {
               <TableCell className="px-0 py-0.5 sm:px-1 lg:py-0">
                 <div className="flex justify-end whitespace-nowrap">
                   <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                  {canEdit && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="แก้ไข" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
+                  )}
                   {isAdmin && (
                     <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="ลบ" onClick={() => setToDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   )}
@@ -362,8 +378,12 @@ const StudentsPage = () => {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setSummaryOpen(true)}><Users className="mr-2 h-4 w-4" />สรุปจำนวนนักเรียน</Button>
-            <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="mr-2 h-4 w-4" />นำเข้าจาก Excel</Button>
-            <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />เพิ่มนักเรียน</Button>
+            {canEdit && (
+              <>
+                <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="mr-2 h-4 w-4" />นำเข้าจาก Excel</Button>
+                <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />เพิ่มนักเรียน</Button>
+              </>
+            )}
           </div>
         </div>
 
