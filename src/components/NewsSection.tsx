@@ -249,28 +249,6 @@ const NewsSection = () => {
           </div>
         )}
 
-        {/* Newsletter Section */}
-        <div className="bg-gradient-card rounded-2xl p-8 md:p-12 text-center border shadow-elegant">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              ติดตามข่าวสารจากเรา
-            </h3>
-            <p className="text-muted-foreground text-lg mb-8">
-              สมัครรับข่าวสารและกิจกรรมใหม่ ๆ ของโรงเรียนส่งตรงถึงอีเมลของคุณ
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="อีเมลของคุณ"
-                className="flex-1 px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <Button variant="default" size="lg">
-                สมัครรับข่าวสาร
-              </Button>
-            </div>
-          </div>
-        </div>
-
         <NewsDetailModal
           news={selectedNews}
           isOpen={isModalOpen}
