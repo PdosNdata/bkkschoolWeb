@@ -3,9 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Target, Heart, Star, X, Maximize2 } from "lucide-react";
+import { GraduationCap, Target, Heart, Star, X, Maximize2, Users, UserCheck, Award, Flame } from "lucide-react";
 import { useState } from "react";
 import schoolHistoryImage from "@/assets/school-history-optimized.webp";
+const STATS = [
+  { value: "250+", label: "นักเรียน", Icon: Users, gradient: "from-sky-500 via-blue-600 to-indigo-700", glow: "shadow-blue-500/40" },
+  { value: "20+", label: "ครูและบุคลากร", Icon: UserCheck, gradient: "from-emerald-500 via-emerald-600 to-teal-700", glow: "shadow-emerald-500/40" },
+  { value: "15+", label: "ปีประสบการณ์", Icon: Award, gradient: "from-orange-500 via-orange-600 to-red-600", glow: "shadow-orange-500/40" },
+  { value: "100%", label: "ความมุ่งมั่น", Icon: Flame, gradient: "from-fuchsia-500 via-purple-600 to-violet-700", glow: "shadow-purple-500/40" },
+];
+
 const AboutSection = () => {
   const [isImageOpen, setIsImageOpen] = useState(false);
   return <section id="history" className="py-20 bg-background">
@@ -57,25 +64,23 @@ const AboutSection = () => {
             </DialogContent>
           </Dialog>
 
-          <div className="lg:col-span-1 bg-gradient-card rounded-xl p-8 shadow-elegant">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="text-center">
-                <div className="text-xl font-semibold tracking-tight text-primary mb-1">250+</div>
-                <div className="text-sm font-medium text-muted-foreground">นักเรียน</div>
+          <div className="lg:col-span-1 grid grid-cols-2 gap-4">
+            {STATS.map(({ value, label, Icon, gradient, glow }) => (
+              <div
+                key={label}
+                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-5 text-center text-white shadow-lg ${glow} ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-1.5 hover:brightness-105`}
+              >
+                <span aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/15 transition-transform duration-500 group-hover:scale-125" />
+                <span aria-hidden className="pointer-events-none absolute -bottom-10 -left-6 h-20 w-20 rounded-full bg-white/10" />
+                <div className="relative">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-white/25 ring-2 ring-white/50 shadow-inner backdrop-blur-sm">
+                    <Icon className="h-5 w-5 text-white drop-shadow" />
+                  </div>
+                  <div className="text-3xl font-extrabold leading-none tracking-tight drop-shadow-sm">{value}</div>
+                  <div className="mt-1.5 text-sm font-semibold text-white/95">{label}</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-xl font-semibold tracking-tight text-primary mb-1">20+</div>
-                <div className="text-sm font-medium text-muted-foreground">ครูและบุคลากร</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-semibold tracking-tight text-primary mb-1">15+</div>
-                <div className="text-sm font-medium text-muted-foreground">ปีประสบการณ์</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-semibold tracking-tight text-primary mb-1">100%</div>
-                <div className="text-sm font-medium text-muted-foreground">ความมุ่งมั่น</div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
