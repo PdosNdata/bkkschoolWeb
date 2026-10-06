@@ -115,7 +115,7 @@ const StudentsPage = () => {
 
   const load = async () => {
     try {
-      setStudents(orderByClassNo(await withTimeout(fetchAllStudents(), 30000, "โหลดรายชื่อนักเรียน")));
+      setStudents(await withTimeout(fetchAllStudents(), 30000, "โหลดรายชื่อนักเรียน"));
     } catch (e) {
       console.error("Error loading students:", e);
       toast({ title: "โหลดรายชื่อนักเรียนไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
@@ -152,7 +152,8 @@ const StudentsPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return students.filter((s) => {
+    // Always listed by เลขที่ within each class/room, so edits re-order the table immediately
+    return orderByClassNo(students).filter((s) => {
       if (classFilter !== "all" && s.class_level !== classFilter) return false;
       if (!q) return true;
       return s.student_code.toLowerCase().includes(q) || studentFullName(s).toLowerCase().includes(q);
