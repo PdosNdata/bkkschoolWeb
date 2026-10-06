@@ -853,15 +853,15 @@ $('csvBtn').onclick=()=>{
 // พิมพ์รายงานผลคะแนน: ชั้น/ห้อง · เลขที่ · ชื่อ · วิชา · คะแนน (ตามตัวกรองที่เลือก เรียงชั้น → ห้อง → เลขที่)
 $('rptBtn').onclick=()=>{
   const list=visibleHist();if(!list.length)return;
-  const clsTxt=hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'ทุกชั้น',subjTxt=hf.subj?(subjLabel(list[0])):'ทุกวิชา';
-  const rows=list.map(r=>{const c=clsOf(r);return `<tr><td>${esc(c?c+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="r">${noOf(r)??'-'}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(subjLabel(r))}</td><td class="r">${r.score}/${r.total}</td></tr>`}).join('');
-  $('printArea').innerHTML=`<div class="rpt"><h1>รายงานผลคะแนน</h1><p>${esc(clsTxt)} · ${esc(subjTxt)} · ${list.length} รายการ · พิมพ์เมื่อ ${new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</p><table><thead><tr><th>ชั้น/ห้อง</th><th class="r">เลขที่</th><th>รหัสนักเรียน</th><th>ชื่อ</th><th>วิชา</th><th class="r">คะแนน</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-  let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
-  st.textContent='@page{size:A4 portrait;margin:14mm}';
-  // ชื่อไฟล์ตอนบันทึกเป็น PDF มาจาก title: ผลการสอบปรนัย วิชา ชั้น ภาคเรียนที่ ปี
+  const clsTxt=hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'ทุกชั้น';
+  // ชื่อรายงาน = ชื่อไฟล์ PDF (จาก title): ผลการสอบปรนัย วิชา ชั้น ภาคเรียนที่ ปี
   const uniq=a=>[...new Set(a.filter(v=>v!=null&&v!==''))].join(',');
   const sem=uniq(list.map(r=>r.exam&&r.exam.sem)),yr=uniq(list.map(r=>r.exam&&r.exam.year));
   const fname=['ผลการสอบปรนัย',hf.subj?subjLabel(list[0]):'ทุกวิชา',clsTxt,sem?'ภาคเรียนที่ '+sem:'',yr?'ปี '+yr:''].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g,'_');
+  const rows=list.map(r=>{const c=clsOf(r);return `<tr><td>${esc(c?c+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="r">${noOf(r)??'-'}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(subjLabel(r))}</td><td class="r">${r.score}/${r.total}</td></tr>`}).join('');
+  $('printArea').innerHTML=`<div class="rpt"><h1>${esc(fname)}</h1><p>${list.length} รายการ · พิมพ์เมื่อ ${new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</p><table><thead><tr><th>ชั้น/ห้อง</th><th class="r">เลขที่</th><th>รหัสนักเรียน</th><th>ชื่อ</th><th>วิชา</th><th class="r">คะแนน</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
+  st.textContent='@page{size:A4 portrait;margin:14mm}';
   const oldTitle=document.title;document.title=fname;
   const restore=()=>{document.title=oldTitle;window.removeEventListener('afterprint',restore)};
   window.addEventListener('afterprint',restore);
