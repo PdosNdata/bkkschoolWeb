@@ -789,7 +789,17 @@ const CLASS_ORDER=['ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.
 const clsOf=r=>r.cls||((typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim()))||{}).class_level||'';
 const subjKey=r=>(r.subjectCode||'')+'|'+(r.subject||'');
 const subjLabel=r=>(r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-');
-const visibleHist=()=>state.history.filter(r=>(!hf.cls||(hf.cls==='-'?!clsOf(r):clsOf(r)===hf.cls))&&(!hf.subj||subjKey(r)===hf.subj));
+// เลขที่ในห้อง ดึงสดจากทะเบียนนักเรียนด้วยรหัส (แก้เลขที่ในทะเบียนแล้วผลสอบตามทันที)
+const noOf=r=>{const x=typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim());return x&&x.class_no!=null?x.class_no:null};
+const roomOf=r=>{const x=typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim());return String(r.room||(x&&x.room)||'')};
+// เรียง ชั้น → ห้อง → เลขที่ (ไม่มีเลขที่ไว้ท้าย) → รหัสนักเรียน → วิชา → เวลา
+const histCmp=(a,b)=>{
+  const oc=c=>{const i=CLASS_ORDER.indexOf(c);return !c?999:i<0?100:i};
+  const na=noOf(a),nb=noOf(b);
+  return oc(clsOf(a))-oc(clsOf(b))||roomOf(a).localeCompare(roomOf(b),'th',{numeric:true})||(na==null?1e9:na)-(nb==null?1e9:nb)
+    ||String(a.sid||'').localeCompare(String(b.sid||''),'th',{numeric:true})||subjKey(a).localeCompare(subjKey(b),'th')||a.t-b.t;
+};
+const visibleHist=()=>state.history.filter(r=>(!hf.cls||(hf.cls==='-'?!clsOf(r):clsOf(r)===hf.cls))&&(!hf.subj||subjKey(r)===hf.subj)).sort(histCmp);
 function fillSel(sel,opts,cur){sel.innerHTML=opts.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');sel.value=opts.some(o=>o[0]===cur)?cur:''}
 function renderHist(){
   const all=state.history,box=$('histBox');
@@ -807,8 +817,8 @@ function renderHist(){
   $('histClear').textContent=filtered?`ลบที่แสดงอยู่ (${h.length})`:'ลบทั้งหมด';
   $('csvBtn').textContent=filtered?'⬇️ CSV ที่กรองอยู่':'⬇️ ดาวน์โหลด CSV';
   if(!h.length){box.innerHTML='<p class="hint">ไม่มีรายการที่ตรงกับตัวกรอง</p>';return}
-  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th>ชั้น</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
+  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>ชั้น</th><th class="r">เลขที่</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(clsOf(r)?clsOf(r)+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="r">${noOf(r)??'-'}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const i=state.history.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const r=state.history.splice(i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 $('fCls').onchange=()=>{hf.cls=$('fCls').value;renderHist()};
@@ -822,8 +832,8 @@ $('histClear').onclick=()=>{
 $('csvBtn').onclick=()=>{
   const list=visibleHist();if(!list.length)return;
   const maxN=Math.max(...list.map(r=>r.ans.length));
-  const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
+  const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง','เลขที่',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',clsOf(r)?clsOf(r)+(roomOf(r)?'/'+roomOf(r):''):'',noOf(r)??'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const part=[hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'',hf.subj?(hf.subj.split('|')[0]||hf.subj.split('|')[1]):''].filter(Boolean).join('-');
@@ -1038,11 +1048,11 @@ async function loadStudents(){
   try{
     let all=[];
     for(let from=0;;from+=1000){
-      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
+      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room,class_no').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
       all=all.concat(data);if(data.length<1000)break;
     }
     studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));
-    lookupStudent();
+    lookupStudent();renderHist();
   }catch(e){cmsg('โหลดรายชื่อนักเรียนไม่สำเร็จ: '+e.message,true)}
 }
 const stuFull=x=>`${x.prefix||''}${x.first_name} ${x.last_name||''}`.trim();
@@ -1053,7 +1063,7 @@ function lookupStudent(){
   if(code.includes('?')){info.style.color='var(--warn)';info.textContent='อ่านรหัสไม่ครบ — แก้ช่องรหัสด้วยมือ';return}
   const x=studentMap.get(code);
   if(x){
-    info.style.color='var(--ok)';info.textContent=`✓ ${stuFull(x)} · ${x.class_level}${x.room?'/'+x.room:''}`;
+    info.style.color='var(--ok)';info.textContent=`✓ ${stuFull(x)} · ${x.class_level}${x.room?'/'+x.room:''}${x.class_no!=null?' · เลขที่ '+x.class_no:''}`;
     const nm=$('stuName');if(!nm.value.trim()||nm.dataset.auto==='1'){nm.value=stuFull(x);nm.dataset.auto='1'}
   }else{info.style.color='var(--bad)';info.textContent='ไม่พบรหัสนี้ในทะเบียนนักเรียน'}
 }
