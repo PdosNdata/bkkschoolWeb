@@ -17,6 +17,7 @@ export interface Student {
   gender: "ช" | "ญ" | null;
   class_level: string;
   room: string | null;
+  class_no?: number | null; // เลขที่ในห้อง
   is_active: boolean;
   created_at: string;
 }

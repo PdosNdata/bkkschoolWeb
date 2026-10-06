@@ -41,9 +41,29 @@ const emptyForm = {
   gender: "" as "" | "ช" | "ญ",
   class_level: "ป.1",
   room: "",
+  class_no: "",
   is_active: true,
 };
 type FormState = typeof emptyForm;
+
+// Inside each class/room, list by เลขที่ first (those without one last, by code).
+// Groups keep the order the server returned them in.
+const orderByClassNo = (list: Student[]): Student[] => {
+  const groups = new Map<string, Student[]>();
+  for (const st of list) {
+    const key = `${st.class_level}|${st.room ?? ""}`;
+    const g = groups.get(key);
+    if (g) g.push(st);
+    else groups.set(key, [st]);
+  }
+  return [...groups.values()].flatMap((g) =>
+    g.sort((x, y) => {
+      const a = x.class_no ?? Number.MAX_SAFE_INTEGER;
+      const b = y.class_no ?? Number.MAX_SAFE_INTEGER;
+      return a - b || x.student_code.localeCompare(y.student_code);
+    }),
+  );
+};
 
 const StudentsPage = () => {
   const { toast } = useToast();
@@ -95,7 +115,7 @@ const StudentsPage = () => {
 
   const load = async () => {
     try {
-      setStudents(await withTimeout(fetchAllStudents(), 30000, "โหลดรายชื่อนักเรียน"));
+      setStudents(orderByClassNo(await withTimeout(fetchAllStudents(), 30000, "โหลดรายชื่อนักเรียน")));
     } catch (e) {
       console.error("Error loading students:", e);
       toast({ title: "โหลดรายชื่อนักเรียนไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
@@ -153,6 +173,7 @@ const StudentsPage = () => {
       gender: s.gender ?? "",
       class_level: s.class_level,
       room: s.room ?? "",
+      class_no: s.class_no != null ? String(s.class_no) : "",
       is_active: s.is_active,
     });
     setEditing(s);
@@ -173,6 +194,9 @@ const StudentsPage = () => {
       class_level: form.class_level,
       room: form.room.trim() || null,
       is_active: form.is_active,
+      ...(form.class_no.trim() !== "" || (editing !== "new" && editing?.class_no != null)
+        ? { class_no: form.class_no.trim() === "" ? null : Math.max(1, Math.floor(Number(form.class_no)) || 1) }
+        : {}),
     };
     setSaving(true);
     try {
@@ -323,6 +347,27 @@ const StudentsPage = () => {
 
   const half = Math.ceil(filtered.length / 2);
 
+  // เลขที่ typed straight into the table: saved when the box loses focus
+  const saveClassNo = async (s: Student, raw: string) => {
+    const text = raw.trim();
+    const next = text === "" ? null : Math.max(1, Math.floor(Number(text)) || 1);
+    if ((s.class_no ?? null) === next) return;
+    try {
+      await ensureSession();
+      const res = await withTimeout<{ error: { code?: string; message: string } | null }>(
+        studentsTable().update({ class_no: next }).eq("id", s.id),
+        20000,
+        "บันทึกเลขที่",
+      );
+      if (res.error) throw res.error;
+      setStudents((prev) => prev.map((x) => (x.id === s.id ? { ...x, class_no: next } : x)));
+    } catch (e) {
+      if (isTimeout(e)) timeoutToast(e);
+      else toast({ title: "บันทึกเลขที่ไม่สำเร็จ", description: errMsg(e), variant: "destructive" });
+      load();
+    }
+  };
+
   // `offset` keeps the running number continuous when the list is split in two columns
   const renderTable = (list: Student[], offset = 0) => (
     <div className="overflow-x-auto">
@@ -333,6 +378,7 @@ const StudentsPage = () => {
             <TableHead className="h-8 w-[56px] px-2 sm:w-[72px]">รหัส</TableHead>
             <TableHead className="h-8 px-2">ชื่อ-สกุล</TableHead>
             <TableHead className="hidden h-8 w-[64px] whitespace-nowrap px-2 sm:table-cell">ชั้น/ห้อง</TableHead>
+            <TableHead className="h-8 w-[64px] whitespace-nowrap px-1 text-center">เลขที่</TableHead>
             <TableHead className="h-8 w-[88px] px-0 sm:w-[96px] sm:px-1" />
           </TableRow>
         </TableHeader>
@@ -347,6 +393,24 @@ const StudentsPage = () => {
                 {!s.is_active && <Badge variant="outline" className="ml-2 px-1.5 py-0 text-[10px]">ไม่ได้ศึกษาแล้ว</Badge>}
               </TableCell>
               <TableCell className="hidden whitespace-nowrap px-2 py-0.5 sm:table-cell lg:py-0">{classLabel(s)}</TableCell>
+              <TableCell className="px-1 py-0.5 text-center lg:py-0">
+                {canEdit ? (
+                  <input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    defaultValue={s.class_no ?? ""}
+                    key={`${s.id}-${s.class_no ?? ""}`}
+                    aria-label={`เลขที่ของ ${studentFullName(s)}`}
+                    placeholder="-"
+                    onBlur={(e) => saveClassNo(s, e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                    className="h-6 w-12 rounded border border-input bg-background px-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                ) : (
+                  <span className="text-sm">{s.class_no ?? "-"}</span>
+                )}
+              </TableCell>
               <TableCell className="px-0 py-0.5 sm:px-1 lg:py-0">
                 <div className="flex justify-end whitespace-nowrap">
                   <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-6 lg:w-6" aria-label="คะแนนสอบ" onClick={() => openScores(s)}><BarChart3 className="h-4 w-4" /></Button>
@@ -455,6 +519,8 @@ const StudentsPage = () => {
                 </Select></div>
               <div className="grid gap-1"><Label>ห้อง</Label>
                 <Input value={form.room} placeholder="1" onChange={(e) => setForm({ ...form, room: e.target.value })} /></div>
+              <div className="grid gap-1"><Label>เลขที่</Label>
+                <Input type="number" min={1} inputMode="numeric" value={form.class_no} placeholder="เช่น 1" onChange={(e) => setForm({ ...form, class_no: e.target.value })} /></div>
               <div className="grid gap-1"><Label>เพศ</Label>
                 <Select value={form.gender || "none"} onValueChange={(v) => setForm({ ...form, gender: v === "none" ? "" : (v as "ช" | "ญ") })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
