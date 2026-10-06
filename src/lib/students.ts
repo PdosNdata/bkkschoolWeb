@@ -25,7 +25,7 @@ export interface Student {
 export type StudentInput = Pick<
   Student,
   "student_code" | "prefix" | "first_name" | "last_name" | "gender" | "class_level" | "room"
-> & { is_active?: boolean };
+> & { is_active?: boolean; class_no?: number };
 
 export const CLASS_LEVELS = ["ป.1", "ป.2", "ป.3", "ป.4", "ป.5", "ป.6", "ม.1", "ม.2", "ม.3"];
 

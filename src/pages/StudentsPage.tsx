@@ -292,12 +292,17 @@ const StudentsPage = () => {
       await ensureSession();
       for (let i = 0; i < parsed.rows.length; i += 200) {
         const chunk: StudentInput[] = parsed.rows.slice(i, i + 200);
-        const { error } = await withTimeout<{ error: { message: string } | null }>(
-          studentsTable().upsert(chunk, { onConflict: "student_code" }),
-          20000,
-          "ขั้นที่ 2: นำเข้ารายชื่อ",
-        );
-        if (error) throw error;
+        // Rows with and without เลขที่ go in separate requests: a mixed batch would
+        // write NULL into เลขที่ for the rows that lack it and wipe saved numbers.
+        for (const part of [chunk.filter((r) => r.class_no), chunk.filter((r) => !r.class_no)]) {
+          if (!part.length) continue;
+          const { error } = await withTimeout<{ error: { message: string } | null }>(
+            studentsTable().upsert(part, { onConflict: "student_code" }),
+            20000,
+            "ขั้นที่ 2: นำเข้ารายชื่อ",
+          );
+          if (error) throw error;
+        }
       }
       toast({ title: `นำเข้าแล้ว ${parsed.rows.length} คน`, description: "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล" });
       setImportOpen(false);
@@ -593,8 +598,8 @@ const StudentsPage = () => {
           <DialogHeader>
             <DialogTitle>นำเข้ารายชื่อจาก Excel</DialogTitle>
             <DialogDescription>
-              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง ถ้ามีแถวหัวตาราง (เช่น รหัสนักเรียน, ชื่อ-สกุล, ชั้น, ห้อง, เพศ)
-              ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง</b>
+              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง ถ้ามีแถวหัวตาราง (เช่น รหัสนักเรียน, ชื่อ-สกุล, ชั้น, ห้อง, เลขที่, เพศ)
+              ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง, เลขที่</b>
               — รหัสที่มีอยู่แล้วจะถูกอัปเดต ไม่เพิ่มซ้ำ
             </DialogDescription>
           </DialogHeader>

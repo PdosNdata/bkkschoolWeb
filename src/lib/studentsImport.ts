@@ -42,10 +42,10 @@ function splitFullName(raw: string): { prefix: string; first: string; last: stri
   return { prefix, first, last: rest.join(" ") };
 }
 
-type Col = "code" | "prefix" | "first" | "last" | "full" | "gender" | "class" | "room";
+type Col = "code" | "prefix" | "first" | "last" | "full" | "gender" | "class" | "room" | "classNo";
 type ColMap = Partial<Record<Col, number>>;
 
-const POSITIONAL: ColMap = { code: 0, prefix: 1, first: 2, last: 3, gender: 4, class: 5, room: 6 };
+const POSITIONAL: ColMap = { code: 0, prefix: 1, first: 2, last: 3, gender: 4, class: 5, room: 6, classNo: 7 };
 
 /** Recognise a header row by the Thai column titles; null if it isn't one. */
 function detectHeader(cells: string[]): ColMap | null {
@@ -62,6 +62,7 @@ function detectHeader(cells: string[]): ColMap | null {
     else if (/^เพศ/.test(h)) col = "gender";
     else if (/^(ชั้น|ระดับชั้น|ชั้นเรียน|ชั้นปี)/.test(h)) col = "class";
     else if (/^ห้อง/.test(h)) col = "room";
+    else if (/^เลขที่(ในห้อง|ห้อง)?$/.test(h)) col = "classNo";
     if (col && map[col] === undefined) map[col] = i;
   });
   const hits = Object.keys(map).length;
@@ -77,7 +78,7 @@ function splitLine(line: string): string[] {
 /**
  * Parse pasted text / spreadsheet rows (tab- or comma-separated).
  * With a header row, columns are matched by title in any order; otherwise the
- * order is: รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง.
+ * order is: รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง, เลขที่.
  */
 export function parseStudentRows(text: string): { rows: StudentInput[]; errors: string[]; usedHeader: boolean } {
   const rows: StudentInput[] = [];
@@ -109,6 +110,10 @@ export function parseStudentRows(text: string): { rows: StudentInput[]; errors: 
     const klass = normalizeClass(clsRaw);
     const room = get(cells, "room") || roomFromClass(clsRaw);
 
+    const classNoRaw = get(cells, "classNo").replace(/\.0+$/, "");
+    const classNo = /^\d{1,3}$/.test(classNoRaw) && Number(classNoRaw) > 0 ? Number(classNoRaw) : 0;
+    if (classNoRaw && !classNo) errors.push(`แถว ${lineNo}: เลขที่ "${classNoRaw}" อ่านไม่ได้ (ต้องเป็นตัวเลข) — ข้ามเลขที่ของแถวนี้`);
+
     if (!code) return void errors.push(`แถว ${lineNo}: ไม่มีรหัสนักเรียน`);
     if (!first) return void errors.push(`แถว ${lineNo}: ไม่มีชื่อ`);
     if (!klass) return void errors.push(`แถว ${lineNo}: ชั้น "${clsRaw}" อ่านไม่ได้ (เช่น ป.4 หรือ ม.1)`);
@@ -122,6 +127,9 @@ export function parseStudentRows(text: string): { rows: StudentInput[]; errors: 
       gender: normalizeGender(get(cells, "gender")),
       class_level: klass,
       room: room || null,
+      // เลขที่ is only sent when the file has a usable number, so re-importing
+      // a list without that column never wipes numbers already entered
+      ...(classNo ? { class_no: classNo } : {}),
     });
   });
   return { rows, errors, usedHeader: !!header };
