@@ -253,6 +253,11 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
       <h2 style="margin:0">ผลที่บันทึก</h2>
       <div class="row"><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
     </div>
+    <div class="row" id="histFilters" style="margin-bottom:8px" hidden>
+      <label>ชั้น <select id="fCls"></select></label>
+      <label>รหัสวิชา / วิชา <select id="fSubj"></select></label>
+      <span class="hint" id="histCount" style="margin:0"></span>
+    </div>
     <div id="histBox"></div>
   </div>
 </section>
@@ -697,23 +702,51 @@ $('printBtn').onclick=()=>{
 };
 
 /* ====================== ประวัติ ====================== */
+// ตัวกรองผลที่บันทึก: ชั้น + วิชา (รหัสวิชา+ชื่อ) — ชั้นดูจากที่บันทึกไว้ หรือค้นจากทะเบียนนักเรียนด้วยรหัส (โหมดเว็บโรงเรียน)
+const hf={cls:'',subj:''};
+const CLASS_ORDER=['ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.2','ม.3'];
+const clsOf=r=>r.cls||((typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim()))||{}).class_level||'';
+const subjKey=r=>(r.subjectCode||'')+'|'+(r.subject||'');
+const subjLabel=r=>(r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-');
+const visibleHist=()=>state.history.filter(r=>(!hf.cls||(hf.cls==='-'?!clsOf(r):clsOf(r)===hf.cls))&&(!hf.subj||subjKey(r)===hf.subj));
+function fillSel(sel,opts,cur){sel.innerHTML=opts.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');sel.value=opts.some(o=>o[0]===cur)?cur:''}
 function renderHist(){
-  const h=state.history,box=$('histBox');
-  if(!h.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
-  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map((r,i)=>`<tr><td>${esc((r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-'))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-i="${i}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
-  box.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const r=state.history.splice(+b.dataset.i,1)[0];cloudDelRes([r.id]);renderHist()});
+  const all=state.history,box=$('histBox');
+  $('histFilters').hidden=!all.length;
+  if(!all.length){box.innerHTML='<p class="hint">ยังไม่มีผลที่บันทึก</p>';return}
+  const cc=new Map(),sc=new Map();
+  all.forEach(r=>{const c=clsOf(r)||'-';cc.set(c,(cc.get(c)||0)+1);const k=subjKey(r),e=sc.get(k)||{label:subjLabel(r),n:0};e.n++;sc.set(k,e)});
+  const order=c=>{const i=CLASS_ORDER.indexOf(c);return c==='-'?999:i<0?100:i};
+  fillSel($('fCls'),[['','ทุกชั้น ('+all.length+')'],...[...cc].sort((a,b)=>order(a[0])-order(b[0])).map(([c,n])=>[c,(c==='-'?'ไม่ระบุชั้น':c)+' ('+n+')'])],hf.cls);
+  fillSel($('fSubj'),[['','ทุกวิชา'],...[...sc].sort((a,b)=>a[1].label.localeCompare(b[1].label,'th')).map(([k,e])=>[k,e.label+' ('+e.n+')'])],hf.subj);
+  hf.cls=$('fCls').value;hf.subj=$('fSubj').value;
+  const h=visibleHist(),filtered=!!(hf.cls||hf.subj),scored=h.filter(r=>r.total);
+  const avg=scored.length?Math.round(scored.reduce((a,r)=>a+r.score*100/r.total,0)/scored.length):null;
+  $('histCount').textContent=`แสดง ${h.length} จาก ${all.length} รายการ`+(avg!==null?` · เฉลี่ย ${avg}%`:'');
+  $('histClear').textContent=filtered?`ลบที่แสดงอยู่ (${h.length})`:'ลบทั้งหมด';
+  $('csvBtn').textContent=filtered?'⬇️ CSV ที่กรองอยู่':'⬇️ ดาวน์โหลด CSV';
+  if(!h.length){box.innerHTML='<p class="hint">ไม่มีรายการที่ตรงกับตัวกรอง</p>';return}
+  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th>ชั้น</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
+  box.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const i=state.history.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const r=state.history.splice(i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
+$('fCls').onchange=()=>{hf.cls=$('fCls').value;renderHist()};
+$('fSubj').onchange=()=>{hf.subj=$('fSubj').value;renderHist()};
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-$('histClear').onclick=()=>{if(confirm('ลบผลที่บันทึกทั้งหมด? (ถ้าเข้าสู่ระบบอยู่ จะลบในคลาวด์ด้วย)')){const ids=state.history.map(r=>r.id);state.history=[];cloudDelRes(ids);renderHist()}};
+$('histClear').onclick=()=>{
+  const list=visibleHist(),filtered=!!(hf.cls||hf.subj);if(!list.length)return;
+  if(!confirm(filtered?`ลบผลที่แสดงอยู่ ${list.length} รายการ? (รายการอื่นที่ไม่ได้แสดงจะไม่ถูกลบ · ถ้าเข้าสู่ระบบอยู่ จะลบในคลาวด์ด้วย)`:'ลบผลที่บันทึกทั้งหมด? (ถ้าเข้าสู่ระบบอยู่ จะลบในคลาวด์ด้วย)'))return;
+  const ids=new Set(list.map(r=>r.id));state.history=state.history.filter(r=>!ids.has(r.id));cloudDelRes([...ids]);renderHist();
+};
 $('csvBtn').onclick=()=>{
-  if(!state.history.length)return;
-  const maxN=Math.max(...state.history.map(r=>r.ans.length));
+  const list=visibleHist();if(!list.length)return;
+  const maxN=Math.max(...list.map(r=>r.ans.length));
   const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  state.history.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
+  list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ผลสอบ.csv';a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const part=[hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'',hf.subj?(hf.subj.split('|')[0]||hf.subj.split('|')[1]):''].filter(Boolean).join('-');
+  a.download=('ผลสอบ'+(part?'-'+part:'')+'.csv').replace(/[\\/:*?"<>|]/g,'_');a.click();
 };
 
 /* ====================== สำรองข้อมูล ====================== */
