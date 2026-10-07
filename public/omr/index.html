@@ -817,6 +817,13 @@ function renderHist(){
     h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const i=state.history.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const r=state.history.splice(i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
+// ชื่อไฟล์: คะแนนสอบปรนัย <วิชา> <ชั้น> ภาคเรียนที่ <ภาค> ปีการศึกษา <ปี> — ส่วนไหนในรายการที่แสดงมีค่าเดียวจึงใส่ (หลายค่า = ข้าม)
+function reportName(list){
+  const one=f=>{const v=[...new Set(list.map(f).filter(Boolean))];return v.length===1?v[0]:''};
+  const sem=one(r=>r.exam&&r.exam.sem),yr=one(r=>r.exam&&r.exam.year);
+  const sj=one(subjLabel),cl=one(clsOf);
+  return ['คะแนนสอบปรนัย',sj,cl&&!sj.includes(cl)?cl:'',sem?'ภาคเรียนที่ '+sem:'',yr?'ปีการศึกษา '+yr:''].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g,'_');
+}
 // พิมพ์รายงานตามตัวกรองที่เลือก: ตารางรายชื่อ (เรียงตามรหัส) + สรุปท้ายตาราง
 $('rptBtn').onclick=()=>{
   const list=visibleHist().slice().sort((a,b)=>String(a.sid||'~').localeCompare(String(b.sid||'~'),'th',{numeric:true})||String(a.name||'').localeCompare(String(b.name||''),'th'));
@@ -836,6 +843,8 @@ $('rptBtn').onclick=()=>{
   (sum?`<tr><td>คะแนนเฉลี่ย</td><td class="r">${f1(sum.avgS)}${total.length===1?' / '+total[0]:''} (${f1(sum.avg)}%)</td></tr>
   <tr><td>คะแนนสูงสุด</td><td class="r">${f1(sum.max)}%</td></tr><tr><td>คะแนนต่ำสุด</td><td class="r">${f1(sum.min)}%</td></tr>
   <tr><td>ผ่านเกณฑ์ (ตั้งแต่ 50%)</td><td class="r">${sum.pass} คน (${f1(sum.pass*100/ps.length)}%)</td></tr>`:'')+`</tbody></table></div>`;
+  const t0=document.title;document.title=reportName(list);
+  window.addEventListener('afterprint',()=>{document.title=t0},{once:true});
   window.print();
 };
 $('fCls').onchange=()=>{hf.cls=$('fCls').value;renderHist()};
@@ -853,8 +862,7 @@ $('csvBtn').onclick=()=>{
   list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const part=[hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'',hf.subj?(hf.subj.split('|')[0]||hf.subj.split('|')[1]):''].filter(Boolean).join('-');
-  a.download=('ผลสอบ'+(part?'-'+part:'')+'.csv').replace(/[\\/:*?"<>|]/g,'_');a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=reportName(list)+'.csv';a.click();
 };
 
 /* ====================== สำรองข้อมูล ====================== */
