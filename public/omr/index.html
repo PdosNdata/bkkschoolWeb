@@ -69,6 +69,11 @@ td.r,th.r{text-align:right}
 .tscroll table{min-width:520px}
 @media(max-width:480px){th,td{padding:6px 4px}}
 #printArea{display:none}
+.rpt{font-family:'OMR Sarabun','Sarabun',Tahoma,sans-serif;color:#000;font-size:13pt}
+.rpt h1{font-size:18pt;margin:0 0 2mm;text-align:center}.rpt .sub{text-align:center;margin:0 0 5mm;font-size:12pt}
+.rpt table{width:100%;border-collapse:collapse}.rpt th,.rpt td{border:.25mm solid #000;padding:1mm 2mm;text-align:left}
+.rpt th{background:#eee}.rpt td.r,.rpt th.r{text-align:right}.rpt td.c,.rpt th.c{text-align:center}.rpt tr{break-inside:avoid}
+.rpt tfoot td{font-weight:bold;background:#f6f6f6}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;max-width:92vw;background:var(--bad);color:#fff;padding:10px 18px;border-radius:12px;box-shadow:0 8px 24px rgb(0 0 0/.25);font-size:.95rem}
 @media print{
   body>*:not(#printArea){display:none!important}
@@ -252,7 +257,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   <div class="card">
     <div class="row" style="justify-content:space-between;margin-bottom:8px">
       <h2 style="margin:0">ผลที่บันทึก</h2>
-      <div class="row"><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
+      <div class="row"><button class="btn sec" id="rptBtn">🖨️ พิมพ์รายงาน</button><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
     </div>
     <div class="row" id="histFilters" style="margin-bottom:8px" hidden>
       <label>ชั้น <select id="fCls"></select></label>
@@ -812,6 +817,27 @@ function renderHist(){
     h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const i=state.history.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const r=state.history.splice(i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
+// พิมพ์รายงานตามตัวกรองที่เลือก: ตารางรายชื่อ (เรียงตามรหัส) + สรุปท้ายตาราง
+$('rptBtn').onclick=()=>{
+  const list=visibleHist().slice().sort((a,b)=>String(a.sid||'~').localeCompare(String(b.sid||'~'),'th',{numeric:true})||String(a.name||'').localeCompare(String(b.name||''),'th'));
+  if(!list.length){alert('ไม่มีรายการที่จะพิมพ์');return}
+  const pct=r=>r.total?r.score*100/r.total:null,ps=list.map(pct).filter(x=>x!==null),sc=list.filter(r=>r.total).map(r=>r.score);
+  const f1=x=>(Math.round(x*10)/10).toLocaleString('th-TH'),subs=[...new Set(list.map(subjLabel))],clss=[...new Set(list.map(r=>clsOf(r)||'ไม่ระบุชั้น'))];
+  const sum=ps.length?{avg:ps.reduce((a,b)=>a+b,0)/ps.length,avgS:sc.reduce((a,b)=>a+b,0)/sc.length,max:Math.max(...ps),min:Math.min(...ps),pass:ps.filter(x=>x>=50).length}:null;
+  const total=[...new Set(list.map(r=>r.total).filter(Boolean))];
+  let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
+  st.textContent='@page{size:A4 portrait;margin:14mm 12mm}';
+  $('printArea').innerHTML=`<div class="rpt"><h1>รายงานผลสอบ${subs.length===1?' '+esc(subs[0]):''}</h1>
+  <p class="sub">${hf.cls?'ชั้น '+esc(clss.join(', ')):'ทุกชั้น'}${subs.length>1?' · '+subs.length+' วิชา':''} · พิมพ์เมื่อ ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short'})}</p>
+  <table><thead><tr><th class="c">ที่</th><th>รหัส</th><th>ชื่อ-สกุล</th>${subs.length>1?'<th>วิชา</th>':''}<th class="c">ชั้น</th><th class="r">คะแนน</th><th class="r">%</th></tr></thead><tbody>`+
+  list.map((r,i)=>`<tr><td class="c">${i+1}</td><td>${esc(String(r.sid||''))}</td><td>${esc(r.name||'')}</td>${subs.length>1?`<td>${esc(subjLabel(r))}</td>`:''}<td class="c">${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?f1(pct(r)):'-'}</td></tr>`).join('')+
+  `</tbody></table><table style="margin-top:5mm;width:auto;min-width:100mm"><tbody>
+  <tr><td>จำนวนผู้สอบ</td><td class="r">${list.length} คน</td></tr>`+
+  (sum?`<tr><td>คะแนนเฉลี่ย</td><td class="r">${f1(sum.avgS)}${total.length===1?' / '+total[0]:''} (${f1(sum.avg)}%)</td></tr>
+  <tr><td>คะแนนสูงสุด</td><td class="r">${f1(sum.max)}%</td></tr><tr><td>คะแนนต่ำสุด</td><td class="r">${f1(sum.min)}%</td></tr>
+  <tr><td>ผ่านเกณฑ์ (ตั้งแต่ 50%)</td><td class="r">${sum.pass} คน (${f1(sum.pass*100/ps.length)}%)</td></tr>`:'')+`</tbody></table></div>`;
+  window.print();
+};
 $('fCls').onchange=()=>{hf.cls=$('fCls').value;renderHist()};
 $('fSubj').onchange=()=>{hf.subj=$('fSubj').value;renderHist()};
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
