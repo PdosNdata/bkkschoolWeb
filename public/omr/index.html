@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="icon" href="/favicon-optimized.webp" type="image/webp">
 <title>เฉลยปรนัย – สแกนตรวจกระดาษคำตอบ</title>
 <style>@font-face{font-family:"Sarabun";font-weight:400;font-display:swap;src:url(/fonts/sarabun-thai-400-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:500;font-display:swap;src:url(/fonts/sarabun-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:600;font-display:swap;src:url(/fonts/sarabun-thai-600-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}@font-face{font-family:"Sarabun";font-weight:700;font-display:swap;src:url(/fonts/sarabun-thai-700-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}</style>
 <style>
@@ -76,15 +75,6 @@ td.r,th.r{text-align:right}
   #printArea{display:block;padding:0}
   #printArea .pg{display:flex;width:296mm;height:208mm}
   #printArea .pg>div+div{border-left:.2mm dashed #aaa}
-  #printArea .rpt{font-family:inherit;color:#000;padding:0}
-  #printArea .rpt h1{font-size:16pt;margin:0 0 2mm;text-align:center}
-  #printArea .rpt p{margin:0 0 3mm;font-size:11pt;text-align:center}
-  #printArea .rpt table{width:100%;border-collapse:collapse;font-size:11pt;min-width:0}
-  #printArea .rpt th,#printArea .rpt td{border:.3mm solid #444;padding:1.2mm 2mm;text-align:left;color:#000;background:#fff}
-  #printArea .rpt th{background:#e8e8e8;font-weight:700}
-  #printArea .rpt .r{text-align:center}
-  #printArea .rpt thead{display:table-header-group}
-  #printArea .rpt tr{page-break-inside:avoid}
   html,body{margin:0;padding:0}
   body{background:#fff}
 }
@@ -110,6 +100,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   <div class="row">
     <label>วิชา <select id="subj"></select></label>
     <button class="btn sec" id="subjAdd">＋ เพิ่มวิชา</button>
+    <button class="btn sec" id="subjCopy">📋 คัดลอกวิชา</button>
     <button class="btn sec" id="subjRen">✏️ เปลี่ยนชื่อ</button>
     <button class="btn dng" id="subjDel">ลบวิชา</button>
   </div>
@@ -261,7 +252,7 @@ window.OMR_CONFIG = { subjectsTable: "omr_subjects", resultsTable: "omr_results"
   <div class="card">
     <div class="row" style="justify-content:space-between;margin-bottom:8px">
       <h2 style="margin:0">ผลที่บันทึก</h2>
-      <div class="row"><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn sec" id="rptBtn">🖨️ พิมพ์รายงาน</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
+      <div class="row"><button class="btn sec" id="csvBtn">⬇️ ดาวน์โหลด CSV</button><button class="btn dng" id="histClear">ลบทั้งหมด</button></div>
     </div>
     <div class="row" id="histFilters" style="margin-bottom:8px" hidden>
       <label>ชั้น <select id="fCls"></select></label>
@@ -799,17 +790,7 @@ const CLASS_ORDER=['ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.
 const clsOf=r=>r.cls||((typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim()))||{}).class_level||'';
 const subjKey=r=>(r.subjectCode||'')+'|'+(r.subject||'');
 const subjLabel=r=>(r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-');
-// เลขที่ในห้อง ดึงสดจากทะเบียนนักเรียนด้วยรหัส (แก้เลขที่ในทะเบียนแล้วผลสอบตามทันที)
-const noOf=r=>{const x=typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim());return x&&x.class_no!=null?x.class_no:null};
-const roomOf=r=>{const x=typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim());return String(r.room||(x&&x.room)||'')};
-// เรียง ชั้น → ห้อง → เลขที่ (ไม่มีเลขที่ไว้ท้าย) → รหัสนักเรียน → วิชา → เวลา
-const histCmp=(a,b)=>{
-  const oc=c=>{const i=CLASS_ORDER.indexOf(c);return !c?999:i<0?100:i};
-  const na=noOf(a),nb=noOf(b);
-  return oc(clsOf(a))-oc(clsOf(b))||roomOf(a).localeCompare(roomOf(b),'th',{numeric:true})||(na==null?1e9:na)-(nb==null?1e9:nb)
-    ||String(a.sid||'').localeCompare(String(b.sid||''),'th',{numeric:true})||subjKey(a).localeCompare(subjKey(b),'th')||a.t-b.t;
-};
-const visibleHist=()=>state.history.filter(r=>(!hf.cls||(hf.cls==='-'?!clsOf(r):clsOf(r)===hf.cls))&&(!hf.subj||subjKey(r)===hf.subj)).sort(histCmp);
+const visibleHist=()=>state.history.filter(r=>(!hf.cls||(hf.cls==='-'?!clsOf(r):clsOf(r)===hf.cls))&&(!hf.subj||subjKey(r)===hf.subj));
 function fillSel(sel,opts,cur){sel.innerHTML=opts.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');sel.value=opts.some(o=>o[0]===cur)?cur:''}
 function renderHist(){
   const all=state.history,box=$('histBox');
@@ -827,8 +808,8 @@ function renderHist(){
   $('histClear').textContent=filtered?`ลบที่แสดงอยู่ (${h.length})`:'ลบทั้งหมด';
   $('csvBtn').textContent=filtered?'⬇️ CSV ที่กรองอยู่':'⬇️ ดาวน์โหลด CSV';
   if(!h.length){box.innerHTML='<p class="hint">ไม่มีรายการที่ตรงกับตัวกรอง</p>';return}
-  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>ชั้น</th><th class="r">เลขที่</th><th>รหัส</th><th>ชื่อ</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
-    h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(clsOf(r)?clsOf(r)+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="r">${noOf(r)??'-'}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
+  box.innerHTML='<div class="tscroll"><table><tr><th>วิชา</th><th>รหัส</th><th>ชื่อ</th><th>ชั้น</th><th class="r">คะแนน</th><th class="r">%</th><th>เวลา</th><th></th></tr>'+
+    h.map(r=>`<tr><td>${esc(subjLabel(r))}${r.exam?`<br><span class="hint" style="margin:0">${esc(r.exam.kind||'')}${r.exam.name?' · '+esc(r.exam.name):''}</span>`:''}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(clsOf(r)?clsOf(r)+(r.room?'/'+r.room:''):'-')}</td><td class="r">${r.score}/${r.total}</td><td class="r">${r.total?Math.round(r.score*100/r.total):'-'}</td><td>${new Date(r.t).toLocaleString('th-TH')}</td><td><button class="btn dng" data-id="${esc(r.id)}" style="padding:4px 10px">ลบ</button></td></tr>`).join('')+'</table></div>';
   box.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const i=state.history.findIndex(x=>x.id===b.dataset.id);if(i<0)return;const r=state.history.splice(i,1)[0];cloudDelRes([r.id]);renderHist()});
 }
 $('fCls').onchange=()=>{hf.cls=$('fCls').value;renderHist()};
@@ -842,30 +823,12 @@ $('histClear').onclick=()=>{
 $('csvBtn').onclick=()=>{
   const list=visibleHist();if(!list.length)return;
   const maxN=Math.max(...list.map(r=>r.ans.length));
-  const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง','เลขที่',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
-  list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',clsOf(r)?clsOf(r)+(roomOf(r)?'/'+roomOf(r):''):'',noOf(r)??'',
+  const rows=[['รหัสวิชา','วิชา','รหัสนักเรียน','ชื่อ','คะแนน','เต็ม','เปอร์เซ็นต์','เวลา','ประเภทการสอบ','ชื่อการสอบ','ภาคเรียน','ปีการศึกษา','ชั้น/ห้อง',...Array.from({length:maxN},(_,i)=>'ข้อ'+(i+1))]];
+  list.forEach(r=>rows.push([r.subjectCode||'',r.subject||'',r.sid||'',r.name,r.score,r.total,r.total?Math.round(r.score*100/r.total):'',new Date(r.t).toLocaleString('th-TH'),r.exam?r.exam.kind||'':'',r.exam?r.exam.name||'':'',r.exam&&r.exam.sem||'',r.exam&&r.exam.year||'',r.cls?r.cls+(r.room?'/'+r.room:''):'',
     ...r.ans.map(a=>a>=0?LABELS[r.labels||'thai'][a]:a===-2?'*':'-')]));
   const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const part=[hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'',hf.subj?(hf.subj.split('|')[0]||hf.subj.split('|')[1]):''].filter(Boolean).join('-');
   a.download=('ผลสอบ'+(part?'-'+part:'')+'.csv').replace(/[\\/:*?"<>|]/g,'_');a.click();
-};
-
-// พิมพ์รายงานผลคะแนน: ชั้น/ห้อง · เลขที่ · ชื่อ · วิชา · คะแนน (ตามตัวกรองที่เลือก เรียงชั้น → ห้อง → เลขที่)
-$('rptBtn').onclick=()=>{
-  const list=visibleHist();if(!list.length)return;
-  const clsTxt=hf.cls?(hf.cls==='-'?'ไม่ระบุชั้น':hf.cls):'ทุกชั้น';
-  // ชื่อรายงาน = ชื่อไฟล์ PDF (จาก title): ผลการสอบปรนัย วิชา ชั้น ภาคเรียนที่ ปี
-  const uniq=a=>[...new Set(a.filter(v=>v!=null&&v!==''))].join(',');
-  const sem=uniq(list.map(r=>r.exam&&r.exam.sem)),yr=uniq(list.map(r=>r.exam&&r.exam.year));
-  const fname=['ผลการสอบปรนัย',hf.subj?subjLabel(list[0]):'ทุกวิชา',clsTxt,sem?'ภาคเรียนที่ '+sem:'',yr?'ปี '+yr:''].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g,'_');
-  const rows=list.map(r=>{const c=clsOf(r);return `<tr><td>${esc(c?c+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="r">${noOf(r)??'-'}</td><td>${esc(r.sid||'-')}</td><td>${esc(r.name)}</td><td>${esc(subjLabel(r))}</td><td class="r">${r.score}/${r.total}</td></tr>`}).join('');
-  $('printArea').innerHTML=`<div class="rpt"><h1>${esc(fname)}</h1><p>${list.length} รายการ · พิมพ์เมื่อ ${new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})}</p><table><thead><tr><th>ชั้น/ห้อง</th><th class="r">เลขที่</th><th>รหัสนักเรียน</th><th>ชื่อ</th><th>วิชา</th><th class="r">คะแนน</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-  let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
-  st.textContent='@page{size:A4 portrait;margin:14mm}';
-  const oldTitle=document.title;document.title=fname;
-  const restore=()=>{document.title=oldTitle;window.removeEventListener('afterprint',restore)};
-  window.addEventListener('afterprint',restore);
-  window.print();
 };
 
 /* ====================== สำรองข้อมูล ====================== */
@@ -1076,11 +1039,11 @@ async function loadStudents(){
   try{
     let all=[];
     for(let from=0;;from+=1000){
-      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room,class_no').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
+      const{data}=await tmo(sb.from(OC.studentsTable).select('id,student_code,prefix,first_name,last_name,class_level,room').eq('is_active',true).range(from,from+999).throwOnError(),'ติดต่อคลาวด์');
       all=all.concat(data);if(data.length<1000)break;
     }
     studentMap=new Map(all.map(x=>[String(x.student_code).trim(),x]));
-    lookupStudent();renderHist();
+    lookupStudent();
   }catch(e){cmsg('โหลดรายชื่อนักเรียนไม่สำเร็จ: '+e.message,true)}
 }
 const stuFull=x=>`${x.prefix||''}${x.first_name} ${x.last_name||''}`.trim();
@@ -1091,7 +1054,7 @@ function lookupStudent(){
   if(code.includes('?')){info.style.color='var(--warn)';info.textContent='อ่านรหัสไม่ครบ — แก้ช่องรหัสด้วยมือ';return}
   const x=studentMap.get(code);
   if(x){
-    info.style.color='var(--ok)';info.textContent=`✓ ${stuFull(x)} · ${x.class_level}${x.room?'/'+x.room:''}${x.class_no!=null?' · เลขที่ '+x.class_no:''}`;
+    info.style.color='var(--ok)';info.textContent=`✓ ${stuFull(x)} · ${x.class_level}${x.room?'/'+x.room:''}`;
     const nm=$('stuName');if(!nm.value.trim()||nm.dataset.auto==='1'){nm.value=stuFull(x);nm.dataset.auto='1'}
   }else{info.style.color='var(--bad)';info.textContent='ไม่พบรหัสนี้ในทะเบียนนักเรียน'}
 }
@@ -1159,6 +1122,12 @@ $('subjAdd').onclick=()=>{
   const name=(prompt('ชื่อวิชา','วิชา '+(db.subjects.length+1))||'').trim();if(!name)return;
   const code=(prompt('รหัสวิชา (เว้นว่างได้) เช่น ว22104','')||'').trim();
   db.subjects.push(newSubject(name,code));fitKeyAll();switchSubj(db.subjects.length-1);
+};
+$('subjCopy').onclick=()=>{
+  const src=db.subjects[db.active],name=(prompt('คัดลอกวิชา "'+src.name+'" — ชื่อวิชาใหม่',src.name+' (สำเนา)')||'').trim();if(!name)return;
+  const code=(prompt('รหัสวิชาใหม่ (เว้นว่างได้ — รหัสไม่ควรซ้ำกับวิชาอื่น เพราะใช้เลือกวิชาตอนสแกน) เช่น ว22104','')||'').trim();
+  const c=Object.assign(JSON.parse(JSON.stringify(src)),{id:uuid(),name,code,upd:Date.now()});delete c.sig;delete c.pushed;
+  db.subjects.push(c);fitKeyAll();switchSubj(db.subjects.length-1);
 };
 $('subjRen').onclick=()=>{
   const name=(prompt('เปลี่ยนชื่อวิชา',state.name)||'').trim();if(!name)return;
