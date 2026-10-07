@@ -833,7 +833,7 @@ function reportName(list){
   const one=f=>{const v=[...new Set(list.map(f).filter(Boolean))];return v.length===1?v[0]:''};
   const sem=one(r=>r.exam&&r.exam.sem),yr=one(r=>r.exam&&r.exam.year);
   const sj=one(subjLabel),cl=one(clsOf);
-  return ['คะแนนสอบปรนัย',sj,cl&&!sj.includes(cl)?cl:'',sem?'ภาคเรียนที่ '+sem:'',yr?'ปีการศึกษา '+yr:''].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g,'_');
+  return ['ผลการสอบปรนัย',sj,cl&&!sj.includes(cl)?cl:'',sem?'ภาคเรียนที่ '+sem:'',yr?'ปี '+yr:''].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g,'_');
 }
 // พิมพ์รายงานตามตัวกรองที่เลือก: ตารางรายชื่อ (เรียงตามรหัส) + สรุปท้ายตาราง
 $('rptBtn').onclick=()=>{
@@ -845,7 +845,7 @@ $('rptBtn').onclick=()=>{
   const total=[...new Set(list.map(r=>r.total).filter(Boolean))];
   let st=$('pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
   st.textContent='@page{size:A4 portrait;margin:14mm 12mm}';
-  $('printArea').innerHTML=`<div class="rpt"><h1>รายงานผลสอบ${subs.length===1?' '+esc(subs[0]):''}</h1>
+  $('printArea').innerHTML=`<div class="rpt"><h1>${esc(reportName(list))}</h1>
   <p class="sub">${hf.cls?'ชั้น '+esc(clss.join(', ')):'ทุกชั้น'}${subs.length>1?' · '+subs.length+' วิชา':''} · พิมพ์เมื่อ ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short'})}</p>
   <table><thead><tr><th class="c">ที่</th><th class="c">ชั้น</th><th class="c">เลขที่</th><th>รหัส</th><th>ชื่อ-สกุล</th>${subs.length>1?'<th>วิชา</th>':''}<th class="r">คะแนน</th><th class="r">%</th></tr></thead><tbody>`+
   list.map((r,i)=>`<tr><td class="c">${i+1}</td><td class="c">${esc(clsOf(r)?clsOf(r)+(roomOf(r)?'/'+roomOf(r):''):'-')}</td><td class="c">${noOf(r)??'-'}</td><td>${esc(String(r.sid||''))}</td><td>${esc(r.name||'')}</td>${subs.length>1?`<td>${esc(subjLabel(r))}</td>`:''}<td class="r">${r.score}/${r.total}</td><td class="r">${r.total?f1(pct(r)):'-'}</td></tr>`).join('')+
