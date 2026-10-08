@@ -102,3 +102,6 @@ CREATE POLICY "Approved can update student_personal"
   ON public.student_personal FOR UPDATE
   USING (public.can_access_dashboard() AND (public.has_menu_permission('pp5_system') OR public.has_menu_permission('students_system')))
   WITH CHECK (public.can_access_dashboard() AND (public.has_menu_permission('pp5_system') OR public.has_menu_permission('students_system')));
+
+-- ให้ PostgREST (API ของ Supabase) รู้จักคอลัมน์ใหม่ทันที ไม่ต้องรอรีเฟรชเอง
+NOTIFY pgrst, 'reload schema';
