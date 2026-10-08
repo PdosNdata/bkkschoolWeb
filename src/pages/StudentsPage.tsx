@@ -86,6 +86,8 @@ const StudentsPage = () => {
   const [importing, setImporting] = useState(false);
   const [readingFile, setReadingFile] = useState(false);
   const [fileNote, setFileNote] = useState("");
+  const [autoNumber, setAutoNumber] = useState(true); // ไฟล์ไม่มีเลขที่ → ใช้ลำดับแถวในไฟล์
+  const [replaceMissing, setReplaceMissing] = useState(false); // นักเรียนเดิมที่ไม่อยู่ในไฟล์ → ไม่ได้ศึกษา
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [toDelete, setToDelete] = useState<Student | null>(null);
@@ -268,7 +270,19 @@ const StudentsPage = () => {
     }
   };
 
-  const parsed = useMemo(() => parseStudentRows(importText), [importText]);
+  const parsed = useMemo(() => parseStudentRows(importText, { autoNumber }), [importText, autoNumber]);
+
+  // "แทนที่ทั้งชั้น": นักเรียนเดิมที่ยังศึกษาอยู่ในชั้น/ห้องที่ปรากฏในไฟล์ แต่ไม่มีรหัสอยู่ในไฟล์ (ห้องว่างในทะเบียนเดิมนับว่าตรงทุกห้อง)
+  const missing = useMemo(() => {
+    if (!parsed.rows.length) return [] as Student[];
+    const codes = new Set(parsed.rows.map((r) => r.student_code));
+    const rooms = new Map<string, Set<string>>();
+    for (const r of parsed.rows) {
+      if (!rooms.has(r.class_level)) rooms.set(r.class_level, new Set());
+      rooms.get(r.class_level)!.add(r.room ?? "");
+    }
+    return students.filter((s) => s.is_active && rooms.has(s.class_level) && !codes.has(s.student_code) && (!s.room || rooms.get(s.class_level)!.has(s.room)));
+  }, [parsed.rows, students]);
 
   const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -307,6 +321,26 @@ const StudentsPage = () => {
           if (error) throw error;
         }
       }
+      // "แทนที่ทั้งชั้น": ตั้งนักเรียนเดิมที่ไม่อยู่ในไฟล์เป็น ไม่ได้ศึกษา (ไม่ลบข้อมูล — ย้อนกลับได้ด้วยปุ่มแก้ไข)
+      let deactivated = 0;
+      let deactivateError = "";
+      if (replaceMissing && missing.length) {
+        try {
+          for (let i = 0; i < missing.length; i += 100) {
+            const ids = missing.slice(i, i + 100).map((s) => s.id);
+            const { error } = await withTimeout<{ error: { message: string } | null }>(
+              studentsTable().update({ is_active: false }).in("id", ids),
+              20000,
+              "ตั้งนักเรียนที่ไม่อยู่ในไฟล์เป็นไม่ได้ศึกษา",
+            );
+            if (error) throw error;
+            deactivated += ids.length;
+          }
+        } catch (e) {
+          deactivateError = errMsg(e);
+        }
+      }
+
       // Personal data (everything else in the official export) → student_personal. Every row of one file has the
       // same key set, so a batch upsert never writes NULL over a column the file did not contain.
       const withProfile = parsed.rows.filter((r) => r.profile);
@@ -337,7 +371,7 @@ const StudentsPage = () => {
       } else {
         toast({
           title: `นำเข้าแล้ว ${parsed.rows.length} คน`,
-          description: personalSaved ? `รหัสที่มีอยู่แล้วถูกอัปเดต · บันทึกข้อมูลส่วนบุคคล ${personalSaved} คน (เก็บแยก เห็นได้เฉพาะผู้มีสิทธิ์)` : "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล",
+          description: `${personalSaved ? `รหัสที่มีอยู่แล้วถูกอัปเดต · บันทึกข้อมูลส่วนบุคคล ${personalSaved} คน (เก็บแยก เห็นได้เฉพาะผู้มีสิทธิ์)` : "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล"}${parsed.autoNumbered ? " · ใส่เลขที่ตามลำดับในไฟล์แล้ว" : ""}${deactivated ? ` · ตั้ง ${deactivated} คนที่ไม่อยู่ในไฟล์เป็นไม่ได้ศึกษา` : ""}${deactivateError ? ` · ตั้งเป็นไม่ได้ศึกษาไม่สำเร็จ: ${deactivateError}` : ""}`,
         });
       }
       setImportOpen(false);
@@ -650,6 +684,21 @@ const StudentsPage = () => {
           {importText.trim() && (
             <div className="space-y-1 text-sm">
               <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.usedHeader && " (จับคู่คอลัมน์จากหัวตาราง)"}{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
+              {parsed.rows.length > 0 && !parsed.hasClassNoColumn && (
+                <label className="flex items-start gap-2 text-foreground">
+                  <Checkbox checked={autoNumber} onCheckedChange={(c) => setAutoNumber(c === true)} className="mt-0.5" />
+                  <span>ไฟล์ไม่มีคอลัมน์เลขที่ — ใส่ <b>เลขที่ 1, 2, 3… ตามลำดับแถวในไฟล์</b> (แยกตามชั้น/ห้อง) และทับเลขที่เดิม</span>
+                </label>
+              )}
+              {parsed.rows.length > 0 && (
+                <label className="flex items-start gap-2 text-foreground">
+                  <Checkbox checked={replaceMissing} onCheckedChange={(c) => setReplaceMissing(c === true)} className="mt-0.5" />
+                  <span>
+                    <b>แทนที่ทั้งชั้น/ห้อง:</b> นักเรียนเดิมที่ไม่อยู่ในไฟล์ → ตั้งเป็น "ไม่ได้ศึกษา" (ไม่ลบข้อมูล)
+                    {missing.length > 0 ? ` — จะมีผลกับ ${missing.length} คน: ${missing.slice(0, 6).map((s) => s.student_code).join(", ")}${missing.length > 6 ? " …" : ""}` : " — ตอนนี้ไม่มีคนที่ตรงเงื่อนไข"}
+                  </span>
+                </label>
+              )}
               {parsed.profileColumns > 0 && (
                 <p className="text-amber-700">
                   พบข้อมูลส่วนบุคคล {parsed.profileColumns} คอลัมน์ (เลขบัตรประชาชน บิดา-มารดา ที่อยู่ ฯลฯ) — จะบันทึกในตารางข้อมูลส่วนบุคคลที่เห็นได้เฉพาะผู้ได้รับสิทธิ์

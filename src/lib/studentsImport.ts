@@ -149,9 +149,23 @@ export interface ParsedStudents {
   profileColumns: number;
   /** หัวคอลัมน์ซ้ำที่ไม่ได้ใช้ */
   duplicateHeaders: string[];
+  /** ไฟล์มีคอลัมน์ "เลขที่" หรือไม่ */
+  hasClassNoColumn: boolean;
+  /** ใส่เลขที่ให้ตามลำดับแถวในไฟล์ (แยกตามชั้น/ห้อง) เพราะไฟล์ไม่มีคอลัมน์เลขที่ */
+  autoNumbered: boolean;
 }
 
-export function parseStudentRows(text: string): ParsedStudents {
+export interface ParseOptions {
+  /**
+   * ไฟล์ไม่มีคอลัมน์ "เลขที่" → ใส่ 1, 2, 3… ตามลำดับแถวในไฟล์ แยกตามชั้น/ห้อง (ค่าเริ่มต้น: ทำ)
+   * แถวที่ถูกข้าม (ผิดพลาด) ไม่นับลำดับ
+   */
+  autoNumber?: boolean;
+}
+
+export function parseStudentRows(text: string, opts: ParseOptions = {}): ParsedStudents {
+  const autoNumber = opts.autoNumber !== false;
+  const groupCount = new Map<string, number>();
   const rows: ImportRow[] = [];
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -161,6 +175,8 @@ export function parseStudentRows(text: string): ParsedStudents {
   const info = detectHeader(firstCells);
   const header = info !== null;
   const map = info?.map ?? POSITIONAL;
+  // มีเลขที่ในไฟล์หรือไม่: มีหัวตาราง = ดูที่หัว; ไม่มีหัวตาราง = ต้องมีค่าในช่องที่ 8 อย่างน้อยหนึ่งแถว
+  const classNoPresent = info ? map.classNo !== undefined : lines.some((l) => (splitLine(l)[POSITIONAL.classNo as number] ?? "") !== "");
   const profileCols = info?.profile ?? [];
   // ชุดคีย์ของข้อมูลส่วนบุคคลคงที่ทุกแถว (ช่องว่าง = null) เพื่ออัปโหลดเป็นชุดเดียวกัน ไม่ทำให้บางแถวถูกเขียนทับด้วยค่าว่างโดยไม่ตั้งใจ
   const pc = new Set(profileCols.map((p) => p.col));
@@ -190,7 +206,7 @@ export function parseStudentRows(text: string): ParsedStudents {
     const room = get(cells, "room") || roomFromClass(clsRaw);
 
     const classNoRaw = get(cells, "classNo").replace(/\.0+$/, "");
-    const classNo = /^\d{1,3}$/.test(classNoRaw) && Number(classNoRaw) > 0 ? Number(classNoRaw) : 0;
+    let classNo = /^\d{1,3}$/.test(classNoRaw) && Number(classNoRaw) > 0 ? Number(classNoRaw) : 0;
     if (classNoRaw && !classNo) errors.push(`แถว ${lineNo}: เลขที่ "${classNoRaw}" อ่านไม่ได้ (ต้องเป็นตัวเลข) — ข้ามเลขที่ของแถวนี้`);
 
     if (!code) return void errors.push(`แถว ${lineNo}: ไม่มีรหัสนักเรียน`);
@@ -198,6 +214,11 @@ export function parseStudentRows(text: string): ParsedStudents {
     if (!klass) return void errors.push(`แถว ${lineNo}: ชั้น "${clsRaw}" อ่านไม่ได้ (เช่น ป.4 หรือ ม.1)`);
     if (seen.has(code)) return void errors.push(`แถว ${lineNo}: รหัส ${code} ซ้ำกับแถวก่อนหน้า`);
     seen.add(code);
+    if (autoNumber && !classNoPresent) {
+      const key = `${klass}|${room}`;
+      classNo = (groupCount.get(key) ?? 0) + 1;
+      groupCount.set(key, classNo);
+    }
 
     let profile: Record<string, string | null> | undefined;
     if (profileCols.length > 0) {
@@ -240,7 +261,11 @@ export function parseStudentRows(text: string): ParsedStudents {
       ...(profile ? { profile } : {}),
     });
   });
-  return { rows, errors, warnings, usedHeader: header, profileColumns: profileCols.length, duplicateHeaders: info?.duplicates ?? [] };
+  return {
+    rows, errors, warnings, usedHeader: header, profileColumns: profileCols.length, duplicateHeaders: info?.duplicates ?? [],
+    hasClassNoColumn: classNoPresent,
+    autoNumbered: autoNumber && !classNoPresent && rows.length > 0,
+  };
 }
 
 const TEXT_FILE = /\.(csv|tsv|txt)$/i;
