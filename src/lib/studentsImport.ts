@@ -4,14 +4,17 @@ import type { StudentInput } from "./students";
 
 const PREFIXES = ["เด็กชาย", "เด็กหญิง", "ด.ช.", "ด.ญ.", "ดช.", "ดญ.", "นางสาว", "น.ส.", "นาง", "นาย"];
 
-/** "ม2", "ม.2", "มัธยมศึกษาปีที่ 2", "ป.4" → "ม.2" / "ป.4"; "" if not recognised. */
+/** "ม2", "ม.2", "มัธยมศึกษาปีที่ 2", "ป.4", "อ.2", "อนุบาล 2" → "ม.2" / "ป.4" / "อ.2"; "" if not recognised. */
 export function normalizeClass(raw: string): string {
   const t = (raw ?? "")
     .replace(/ประถมศึกษาปีที่/g, "ป.")
     .replace(/มัธยมศึกษาปีที่/g, "ม.")
+    .replace(/อนุบาล(ศึกษา)?(ปีที่)?/g, "อ.") // อนุบาล 2 / อนุบาลปีที่ 2 → อ.2
     .replace(/\s+/g, "");
   const m = t.match(/^([ปม])\.?([1-6])/);
-  return m ? `${m[1]}.${m[2]}` : "";
+  if (m) return `${m[1]}.${m[2]}`;
+  const k = t.match(/^อ\.?([1-3])/);
+  return k ? `อ.${k[1]}` : "";
 }
 
 /** Room written after the class, e.g. "ม.1/2" or "ป.4-3" → "2" / "3"; "" if none. */

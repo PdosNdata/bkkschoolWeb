@@ -792,7 +792,7 @@ $('printBtn').onclick=()=>{
 /* ====================== ประวัติ ====================== */
 // ตัวกรองผลที่บันทึก: ชั้น + วิชา (รหัสวิชา+ชื่อ) — ชั้นดูจากที่บันทึกไว้ หรือค้นจากทะเบียนนักเรียนด้วยรหัส (โหมดเว็บโรงเรียน)
 const hf={cls:'',subj:''};
-const CLASS_ORDER=['ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.2','ม.3'];
+const CLASS_ORDER=['อ.1','อ.2','อ.3','ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.2','ม.3'];
 const clsOf=r=>r.cls||((typeof studentMap!=='undefined'&&studentMap.get(String(r.sid||'').trim()))||{}).class_level||'';
 const subjKey=r=>(r.subjectCode||'')+'|'+(r.subject||'');
 const subjLabel=r=>(r.subjectCode?r.subjectCode+' ':'')+(r.subject||'-');

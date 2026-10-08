@@ -27,7 +27,7 @@ export type StudentInput = Pick<
   "student_code" | "prefix" | "first_name" | "last_name" | "gender" | "class_level" | "room"
 > & { is_active?: boolean; class_no?: number };
 
-export const CLASS_LEVELS = ["ป.1", "ป.2", "ป.3", "ป.4", "ป.5", "ป.6", "ม.1", "ม.2", "ม.3"];
+export const CLASS_LEVELS = ["อ.1", "อ.2", "อ.3", "ป.1", "ป.2", "ป.3", "ป.4", "ป.5", "ป.6", "ม.1", "ม.2", "ม.3"];
 
 export const studentFullName = (s: Pick<Student, "prefix" | "first_name" | "last_name">) =>
   `${s.prefix ?? ""}${s.first_name} ${s.last_name ?? ""}`.trim();

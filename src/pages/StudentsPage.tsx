@@ -57,7 +57,12 @@ const orderByClassNo = (list: Student[]): Student[] => {
     if (g) g.push(st);
     else groups.set(key, [st]);
   }
-  return [...groups.values()].flatMap((g) =>
+  const levelOrder = (key: string) => {
+    const i = CLASS_LEVELS.indexOf(key.split("|")[0]);
+    return i < 0 ? 999 : i;
+  };
+  const ordered = [...groups.entries()].sort((a, b) => levelOrder(a[0]) - levelOrder(b[0]) || a[0].localeCompare(b[0], "th", { numeric: true }));
+  return ordered.flatMap(([, g]) =>
     g.sort((x, y) => {
       const a = x.class_no ?? Number.MAX_SAFE_INTEGER;
       const b = y.class_no ?? Number.MAX_SAFE_INTEGER;

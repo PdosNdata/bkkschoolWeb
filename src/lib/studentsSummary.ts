@@ -18,6 +18,7 @@ export interface StudentSummary {
   otherClass: number;
 }
 
+const KINDER = ["อ.1", "อ.2", "อ.3"];
 const PRIMARY = ["ป.1", "ป.2", "ป.3", "ป.4", "ป.5", "ป.6"];
 const SECONDARY = ["ม.1", "ม.2", "ม.3"];
 
@@ -42,13 +43,20 @@ export function summarizeByClass(students: Pick<Student, "class_level" | "gender
     kind,
   });
 
+  const hasKinder = active.some((s) => KINDER.includes(s.class_level)); // แถวอนุบาลแสดงเมื่อมีนักเรียนอนุบาลเท่านั้น
+  const kin = hasKinder ? KINDER.map(count) : [];
   const pri = PRIMARY.map(count);
   const sec = SECONDARY.map(count);
-  const known = new Set([...PRIMARY, ...SECONDARY]);
+  const known = new Set([...(hasKinder ? KINDER : []), ...PRIMARY, ...SECONDARY]);
   const counted = active.filter((s) => known.has(s.class_level));
 
   return {
-    rows: [...pri, sum("รวมประถม", pri, "subtotal"), ...sec, sum("รวมมัธยม", sec, "subtotal"), sum("รวมทั้งหมด", [...pri, ...sec], "grand")],
+    rows: [
+      ...(hasKinder ? [...kin, sum("รวมอนุบาล", kin, "subtotal")] : []),
+      ...pri, sum("รวมประถม", pri, "subtotal"),
+      ...sec, sum("รวมมัธยม", sec, "subtotal"),
+      sum("รวมทั้งหมด", [...kin, ...pri, ...sec], "grand"),
+    ],
     noGender: counted.filter((s) => s.gender !== "ช" && s.gender !== "ญ").length,
     otherClass: active.length - counted.length,
   };
