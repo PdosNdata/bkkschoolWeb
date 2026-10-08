@@ -136,7 +136,7 @@ const Dashboard = () => {
     everyone: true, // every staff account sees it
     permissionName: "omr_system"
   }, {
-    title: "ปพ.5 ปพ.6 ออนไลน์",
+    title: "ปพ.5 ออนไลน์",
     description: "บันทึกคะแนน เวลาเรียน คุณลักษณะ สมรรถนะ ตัดเกรดและพิมพ์ ปพ.5 (ข้อมูลเก็บในเครื่องของครู)",
     icon: ScrollText,
     color: "bg-pink-50 border-pink-200",
