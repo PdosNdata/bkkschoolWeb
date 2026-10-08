@@ -29,6 +29,7 @@ import {
   parseStudentRows,
   readSpreadsheetToText,
   scoresReportTable,
+  personalTable,
   studentFullName,
   studentsTable,
 } from "@/lib/students";
@@ -292,20 +293,53 @@ const StudentsPage = () => {
     try {
       await ensureSession();
       for (let i = 0; i < parsed.rows.length; i += 200) {
-        const chunk: StudentInput[] = parsed.rows.slice(i, i + 200);
+        const chunk = parsed.rows.slice(i, i + 200);
         // Rows with and without เลขที่ go in separate requests: a mixed batch would
         // write NULL into เลขที่ for the rows that lack it and wipe saved numbers.
         for (const part of [chunk.filter((r) => r.class_no), chunk.filter((r) => !r.class_no)]) {
           if (!part.length) continue;
           const { error } = await withTimeout<{ error: { message: string } | null }>(
-            studentsTable().upsert(part, { onConflict: "student_code" }),
+            // the student-registry table only gets the registry fields; personal data goes to its own table below
+            studentsTable().upsert(part.map(({ profile: _profile, ...r }) => r), { onConflict: "student_code" }),
             20000,
             "ขั้นที่ 2: นำเข้ารายชื่อ",
           );
           if (error) throw error;
         }
       }
-      toast({ title: `นำเข้าแล้ว ${parsed.rows.length} คน`, description: "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล" });
+      // Personal data (everything else in the official export) → student_personal. Every row of one file has the
+      // same key set, so a batch upsert never writes NULL over a column the file did not contain.
+      const withProfile = parsed.rows.filter((r) => r.profile);
+      let personalSaved = 0;
+      let personalError = "";
+      if (withProfile.length) {
+        try {
+          for (let i = 0; i < withProfile.length; i += 100) {
+            const part = withProfile.slice(i, i + 100).map((r) => ({ student_code: r.student_code, ...r.profile }));
+            const { error } = await withTimeout<{ error: { message: string } | null }>(
+              personalTable().upsert(part, { onConflict: "student_code" }),
+              30000,
+              "ขั้นที่ 3: บันทึกข้อมูลส่วนบุคคล",
+            );
+            if (error) throw error;
+            personalSaved += part.length;
+          }
+        } catch (e) {
+          personalError = errMsg(e);
+        }
+      }
+      if (personalError) {
+        toast({
+          title: `นำเข้ารายชื่อแล้ว ${parsed.rows.length} คน แต่บันทึกข้อมูลส่วนบุคคลไม่สำเร็จ`,
+          description: `${personalError} — ถ้าเป็นเพราะยังไม่มีตาราง ให้รัน SQL 20261008090000 และ 20261009090000 ใน Supabase แล้วนำเข้าไฟล์เดิมอีกครั้ง (รายชื่อที่นำเข้าแล้วถูกอัปเดต ไม่เพิ่มซ้ำ) · ถ้าเป็นเรื่องสิทธิ์ ต้องได้รับอนุมัติเมนู "ข้อมูลนักเรียน" หรือ "ปพ.5 ออนไลน์"`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: `นำเข้าแล้ว ${parsed.rows.length} คน`,
+          description: personalSaved ? `รหัสที่มีอยู่แล้วถูกอัปเดต · บันทึกข้อมูลส่วนบุคคล ${personalSaved} คน (เก็บแยก เห็นได้เฉพาะผู้มีสิทธิ์)` : "รหัสที่มีอยู่แล้วถูกอัปเดตข้อมูล",
+        });
+      }
       setImportOpen(false);
       setImportText("");
       await load();
@@ -599,9 +633,9 @@ const StudentsPage = () => {
           <DialogHeader>
             <DialogTitle>นำเข้ารายชื่อจาก Excel</DialogTitle>
             <DialogDescription>
-              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง ถ้ามีแถวหัวตาราง (เช่น รหัสนักเรียน, ชื่อ-สกุล, ชั้น, ห้อง, เลขที่, เพศ)
-              ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง, เลขที่</b>
-              — รหัสที่มีอยู่แล้วจะถูกอัปเดต ไม่เพิ่มซ้ำ
+              เลือกไฟล์ Excel (.xlsx, .xls) หรือ CSV หรือคัดลอกตารางมาวางด้านล่าง รองรับ<b>ไฟล์ส่งออกมาตรฐาน studentInSchoolList.xlsx (91 คอลัมน์)</b>โดยตรง ·
+              ถ้ามีแถวหัวตาราง ระบบจับคู่คอลัมน์ให้ ไม่ต้องเรียงลำดับ · ถ้าไม่มีหัวตาราง ให้เรียง: <b>รหัสนักเรียน, คำนำหน้า, ชื่อ, นามสกุล, เพศ (ช/ญ), ชั้น, ห้อง, เลขที่</b>
+              — รหัสที่มีอยู่แล้วจะถูกอัปเดต ไม่เพิ่มซ้ำ · รหัสนักเรียน ชื่อ เพศ ชั้น ห้อง เก็บในทะเบียนนักเรียน ส่วนคอลัมน์ที่เหลือ (เลขบัตรประชาชน บิดา-มารดา ที่อยู่ รายได้ เบอร์โทร ความพิการ ฯลฯ) เก็บแยกในตารางข้อมูลส่วนบุคคลที่จำกัดสิทธิ์
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap items-center gap-3">
@@ -616,6 +650,18 @@ const StudentsPage = () => {
           {importText.trim() && (
             <div className="space-y-1 text-sm">
               <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.usedHeader && " (จับคู่คอลัมน์จากหัวตาราง)"}{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
+              {parsed.profileColumns > 0 && (
+                <p className="text-amber-700">
+                  พบข้อมูลส่วนบุคคล {parsed.profileColumns} คอลัมน์ (เลขบัตรประชาชน บิดา-มารดา ที่อยู่ ฯลฯ) — จะบันทึกในตารางข้อมูลส่วนบุคคลที่เห็นได้เฉพาะผู้ได้รับสิทธิ์
+                  {parsed.duplicateHeaders.length > 0 && ` · ข้ามคอลัมน์ชื่อซ้ำ ${parsed.duplicateHeaders.length} คอลัมน์ (ใช้ชุดแรก)`}
+                </p>
+              )}
+              {parsed.warnings.length > 0 && (
+                <ul className="max-h-24 list-disc overflow-y-auto pl-5 text-amber-700">
+                  {parsed.warnings.slice(0, 20).map((e, i) => <li key={i}>{e}</li>)}
+                  {parsed.warnings.length > 20 && <li>…และอีก {parsed.warnings.length - 20} รายการ</li>}
+                </ul>
+              )}
               {parsed.errors.length > 0 && (
                 <ul className="max-h-24 list-disc overflow-y-auto pl-5 text-destructive">
                   {parsed.errors.slice(0, 20).map((e, i) => <li key={i}>{e}</li>)}

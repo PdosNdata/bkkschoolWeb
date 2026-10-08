@@ -52,6 +52,11 @@ export async function fetchAllStudents(): Promise<Student[]> {
   return all;
 }
 
+// Personal data of students (national ID, parents, address, income, disability, ...):
+// a separate, tightly restricted table — see the 20261008090000 / 20261009090000 migrations.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const personalTable = () => (supabase as any).from("student_personal");
+
 // Exam results saved by the OMR checker (view omr_scores_report; see the
 // 20261004090000 migration). Callers only ever see their own results.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
