@@ -194,6 +194,18 @@ const Omr = () => (
   </Scene>
 );
 
+// ── ปพ.5 ปพ.6 ออนไลน์: grade sheet + grade badge ───────────────────
+const Pp5 = () => (
+  <Scene>
+    <rect x="34" y="16" width="80" height="92" rx="8" fill="#fff" />
+    <rect x="34" y="16" width="80" height="16" rx="8" style={D} />
+    {[0, 1, 2, 3, 4].map((i) => <g key={i}><rect x="44" y={42 + i * 13} width="26" height="5" rx="2.5" style={D} opacity=".4" /><rect x="76" y={42 + i * 13} width="28" height="5" rx="2.5" style={D} opacity=".22" /></g>)}
+    <circle cx="116" cy="88" r="19" style={D2} />
+    <circle cx="116" cy="88" r="19" fill="none" stroke="#fff" strokeOpacity=".5" strokeWidth="2" />
+    <text x="116" y="97" textAnchor="middle" fontSize="26" fontWeight="800" fill="#fff">4</text>
+  </Scene>
+);
+
 // ── นำเข้าข้อมูลครู: person + arrow into tray ──────────────────────
 const TeacherImport = () => (
   <Scene>
@@ -288,6 +300,7 @@ export const ILLUSTRATIONS: Record<string, () => JSX.Element> = {
   personnel_system: Personnel,
   students_system: Students,
   omr_system: Omr,
+  pp5_system: Pp5,
   teacher_import: TeacherImport,
   menu_permissions: Permissions,
   textbook_system: Textbooks,

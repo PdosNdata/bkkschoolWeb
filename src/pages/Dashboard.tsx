@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -135,6 +135,17 @@ const Dashboard = () => {
     roles: ["teacher", "admin"],
     everyone: true, // every staff account sees it
     permissionName: "omr_system"
+  }, {
+    title: "ปพ.5 ปพ.6 ออนไลน์",
+    description: "บันทึกคะแนน เวลาเรียน คุณลักษณะ สมรรถนะ ตัดเกรดและพิมพ์ ปพ.5 (ข้อมูลเก็บในเครื่องของครู)",
+    icon: ScrollText,
+    color: "bg-pink-50 border-pink-200",
+    iconColor: "text-pink-600",
+    href: "/pp5/index.html", // explicit file, same reason as /omr/index.html
+    external: true, // static app under public/pp5 — needs a real page load, not the SPA router
+    roles: ["teacher", "admin"],
+    everyone: true, // every staff account sees it; the data never leaves the teacher's own browser
+    permissionName: "pp5_system"
   }, {
     title: "นำเข้าข้อมูลครู",
     description: "นำเข้ารายชื่ออีเมลครูจาก Google Form ให้เข้าใช้ระบบ",

@@ -1,7 +1,8 @@
 {
   "redirects": [
     { "source": "/krtom-classroom", "destination": "/krtom-classroom/", "permanent": false },
-    { "source": "/omr", "destination": "/omr/", "permanent": false }
+    { "source": "/omr", "destination": "/omr/", "permanent": false },
+    { "source": "/pp5", "destination": "/pp5/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }

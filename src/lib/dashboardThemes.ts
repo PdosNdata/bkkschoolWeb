@@ -26,6 +26,7 @@ export const DASHBOARD_THEMES: Record<string, CardTheme> = {
   document_upload:     { from: "#E4FAFF", to: "#B3EDF8", deep: "#06B6D4", deep2: "#0E7490", ink: "#083B47", glow: "8 145 178" },
   personnel_system:    { from: "#E3FAF5", to: "#ADEBDD", deep: "#14B8A6", deep2: "#0F766E", ink: "#08403B", glow: "13 148 136" },
   students_system:     { from: "#E5FBEF", to: "#A9F0CB", deep: "#10B981", deep2: "#047857", ink: "#06402D", glow: "5 150 105" },
+  pp5_system:          { from: "#FFE9F1", to: "#FBC1D9", deep: "#EC4899", deep2: "#BE185D", ink: "#4A0D2B", glow: "190 24 93" },
   omr_system:          { from: "#F5FCD9", to: "#DEF397", deep: "#84CC16", deep2: "#4D7C0F", ink: "#2C4408", glow: "101 163 13" },
   teacher_import:      { from: "#E5F5FF", to: "#B8E2FF", deep: "#0EA5E9", deep2: "#0369A1", ink: "#08365A", glow: "2 132 199" },
   menu_permissions:    { from: "#EFE9FF", to: "#D2C4FF", deep: "#8B5CF6", deep2: "#5B21B6", ink: "#2B1466", glow: "109 40 217" },
