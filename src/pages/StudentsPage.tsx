@@ -91,7 +91,10 @@ const StudentsPage = () => {
   const [importing, setImporting] = useState(false);
   const [readingFile, setReadingFile] = useState(false);
   const [fileNote, setFileNote] = useState("");
-  const [autoNumber, setAutoNumber] = useState(true); // ไฟล์ไม่มีเลขที่ → ใช้ลำดับแถวในไฟล์
+  // เลขที่ของไฟล์ที่ไม่มีคอลัมน์เลขที่: file = เรียงตามแถวในไฟล์ (ทับเลขที่เดิม) · keep = คนเดิมคงเลขที่เดิม คนใหม่ต่อท้าย · none = ไม่ใส่เลขที่
+  const [numMode, setNumMode] = useState<"file" | "keep" | "none">("file");
+  const [numModeTouched, setNumModeTouched] = useState(false);
+  const autoNumber = numMode === "file";
   const [replaceMissing, setReplaceMissing] = useState(false); // นักเรียนเดิมที่ไม่อยู่ในไฟล์ → ไม่ได้ศึกษา
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -277,6 +280,30 @@ const StudentsPage = () => {
 
   const parsed = useMemo(() => parseStudentRows(importText, { autoNumber }), [importText, autoNumber]);
 
+  // โหมด "คงเลขที่เดิม": นักเรียนที่มีอยู่แล้วไม่ถูกแตะเลขที่ · คนใหม่ได้เลขที่ต่อจากเลขสูงสุดของชั้น/ห้องนั้น (ตามลำดับในไฟล์)
+  const keepPlan = useMemo(() => {
+    const existing = new Map(students.map((x) => [x.student_code, x]));
+    const maxNo = new Map<string, number>();
+    for (const x of students) {
+      if (x.is_active === false || x.class_no == null) continue;
+      const k = `${x.class_level}|${x.room ?? ""}`;
+      maxNo.set(k, Math.max(maxNo.get(k) ?? 0, x.class_no));
+    }
+    const rows = parsed.rows.map((r) => {
+      if (existing.has(r.student_code) || r.class_no) return r;
+      const k = `${r.class_level}|${r.room ?? ""}`;
+      const next = (maxNo.get(k) ?? 0) + 1;
+      maxNo.set(k, next);
+      return { ...r, class_no: next };
+    });
+    const added = rows.filter((r) => !existing.has(r.student_code));
+    return { rows, newCount: added.length, existingCount: rows.length - added.length };
+  }, [parsed.rows, students]);
+  const importRows = numMode === "keep" ? keepPlan.rows : parsed.rows;
+  useEffect(() => {
+    if (!numModeTouched && students.some((x) => x.class_no != null)) setNumMode("keep");
+  }, [numModeTouched, students]);
+
   // "แทนที่ทั้งชั้น": นักเรียนเดิมที่ยังศึกษาอยู่ในชั้น/ห้องที่ปรากฏในไฟล์ แต่ไม่มีรหัสอยู่ในไฟล์ (ห้องว่างในทะเบียนเดิมนับว่าตรงทุกห้อง)
   const missing = useMemo(() => {
     if (!parsed.rows.length) return [] as Student[];
@@ -307,12 +334,12 @@ const StudentsPage = () => {
   };
 
   const runImport = async () => {
-    if (!parsed.rows.length) return;
+    if (!importRows.length) return;
     setImporting(true);
     try {
       await ensureSession();
-      for (let i = 0; i < parsed.rows.length; i += 200) {
-        const chunk = parsed.rows.slice(i, i + 200);
+      for (let i = 0; i < importRows.length; i += 200) {
+        const chunk = importRows.slice(i, i + 200);
         // Rows with and without เลขที่ go in separate requests: a mixed batch would
         // write NULL into เลขที่ for the rows that lack it and wipe saved numbers.
         for (const part of [chunk.filter((r) => r.class_no), chunk.filter((r) => !r.class_no)]) {
@@ -690,10 +717,24 @@ const StudentsPage = () => {
             <div className="space-y-1 text-sm">
               <p className="text-green-700">อ่านได้ {parsed.rows.length} คน{parsed.usedHeader && " (จับคู่คอลัมน์จากหัวตาราง)"}{parsed.rows.length > 0 && ` (ชั้น: ${[...new Set(parsed.rows.map((r) => r.class_level))].join(", ")})`}</p>
               {parsed.rows.length > 0 && !parsed.hasClassNoColumn && (
-                <label className="flex items-start gap-2 text-foreground">
-                  <Checkbox checked={autoNumber} onCheckedChange={(c) => setAutoNumber(c === true)} className="mt-0.5" />
-                  <span>ไฟล์ไม่มีคอลัมน์เลขที่ — ใส่ <b>เลขที่ 1, 2, 3… ตามลำดับแถวในไฟล์</b> (แยกตามชั้น/ห้อง) และทับเลขที่เดิม</span>
-                </label>
+                <fieldset className="space-y-1 rounded-md border p-2">
+                  <legend className="px-1 text-sm font-medium">เลขที่ (ไฟล์นี้ไม่มีคอลัมน์เลขที่) — เลือก 1 อย่าง</legend>
+                  <label className="flex items-start gap-2 text-foreground">
+                    <input type="radio" name="nummode" className="mt-1" checked={numMode === "keep"} onChange={() => { setNumMode("keep"); setNumModeTouched(true); }} />
+                    <span>
+                      <b>คงเลขที่เดิม — คนใหม่ต่อท้าย</b> (แนะนำเมื่อมีเลขที่อยู่แล้วและแค่เพิ่มนักเรียน): นักเรียนที่มีอยู่แล้วไม่เปลี่ยนเลขที่ · คนใหม่ได้เลขที่ต่อจากเลขสูงสุดของชั้น/ห้องนั้น
+                      {numMode === "keep" && ` — ตอนนี้: คนเดิม ${keepPlan.existingCount} คน (ไม่เปลี่ยน) · คนใหม่ ${keepPlan.newCount} คน`}
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2 text-foreground">
+                    <input type="radio" name="nummode" className="mt-1" checked={numMode === "file"} onChange={() => { setNumMode("file"); setNumModeTouched(true); }} />
+                    <span><b>เรียงตามลำดับแถวในไฟล์</b> — ใส่เลขที่ 1, 2, 3… ตามแถว (แยกตามชั้น/ห้อง) และ<b>ทับเลขที่เดิมทุกคน</b> (ใช้ตอนนำเข้าครั้งแรก)</span>
+                  </label>
+                  <label className="flex items-start gap-2 text-foreground">
+                    <input type="radio" name="nummode" className="mt-1" checked={numMode === "none"} onChange={() => { setNumMode("none"); setNumModeTouched(true); }} />
+                    <span><b>ไม่ใส่เลขที่</b> — คนเดิมคงเลขที่เดิม คนใหม่ยังไม่มีเลขที่ (ไปกำหนดทีหลังในตาราง)</span>
+                  </label>
+                </fieldset>
               )}
               {parsed.rows.length > 0 && (
                 <label className="flex items-start gap-2 text-foreground">
