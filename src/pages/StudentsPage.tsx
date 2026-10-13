@@ -601,7 +601,7 @@ const StudentsPage = () => {
 
       {/* add / edit */}
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing === "new" ? "เพิ่มนักเรียน" : "แก้ไขข้อมูลนักเรียน"}</DialogTitle>
             <DialogDescription>รหัสนักเรียนใช้เป็นตัวเชื่อมกับระบบอื่น เช่น ระบบตรวจคำตอบปรนัย</DialogDescription>
@@ -642,7 +642,7 @@ const StudentsPage = () => {
               กำลังศึกษาอยู่ (เอาออกถ้าย้ายหรือจบแล้ว)
             </label>
           </div>
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 -mx-6 -mb-6 border-t bg-background px-6 py-3">
             <Button variant="outline" onClick={() => setEditing(null)}>ยกเลิก</Button>
             <Button onClick={save} disabled={saving}>{saving ? "กำลังบันทึก…" : "บันทึก"}</Button>
           </DialogFooter>
@@ -695,7 +695,7 @@ const StudentsPage = () => {
 
       {/* import */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>นำเข้ารายชื่อจาก Excel</DialogTitle>
             <DialogDescription>
@@ -765,7 +765,7 @@ const StudentsPage = () => {
               )}
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 -mx-6 -mb-6 border-t bg-background px-6 py-3">
             <Button variant="outline" onClick={() => setImportOpen(false)}>ยกเลิก</Button>
             <Button onClick={runImport} disabled={importing || parsed.rows.length === 0}>
               {importing ? "กำลังนำเข้า…" : `นำเข้า ${parsed.rows.length} คน`}
