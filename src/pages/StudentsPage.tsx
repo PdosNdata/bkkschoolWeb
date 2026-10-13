@@ -636,11 +636,11 @@ const StudentsPage = () => {
                     <SelectItem value="ญ">หญิง</SelectItem>
                   </SelectContent>
                 </Select></div>
+              <label className="col-span-2 flex items-end gap-2 pb-2 text-sm">
+                <Checkbox checked={form.is_active} onCheckedChange={(c) => setForm({ ...form, is_active: c === true })} />
+                กำลังศึกษาอยู่ (เอาออกถ้าย้ายหรือจบแล้ว)
+              </label>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox checked={form.is_active} onCheckedChange={(c) => setForm({ ...form, is_active: c === true })} />
-              กำลังศึกษาอยู่ (เอาออกถ้าย้ายหรือจบแล้ว)
-            </label>
           </div>
           <DialogFooter className="sticky bottom-0 -mx-6 -mb-6 border-t bg-background px-6 py-3">
             <Button variant="outline" onClick={() => setEditing(null)}>ยกเลิก</Button>
