@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import Swal from "sweetalert2";
-import { Download, Mic, MicOff, Pencil, Save, Trash2, X } from "lucide-react";
+import { Download, Mic, MicOff, Pencil, Printer, Save, Trash2, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,7 @@ const ProjectLedgerPage = () => {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [printDetail, setPrintDetail] = useState(true); // รายงานพิมพ์: รวมรายการรายวันด้วยหรือไม่
   const [editingId, setEditingId] = useState(""); // รหัสรายการที่กำลังแก้ไข (ว่าง = เพิ่มรายการใหม่)
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -272,6 +273,14 @@ const ProjectLedgerPage = () => {
     toast({ title: `ลบแล้ว ${gone.size} รายการ`, description: gone.size < ids.length ? `ลบไม่ได้ ${ids.length - gone.size} รายการ (ไม่มีสิทธิ์หรือเกิดข้อผิดพลาด)` : scope });
   };
 
+  const printReport = () => {
+    if (shown.length === 0) return toast({ title: "ไม่มีรายการให้พิมพ์", variant: "destructive" });
+    const old = document.title;
+    document.title = `รายงานสรุปบัญชีโครงการด้วยรัก-${month || "ทั้งหมด"}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}`;
+    window.addEventListener("afterprint", () => { document.title = old; }, { once: true });
+    window.print();
+  };
+
   const exportCsv = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     const a = document.createElement("a");
@@ -328,8 +337,9 @@ const ProjectLedgerPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-sky-50">
-      <Header />
-      <main className="container mx-auto max-w-2xl space-y-4 px-3 pb-36 pt-4">
+      <style>{"@media print{@page{size:A4;margin:12mm}}"}</style>
+      <div className="print:hidden"><Header /></div>
+      <main className={`container mx-auto max-w-2xl space-y-4 px-3 pb-36 pt-4${tab === "sum" ? " print:hidden" : ""}`}>
         {/* หัวเรื่อง + ยอดสรุปย่อ */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 p-5 text-white shadow-lg">
           <span className="pointer-events-none absolute -right-4 -top-5 text-8xl opacity-20">🌱</span>
@@ -515,7 +525,11 @@ const ProjectLedgerPage = () => {
               ))}
               {sum.rows.every((r) => r.count === 0) && <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📊</p><p className="mt-2">ยังไม่มีรายการ</p></div>}
             </div>
-            <Button onClick={exportCsv} variant="outline" className="h-14 w-full rounded-2xl text-base font-bold"><Download className="mr-2 h-5 w-5" />ส่งออกเป็นไฟล์ Excel (CSV)</Button>
+            <div className="space-y-2 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+              <label className="flex items-center gap-3 text-base font-semibold text-slate-700"><input type="checkbox" checked={printDetail} onChange={(e) => setPrintDetail(e.target.checked)} className="h-6 w-6 accent-emerald-600" />รวมรายการรายวันในรายงานที่พิมพ์</label>
+              <Button onClick={printReport} className="h-14 w-full rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 text-base font-bold text-white hover:from-sky-700 hover:to-indigo-700"><Printer className="mr-2 h-5 w-5" />พิมพ์รายงานสรุป / บันทึกเป็น PDF</Button>
+              <Button onClick={exportCsv} variant="outline" className="h-14 w-full rounded-2xl text-base font-bold"><Download className="mr-2 h-5 w-5" />ส่งออกเป็นไฟล์ Excel (CSV)</Button>
+            </div>
           </section>
         )}
       </main>
@@ -532,7 +546,47 @@ const ProjectLedgerPage = () => {
           {!canSave && !saving && <p className="mx-auto mt-1 max-w-2xl text-center text-xs text-slate-500">{!form.project ? "เลือกโครงการ" : !form.item.trim() ? "ใส่รายการ" : "ใส่จำนวนเงิน"}ก่อนกดบันทึก</p>}
         </div>
       )}
-      <Footer />
+      {tab === "sum" && (
+        <div className="hidden px-1 text-black print:block">
+          <h1 className="text-center text-xl font-bold">รายงานสรุปบัญชีโครงการด้วยรักและห่วงใย</h1>
+          <p className="text-center text-base">โรงเรียนบ้านค้อดอนแคน</p>
+          <p className="mb-3 text-center text-sm">ช่วงเวลา: {thaiMonth(month)} · {filterProject ? `โครงการ${projectOf(filterProject)?.label ?? ""}` : "ทุกโครงการ"} · พิมพ์เมื่อ {thaiDate(todayIso())}</p>
+          <table className="w-full border-collapse text-sm">
+            <thead><tr className="bg-gray-100">{["โครงการ", "รายการ", "รายรับ (บาท)", "รายจ่าย (บาท)", "คงเหลือ (บาท)"].map((h) => <th key={h} className="border border-black px-2 py-1">{h}</th>)}</tr></thead>
+            <tbody>
+              {sum.rows.filter((r) => r.count > 0).map((r) => (
+                <tr key={r.key}><td className="border border-black px-2 py-1">{projectOf(r.key)?.label ?? r.key}</td><td className="border border-black px-2 py-1 text-center">{r.count}</td><td className="border border-black px-2 py-1 text-right">{money(r.income)}</td><td className="border border-black px-2 py-1 text-right">{money(r.expense)}</td><td className="border border-black px-2 py-1 text-right">{money(r.net)}</td></tr>
+              ))}
+              <tr className="bg-gray-100 font-bold"><td className="border border-black px-2 py-1">รวมทั้งหมด</td><td className="border border-black px-2 py-1 text-center">{shown.length}</td><td className="border border-black px-2 py-1 text-right">{money(sum.income)}</td><td className="border border-black px-2 py-1 text-right">{money(sum.expense)}</td><td className="border border-black px-2 py-1 text-right">{money(sum.net)}</td></tr>
+            </tbody>
+          </table>
+          {printDetail && (
+            <>
+              <h2 className="mb-1 mt-5 text-base font-bold">รายการรายวัน</h2>
+              <table className="w-full border-collapse text-xs">
+                <thead><tr className="bg-gray-100">{["วันที่", "โครงการ", "รายการ", "จำนวน", "รายรับ", "รายจ่าย"].map((h) => <th key={h} className="border border-black px-1.5 py-1">{h}</th>)}</tr></thead>
+                <tbody>
+                  {[...shown].sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.created_at.localeCompare(b.created_at)).map((e) => (
+                    <tr key={e.id} className="break-inside-avoid">
+                      <td className="border border-black px-1.5 py-0.5 whitespace-nowrap">{thaiDate(e.entry_date)}</td>
+                      <td className="border border-black px-1.5 py-0.5">{projectOf(e.project_key)?.short ?? e.project_key}</td>
+                      <td className="border border-black px-1.5 py-0.5">{e.item}{e.note ? ` (${e.note})` : ""}</td>
+                      <td className="border border-black px-1.5 py-0.5 text-center whitespace-nowrap">{e.qty != null ? `${e.qty} ${e.unit ?? ""}` : ""}</td>
+                      <td className="border border-black px-1.5 py-0.5 text-right">{e.kind === "income" ? money(Number(e.amount)) : ""}</td>
+                      <td className="border border-black px-1.5 py-0.5 text-right">{e.kind === "expense" ? money(Number(e.amount)) : ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+          <div className="mt-10 grid grid-cols-2 gap-8 break-inside-avoid text-center text-sm">
+            <div>ลงชื่อ ……………………………………… ผู้จัดทำ<br />( ……………………………………… )</div>
+            <div>ลงชื่อ ……………………………………… ผู้อำนวยการโรงเรียน<br />( ……………………………………… )</div>
+          </div>
+        </div>
+      )}
+      <div className="print:hidden"><Footer /></div>
     </div>
   );
 };
