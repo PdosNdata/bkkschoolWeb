@@ -1,4 +1,4 @@
-// ส่งออกบัญชีโครงการด้วยรักและห่วงใยเป็นไฟล์ Excel จัดรูปแบบพร้อมพิมพ์ (A4 แนวตั้ง) — โหลด exceljs เมื่อกดส่งออกเท่านั้น
+// ส่งออกบันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวันเป็นไฟล์ Excel จัดรูปแบบพร้อมพิมพ์ (A4 แนวตั้ง) — โหลด exceljs เมื่อกดส่งออกเท่านั้น
 import { projectOf, summarize, thaiDate, todayIso, type LedgerEntry } from "./projectLedger";
 
 const FONT = "TH Sarabun New";
@@ -34,7 +34,7 @@ export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOp
       margins: { left: 0.4, right: 0.4, top: 0.55, bottom: 0.6, header: 0.25, footer: 0.3 },
       ...(titleRows ? { printTitlesRow: `${titleRows[0]}:${titleRows[1]}` } : {}),
     };
-    ws.headerFooter.oddFooter = `&L&"${FONT}"บัญชีโครงการด้วยรักและห่วงใย · ${school}&R&"${FONT}"หน้า &P / &N`;
+    ws.headerFooter.oddFooter = `&L&"${FONT}"บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน · ${school}&R&"${FONT}"หน้า &P / &N`;
     ws.views = [{ showGridLines: false }];
   };
   const head = (row: import("exceljs").Row, fill = GREEN) => {
@@ -63,7 +63,7 @@ export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOp
   const s1 = wb.addWorksheet("สรุป");
   s1.columns = [{ width: 34 }, { width: 14 }, { width: 18 }, { width: 18 }, { width: 18 }];
   setup(s1);
-  banner(s1, 5, [["รายงานสรุปบัญชีโครงการด้วยรักและห่วงใย", 22, true], [school, 16, true], [`ช่วงเวลา: ${scope}`, 14, false], [`พิมพ์เมื่อ ${thaiDate(todayIso())}`, 12, false]]);
+  banner(s1, 5, [["รายงานสรุปบันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน", 22, true], [school, 16, true], [`ช่วงเวลา: ${scope}`, 14, false], [`พิมพ์เมื่อ ${thaiDate(todayIso())}`, 12, false]]);
   s1.addRow([]);
   const h1 = s1.addRow(["โครงการ", "จำนวนรายการ", "รายรับ (บาท)", "รายจ่าย (บาท)", "คงเหลือ (บาท)"]);
   head(h1);
@@ -108,7 +108,7 @@ export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOp
   const s2 = wb.addWorksheet("รายการรายวัน");
   s2.columns = [{ width: 14 }, { width: 22 }, { width: 34 }, { width: 14 }, { width: 15 }, { width: 15 }, { width: 24 }];
   setup(s2, [5, 5]);
-  banner(s2, 7, [["รายการรายรับ-รายจ่ายรายวัน", 20, true], [`${school} · โครงการด้วยรักและห่วงใย`, 14, true], [`ช่วงเวลา: ${scope}`, 13, false]]);
+  banner(s2, 7, [["รายการรายรับ-รายจ่ายรายวัน", 20, true], [`${school} · บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน`, 14, true], [`ช่วงเวลา: ${scope}`, 13, false]]);
   s2.addRow([]);
   head(s2.addRow(["วันที่", "โครงการ", "รายการ", "จำนวน", "รายรับ (บาท)", "รายจ่าย (บาท)", "หมายเหตุ"]));
   sorted.forEach((e, i) => {
@@ -140,7 +140,7 @@ export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOp
   const buf = await wb.xlsx.writeBuffer();
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-  a.download = `บัญชีโครงการด้วยรัก-${opt.monthKey}${opt.projectKey ? "-" + (projectOf(opt.projectKey)?.short ?? opt.projectKey) : ""}.xlsx`;
+  a.download = `บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน-${opt.monthKey}${opt.projectKey ? "-" + (projectOf(opt.projectKey)?.short ?? opt.projectKey) : ""}.xlsx`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }

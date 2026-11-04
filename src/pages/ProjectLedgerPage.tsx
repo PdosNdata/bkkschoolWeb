@@ -135,7 +135,7 @@ const ProjectLedgerPage = () => {
       const err = e as { code?: string; message?: string };
       setLoadError(
         err.code === "PGRST205" || err.code === "42P01" ? "ยังไม่มีตาราง project_ledger — ผู้ดูแลต้องรัน SQL ก่อน (ไฟล์ supabase/migrations/20261101100000_project_ledger.sql)"
-        : err.code === "42501" ? "ไม่มีสิทธิ์ใช้เมนูนี้ — ติดต่อผู้ดูแลระบบให้เปิดสิทธิ์ \"บัญชีโครงการด้วยรัก\" ที่หน้า \"จัดการสิทธิ์เมนู\""
+        : err.code === "42501" ? "ไม่มีสิทธิ์ใช้เมนูนี้ — ติดต่อผู้ดูแลระบบให้เปิดสิทธิ์ \"บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน\" ที่หน้า \"จัดการสิทธิ์เมนู\""
         : `โหลดข้อมูลไม่สำเร็จ: ${err.message ?? e}`,
       );
     } finally {
@@ -312,7 +312,7 @@ const ProjectLedgerPage = () => {
   const printReport = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้พิมพ์", variant: "destructive" });
     const old = document.title;
-    document.title = `รายงานสรุปบัญชีโครงการด้วยรัก-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}`;
+    document.title = `รายงานสรุปบันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}`;
     window.addEventListener("afterprint", () => { document.title = old; }, { once: true });
     window.print();
   };
@@ -332,7 +332,7 @@ const ProjectLedgerPage = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + ledgerCsv(shown)], { type: "text/csv;charset=utf-8" }));
-    a.download = `บัญชีโครงการด้วยรัก-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}.csv`;
+    a.download = `บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}.csv`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
@@ -397,7 +397,7 @@ const ProjectLedgerPage = () => {
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 p-5 text-white shadow-lg lg:!col-span-2 lg:!col-start-1">
           <span className="pointer-events-none absolute -right-4 -top-5 text-8xl opacity-20">🌱</span>
           <span className="pointer-events-none absolute -bottom-6 left-24 text-7xl opacity-10">🐟</span>
-          <h1 className="relative text-2xl font-extrabold leading-tight drop-shadow sm:text-3xl">บัญชีโครงการด้วยรักและห่วงใย</h1>
+          <h1 className="relative text-2xl font-extrabold leading-tight drop-shadow sm:text-3xl">บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน</h1>
           <p className="relative text-sm text-white/90">บันทึกรายรับ-รายจ่ายรายวัน · กดไมค์พูดได้</p>
           <p className="relative mt-1 inline-block rounded-full bg-white/20 px-3 py-0.5 text-xs font-semibold">{isAdmin ? "👑 แอดมิน: เห็นรายการของทุกคน" : "🔒 เห็นเฉพาะรายการของคุณ"}</p>
           <div className="relative mt-4 grid grid-cols-3 gap-2">
@@ -608,7 +608,7 @@ const ProjectLedgerPage = () => {
       )}
       {tab === "sum" && (
         <div className="hidden px-1 text-black print:block">
-          <h1 className="text-center text-xl font-bold">รายงานสรุปบัญชีโครงการด้วยรักและห่วงใย</h1>
+          <h1 className="text-center text-xl font-bold">รายงานสรุปบันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน</h1>
           <p className="text-center text-base">โรงเรียนบ้านค้อดอนแคน</p>
           <p className="mb-3 text-center text-sm">ช่วงเวลา: {monthLabel} · {filterProject ? `โครงการ${projectOf(filterProject)?.label ?? ""}` : "ทุกโครงการ"} · พิมพ์เมื่อ {thaiDate(todayIso())}</p>
           <table className="w-full border-collapse text-sm">

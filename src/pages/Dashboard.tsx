@@ -68,8 +68,8 @@ const Dashboard = () => {
     permissionName: "internal_activities"
   },
   {
-    title: "บัญชีโครงการด้วยรัก",
-    description: "บันทึกรายรับ-รายจ่ายรายวันของโครงการเลี้ยงปลา กบ ไก่ หมูป่า ปลูกผัก (พูดบันทึกได้)",
+    title: "บันทึกบัญชีกิจกรรมเกษตรเพื่ออาหารกลางวัน",
+    description: "บันทึกรายรับ-รายจ่ายรายวันของกิจกรรมเกษตร เลี้ยงปลา กบ ไก่ หมูป่า ปลูกผัก (พูดบันทึกได้)",
     icon: Wallet,
     color: "bg-green-50 border-green-200",
     iconColor: "text-green-600",
