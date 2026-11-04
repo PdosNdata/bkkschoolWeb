@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -66,6 +66,16 @@ const Dashboard = () => {
     href: "/activities-form",
     roles: ["teacher", "admin"],
     permissionName: "internal_activities"
+  },
+  {
+    title: "บัญชีโครงการด้วยรัก",
+    description: "บันทึกรายรับ-รายจ่ายรายวันของโครงการเลี้ยงปลา กบ ไก่ หมูป่า ปลูกผัก (พูดบันทึกได้)",
+    icon: Wallet,
+    color: "bg-green-50 border-green-200",
+    iconColor: "text-green-600",
+    href: "/project-ledger",
+    roles: ["teacher", "admin"],
+    permissionName: "project_ledger"
   },
   {
     title: "กิจกรรมทั้งหมด",

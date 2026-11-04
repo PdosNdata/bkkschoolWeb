@@ -14,6 +14,7 @@ import PublicRelations from "./pages/PublicRelations";
 import NewsFormPage from "./pages/NewsFormPage";
 import MediaFormPage from "./pages/MediaFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
+import ProjectLedgerPage from "./pages/ProjectLedgerPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
 import ActivityAllFormPage from "./pages/ActivityAllFormPage";
 import ActivityDetailPage from "./pages/ActivityDetailPage";
@@ -297,6 +298,14 @@ const App = () => {
                     <NewsFormPage />
                   </ProtectedRoute>
                 } 
+              />
+              <Route
+                path="/project-ledger"
+                element={
+                  <ProtectedRoute>
+                    <ProjectLedgerPage />
+                  </ProtectedRoute>
+                }
               />
               <Route 
                 path="/activities-form" 

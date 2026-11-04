@@ -20,6 +20,7 @@ export const DASHBOARD_THEMES: Record<string, CardTheme> = {
   supplies_system:     { from: "#EAFBF0", to: "#BDEFD0", deep: "#22C55E", deep2: "#15803D", ink: "#0B3B1F", glow: "22 163 74" },
   student_affairs:     { from: "#F4ECFF", to: "#DAC6FF", deep: "#A855F7", deep2: "#7E22CE", ink: "#3B0F6B", glow: "147 51 234" },
   internal_activities: { from: "#FFEBF1", to: "#FFC4D7", deep: "#FB7185", deep2: "#E11D48", ink: "#6B0F2B", glow: "225 29 72" },
+  project_ledger:      { from: "#E8FBEF", to: "#B7EFCB", deep: "#22C55E", deep2: "#15803D", ink: "#0B3B1F", glow: "22 163 74" },
   all_activities:      { from: "#ECEEFF", to: "#C9CDFF", deep: "#6366F1", deep2: "#4338CA", ink: "#1E1B6B", glow: "79 70 229" },
   public_relations:    { from: "#FFE9F6", to: "#F8BFE3", deep: "#EC4899", deep2: "#BE185D", ink: "#6B0F42", glow: "219 39 119" },
   media_library:       { from: "#FFF1E3", to: "#FFD2A3", deep: "#FB923C", deep2: "#C2410C", ink: "#5C2308", glow: "234 88 12" },
