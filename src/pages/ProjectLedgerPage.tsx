@@ -244,6 +244,34 @@ const ProjectLedgerPage = () => {
   const sum = useMemo(() => summarize(shown), [shown]);
   const maxMoney = Math.max(1, ...sum.rows.map((r) => Math.max(r.income, r.expense)));
 
+  /** รายการที่แสดงอยู่และผู้ใช้ลบได้ (เจ้าของรายการ หรือแอดมินลบได้ทุกรายการ) */
+  const deletable = useMemo(() => shown.filter((e) => isAdmin || e.created_by === userId), [shown, isAdmin, userId]);
+
+  /** ลบทั้งหมดของเดือนที่เลือก (ตามตัวกรองโครงการด้วย) — ต้องพิมพ์ "ลบ" ยืนยัน */
+  const removeMonth = async () => {
+    if (!month || deletable.length === 0) return;
+    const scope = `${thaiMonth(month)}${filterProject ? ` · ${projectOf(filterProject)?.short ?? ""}` : " · ทุกโครงการ"}`;
+    const total = deletable.reduce((a, e) => a + (e.kind === "income" ? 1 : -1) * Number(e.amount), 0);
+    const others = shown.length - deletable.length;
+    const r = await Swal.fire({
+      title: "ลบทั้งหมดของเดือนนี้?",
+      html: `<div style="font-size:19px;line-height:1.5"><b>${scope}</b><br/>จะลบ <b style="color:#dc2626">${deletable.length} รายการ</b> (คงเหลือสุทธิ ${money(total)} บาท)<br/>ลบแล้ว<b>กู้คืนไม่ได้</b> — ควรส่งออก Excel (CSV) เก็บไว้ก่อน${others > 0 ? `<br/><span style="color:#b45309">ไม่รวม ${others} รายการที่คนอื่นบันทึก (ลบไม่ได้)</span>` : ""}<br/><br/>พิมพ์คำว่า <b>ลบ</b> เพื่อยืนยัน</div>`,
+      icon: "warning", input: "text", inputPlaceholder: "ลบ", showCancelButton: true, confirmButtonText: "ลบทั้งหมด", cancelButtonText: "ยกเลิก", confirmButtonColor: "#dc2626",
+      inputValidator: (v) => (v.trim() === "ลบ" ? undefined : "พิมพ์คำว่า ลบ ให้ตรงเพื่อยืนยัน"),
+    });
+    if (!r.isConfirmed) return;
+    const ids = deletable.map((e) => e.id);
+    const gone = new Set<string>();
+    for (let i = 0; i < ids.length; i += 100) {
+      const { data, error } = await db().delete().in("id", ids.slice(i, i + 100)).select("id");
+      if (error) { toast({ title: "ลบไม่สำเร็จ", description: error.message, variant: "destructive" }); break; }
+      for (const x of (data ?? []) as { id: string }[]) gone.add(x.id);
+    }
+    setEntries((l) => l.filter((x) => !gone.has(x.id)));
+    if (editingId && gone.has(editingId)) cancelEdit();
+    toast({ title: `ลบแล้ว ${gone.size} รายการ`, description: gone.size < ids.length ? `ลบไม่ได้ ${ids.length - gone.size} รายการ (ไม่มีสิทธิ์หรือเกิดข้อผิดพลาด)` : scope });
+  };
+
   const exportCsv = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     const a = document.createElement("a");
@@ -430,6 +458,11 @@ const ProjectLedgerPage = () => {
               {stat("รับ", sum.income, "bg-green-100 text-green-800")}
               {stat("คงเหลือ", sum.net, sum.net >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800")}
             </div>
+            {month && deletable.length > 0 && (
+              <button type="button" onClick={() => void removeMonth()} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-red-200 bg-white text-base font-bold text-red-600 active:scale-95">
+                <Trash2 className="h-5 w-5" />ลบทั้งหมดของ {thaiMonth(month)}{filterProject ? ` (${projectOf(filterProject)?.short})` : ""} · {deletable.length} รายการ
+              </button>
+            )}
             {loading ? <p className="py-10 text-center text-slate-500">กำลังโหลด…</p> : grouped.length === 0 ? (
               <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📭</p><p className="mt-2">ยังไม่มีรายการ{month ? `ใน${thaiMonth(month)}` : ""}</p></div>
             ) : grouped.map(([date, list]) => (
