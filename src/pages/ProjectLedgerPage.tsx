@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import Swal from "sweetalert2";
-import { Download, Mic, MicOff, Save, Trash2 } from "lucide-react";
+import { Download, Mic, MicOff, Pencil, Save, Trash2, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,7 @@ const ProjectLedgerPage = () => {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(""); // รหัสรายการที่กำลังแก้ไข (ว่าง = เพิ่มรายการใหม่)
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [month, setMonth] = useState(monthOfNow());
@@ -186,16 +187,37 @@ const ProjectLedgerPage = () => {
       amount: amountNum,
       note: form.note.trim() || null,
     };
-    const { data, error } = await db().insert(row).select().single();
+    const editing = editingId !== "";
+    const { data, error } = editing ? await db().update(row).eq("id", editingId).select().single() : await db().insert(row).select().single();
     setSaving(false);
     if (error) {
-      return void toast({ title: "บันทึกไม่สำเร็จ", description: error.code === "42501" ? "ไม่มีสิทธิ์บันทึก — ติดต่อผู้ดูแลระบบ" : error.message, variant: "destructive" });
+      // update ที่ไม่มีสิทธิ์ (ไม่ใช่เจ้าของ/แอดมิน) ไม่ได้แถวกลับมา
+      const denied = error.code === "42501" || error.code === "PGRST116";
+      return void toast({ title: editing ? "แก้ไขไม่สำเร็จ" : "บันทึกไม่สำเร็จ", description: denied ? (editing ? "แก้ไขได้เฉพาะรายการที่ตัวเองบันทึก (หรือแอดมิน)" : "ไม่มีสิทธิ์บันทึก — ติดต่อผู้ดูแลระบบ") : error.message, variant: "destructive" });
+    }
+    if (editing) {
+      setEntries((l) => l.map((x) => (x.id === editingId ? (data as LedgerEntry) : x)));
+      setEditingId("");
+      setForm(blankForm(row.project_key, row.kind));
+      setHeard("");
+      setTab("list");
+      return void toast({ title: `แก้ไขแล้ว ✓ ${project?.emoji ?? ""} ${row.item}`, description: `${row.kind === "income" ? "รายรับ" : "รายจ่าย"} ${money(row.amount)} บาท` });
     }
     setEntries((l) => [data as LedgerEntry, ...l]);
     toast({ title: `บันทึกแล้ว ✓ ${project?.emoji ?? ""} ${row.item}`, description: `${row.kind === "income" ? "รายรับ" : "รายจ่าย"} ${money(row.amount)} บาท` });
     setForm((f) => blankForm(f.project, f.kind, f.date));
     setHeard("");
   };
+
+  /** เปิดรายการเดิมในฟอร์มบันทึกเพื่อแก้ไข */
+  const startEdit = (e: LedgerEntry) => {
+    setForm({ date: e.entry_date, project: e.project_key, kind: e.kind, item: e.item, qty: e.qty != null ? String(e.qty) : "", unit: e.unit ?? "", amount: String(e.amount), note: e.note ?? "" });
+    setEditingId(e.id);
+    setHeard("");
+    setTab("add");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const cancelEdit = () => { setEditingId(""); setForm(blankForm()); setHeard(""); };
 
   const remove = async (e: LedgerEntry) => {
     const r = await Swal.fire({
@@ -206,6 +228,7 @@ const ProjectLedgerPage = () => {
     const { error } = await db().delete().eq("id", e.id);
     if (error) return void toast({ title: "ลบไม่สำเร็จ", description: error.message, variant: "destructive" });
     setEntries((l) => l.filter((x) => x.id !== e.id));
+    if (editingId === e.id) cancelEdit();
     toast({ title: "ลบแล้ว" });
   };
 
@@ -298,6 +321,13 @@ const ProjectLedgerPage = () => {
 
         {tab === "add" && (
           <div className="space-y-4">
+            {editingId && (
+              <div className="flex items-center gap-3 rounded-3xl border-2 border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">
+                <Pencil className="h-6 w-6 shrink-0" />
+                <p className="min-w-0 flex-1 text-base font-bold leading-snug">กำลังแก้ไขรายการเดิม<span className="block text-sm font-normal">แก้แล้วกด "บันทึกการแก้ไข" ที่ด้านล่าง</span></p>
+                <button type="button" onClick={cancelEdit} className="flex shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-amber-900 shadow-sm active:scale-95"><X className="h-4 w-4" />ยกเลิก</button>
+              </div>
+            )}
             {/* พูดทั้งประโยค */}
             <div className="rounded-3xl bg-gradient-to-br from-rose-500 to-orange-400 p-4 text-white shadow-lg">
               <div className="flex items-center gap-3">
@@ -415,7 +445,10 @@ const ProjectLedgerPage = () => {
                       </div>
                       <b className={`shrink-0 text-lg ${e.kind === "income" ? "text-green-700" : "text-red-700"}`}>{e.kind === "income" ? "+" : "−"}{money(Number(e.amount))}</b>
                       {(isAdmin || e.created_by === userId) && (
-                        <button type="button" onClick={() => void remove(e)} aria-label="ลบรายการ" className="shrink-0 rounded-full p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-5 w-5" /></button>
+                        <div className="flex shrink-0 flex-col gap-1 sm:flex-row">
+                          <button type="button" onClick={() => startEdit(e)} aria-label="แก้ไขรายการ" className={`rounded-full p-2.5 hover:bg-sky-50 hover:text-sky-700 ${editingId === e.id ? "bg-sky-100 text-sky-700" : "text-slate-400"}`}><Pencil className="h-5 w-5" /></button>
+                          <button type="button" onClick={() => void remove(e)} aria-label="ลบรายการ" className="rounded-full p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-5 w-5" /></button>
+                        </div>
                       )}
                     </li>
                   ))}
@@ -458,10 +491,10 @@ const ProjectLedgerPage = () => {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
           <div className="mx-auto flex max-w-2xl items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-600">{project ? `${project.emoji} ${project.short}` : "ยังไม่เลือกโครงการ"} · {form.kind === "income" ? "รายรับ" : "รายจ่าย"}</p>
+              <p className="truncate text-sm font-semibold text-slate-600">{editingId ? "✏️ แก้ไข · " : ""}{project ? `${project.emoji} ${project.short}` : "ยังไม่เลือกโครงการ"} · {form.kind === "income" ? "รายรับ" : "รายจ่าย"}</p>
               <p className={`text-xl font-extrabold leading-tight ${form.kind === "income" ? "text-green-700" : "text-red-700"}`}>{amountNum > 0 ? `${money(amountNum)} บาท` : "—"}</p>
             </div>
-            <Button onClick={() => void save()} disabled={!canSave} className="h-14 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 text-lg font-extrabold text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"><Save className="mr-2 h-5 w-5" />{saving ? "กำลังบันทึก…" : "บันทึก"}</Button>
+            <Button onClick={() => void save()} disabled={!canSave} className="h-14 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 text-lg font-extrabold text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"><Save className="mr-2 h-5 w-5" />{saving ? "กำลังบันทึก…" : editingId ? "บันทึกการแก้ไข" : "บันทึก"}</Button>
           </div>
           {!canSave && !saving && <p className="mx-auto mt-1 max-w-2xl text-center text-xs text-slate-500">{!form.project ? "เลือกโครงการ" : !form.item.trim() ? "ใส่รายการ" : "ใส่จำนวนเงิน"}ก่อนกดบันทึก</p>}
         </div>
