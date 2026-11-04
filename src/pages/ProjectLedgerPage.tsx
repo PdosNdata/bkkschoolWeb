@@ -108,6 +108,7 @@ const ProjectLedgerPage = () => {
   const [editingId, setEditingId] = useState(""); // รหัสรายการที่กำลังแก้ไข (ว่าง = เพิ่มรายการใหม่)
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [owners, setOwners] = useState<Record<string, string>>({}); // user_id → อีเมล (แอดมินดูว่าใครบันทึก)
   const [month, setMonth] = useState(monthOfNow());
   const [filterProject, setFilterProject] = useState("");
   const [micActive, setMicActive] = useState("");
@@ -146,6 +147,11 @@ const ProjectLedgerPage = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const r = await (supabase as any).rpc("is_admin");
       setIsAdmin(r?.data === true);
+      if (r?.data === true) {
+        // แอดมินเห็นรายการของทุกคน — ดึงอีเมลมาแสดงว่าใครบันทึก (ถ้าอ่านไม่ได้ก็ข้าม)
+        const u = await supabase.from("user_roles").select("user_id, email");
+        if (!u.error) setOwners(Object.fromEntries((u.data ?? []).filter((x) => x.email).map((x) => [x.user_id, x.email as string])));
+      }
     })();
     void load();
   }, [load]);
@@ -346,6 +352,7 @@ const ProjectLedgerPage = () => {
           <span className="pointer-events-none absolute -bottom-6 left-24 text-7xl opacity-10">🐟</span>
           <h1 className="relative text-2xl font-extrabold leading-tight drop-shadow sm:text-3xl">บัญชีโครงการด้วยรักและห่วงใย</h1>
           <p className="relative text-sm text-white/90">บันทึกรายรับ-รายจ่ายรายวัน · กดไมค์พูดได้</p>
+          <p className="relative mt-1 inline-block rounded-full bg-white/20 px-3 py-0.5 text-xs font-semibold">{isAdmin ? "👑 แอดมิน: เห็นรายการของทุกคน" : "🔒 เห็นเฉพาะรายการของคุณ"}</p>
           <div className="relative mt-4 grid grid-cols-3 gap-2">
             {stat("วันนี้จ่าย", todayTotal.expense, "bg-white/20 text-white backdrop-blur")}
             {stat("วันนี้รับ", todayTotal.income, "bg-white/20 text-white backdrop-blur")}
@@ -484,7 +491,7 @@ const ProjectLedgerPage = () => {
                       <span className="text-3xl">{projectOf(e.project_key)?.emoji ?? "📦"}</span>
                       <div className="min-w-0 flex-1">
                         <p className="break-words text-base font-bold leading-snug text-slate-800">{e.item}</p>
-                        <p className="text-xs text-slate-500">{projectOf(e.project_key)?.short ?? e.project_key}{e.qty != null ? ` · ${e.qty} ${e.unit ?? ""}` : ""}{e.note ? ` · ${e.note}` : ""}</p>
+                        <p className="text-xs text-slate-500">{projectOf(e.project_key)?.short ?? e.project_key}{e.qty != null ? ` · ${e.qty} ${e.unit ?? ""}` : ""}{e.note ? ` · ${e.note}` : ""}{isAdmin ? ` · โดย ${owners[e.created_by ?? ""] ?? (e.created_by === userId ? "คุณ" : "ผู้ใช้อื่น")}` : ""}</p>
                       </div>
                       <b className={`shrink-0 text-lg ${e.kind === "income" ? "text-green-700" : "text-red-700"}`}>{e.kind === "income" ? "+" : "−"}{money(Number(e.amount))}</b>
                       {(isAdmin || e.created_by === userId) && (
