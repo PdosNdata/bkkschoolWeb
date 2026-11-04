@@ -340,12 +340,12 @@ const ProjectLedgerPage = () => {
   const filters = (
     <div className="grid grid-cols-2 gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
       <div className="col-span-2 text-sm font-bold text-slate-700">📅 เดือน <span className="font-normal text-slate-500">(แตะเลือกได้หลายเดือน)</span>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
           <button type="button" onClick={() => setMonths([])}
-            className={`rounded-full px-4 py-2 text-sm font-bold ring-1 transition active:scale-95 ${months.length === 0 ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>ทุกเดือน</button>
+            className={`rounded-xl px-4 py-2.5 text-left text-sm font-bold ring-1 transition active:scale-95 ${months.length === 0 ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>ทุกเดือน</button>
           {monthChoices.map((m) => (
             <button key={m} type="button" onClick={() => toggleMonth(m)}
-              className={`rounded-full px-4 py-2 text-sm font-bold ring-1 transition active:scale-95 ${months.includes(m) ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>{months.includes(m) ? "✓ " : ""}{thaiMonth(m)}</button>
+              className={`rounded-xl px-4 py-2.5 text-left text-sm font-bold ring-1 transition active:scale-95 ${months.includes(m) ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>{months.includes(m) ? "✓ " : ""}{thaiMonth(m)}</button>
           ))}
         </div>
       </div>
