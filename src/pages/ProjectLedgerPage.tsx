@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import Swal from "sweetalert2";
-import { Download, Mic, MicOff, Pencil, Printer, Save, Trash2, X } from "lucide-react";
+import { Download, FileSpreadsheet, Mic, MicOff, Pencil, Printer, Save, Trash2, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -287,6 +287,41 @@ const ProjectLedgerPage = () => {
     window.print();
   };
 
+  /** ส่งออกเป็นไฟล์ Excel (.xlsx) 2 แผ่น: "สรุป" แยกโครงการ และ "รายการรายวัน" (ตัวเลขเป็นตัวเลขจริง ใช้สูตรต่อใน Excel ได้) */
+  const exportXlsx = async () => {
+    if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
+    const XLSX = await import("xlsx"); // โหลดเมื่อกดใช้เท่านั้น ไม่เพิ่มขนาดหน้าเว็บ
+    const scope = `${thaiMonth(month)} · ${filterProject ? `โครงการ${projectOf(filterProject)?.label ?? ""}` : "ทุกโครงการ"}`;
+    const rows = sum.rows.filter((r) => r.count > 0);
+    const s1: (string | number)[][] = [
+      ["รายงานสรุปบัญชีโครงการด้วยรักและห่วงใย"], ["โรงเรียนบ้านค้อดอนแคน"], [`ช่วงเวลา: ${scope}`], [`พิมพ์เมื่อ ${thaiDate(todayIso())}`], [],
+      ["โครงการ", "จำนวนรายการ", "รายรับ (บาท)", "รายจ่าย (บาท)", "คงเหลือ (บาท)"],
+      ...rows.map((r) => [projectOf(r.key)?.label ?? r.key, r.count, r.income, r.expense, r.net]),
+      ["รวมทั้งหมด", shown.length, sum.income, sum.expense, sum.net],
+    ];
+    const sorted = [...shown].sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.created_at.localeCompare(b.created_at));
+    const s2: (string | number)[][] = [
+      ["วันที่", "โครงการ", "รายการ", "จำนวน", "หน่วย", "รายรับ (บาท)", "รายจ่าย (บาท)", "หมายเหตุ"],
+      ...sorted.map((e) => [thaiDate(e.entry_date), projectOf(e.project_key)?.label ?? e.project_key, e.item, e.qty ?? "", e.unit ?? "", e.kind === "income" ? Number(e.amount) : "", e.kind === "expense" ? Number(e.amount) : "", e.note ?? ""]),
+      ["รวม", "", "", "", "", sum.income, sum.expense, ""],
+    ];
+    const w1 = XLSX.utils.aoa_to_sheet(s1);
+    const w2 = XLSX.utils.aoa_to_sheet(s2);
+    w1["!cols"] = [{ wch: 30 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
+    w2["!cols"] = [{ wch: 14 }, { wch: 26 }, { wch: 34 }, { wch: 9 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 30 }];
+    w1["!merges"] = [0, 1, 2, 3].map((r) => ({ s: { r, c: 0 }, e: { r, c: 4 } }));
+    const fmt = (ws: import("xlsx").WorkSheet, cols: number[], from: number) => {
+      const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
+      for (let r = from; r <= range.e.r; r++) for (const c of cols) { const cell = ws[XLSX.utils.encode_cell({ r, c })]; if (cell && typeof cell.v === "number") cell.z = "#,##0.00"; }
+    };
+    fmt(w1, [2, 3, 4], 6);
+    fmt(w2, [5, 6], 1);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, w1, "สรุป");
+    XLSX.utils.book_append_sheet(wb, w2, "รายการรายวัน");
+    XLSX.writeFile(wb, `บัญชีโครงการด้วยรัก-${month || "ทั้งหมด"}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}.xlsx`);
+  };
+
   const exportCsv = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     const a = document.createElement("a");
@@ -535,7 +570,8 @@ const ProjectLedgerPage = () => {
             <div className="space-y-2 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
               <label className="flex items-center gap-3 text-base font-semibold text-slate-700"><input type="checkbox" checked={printDetail} onChange={(e) => setPrintDetail(e.target.checked)} className="h-6 w-6 accent-emerald-600" />รวมรายการรายวันในรายงานที่พิมพ์</label>
               <Button onClick={printReport} className="h-14 w-full rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 text-base font-bold text-white hover:from-sky-700 hover:to-indigo-700"><Printer className="mr-2 h-5 w-5" />พิมพ์รายงานสรุป / บันทึกเป็น PDF</Button>
-              <Button onClick={exportCsv} variant="outline" className="h-14 w-full rounded-2xl text-base font-bold"><Download className="mr-2 h-5 w-5" />ส่งออกเป็นไฟล์ Excel (CSV)</Button>
+              <Button onClick={() => void exportXlsx()} className="h-14 w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-base font-bold text-white hover:from-emerald-700 hover:to-green-700"><FileSpreadsheet className="mr-2 h-5 w-5" />ส่งออก Excel (.xlsx)</Button>
+              <Button onClick={exportCsv} variant="outline" className="h-12 w-full rounded-2xl text-sm font-semibold"><Download className="mr-2 h-4 w-4" />ส่งออกแบบ CSV (ข้อมูลล้วน)</Button>
             </div>
           </section>
         )}
