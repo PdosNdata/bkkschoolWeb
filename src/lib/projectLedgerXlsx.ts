@@ -10,7 +10,7 @@ const MONEY = "#,##0.00;[Red]-#,##0.00";
 /** สีพื้นอ่อนประจำโครงการ (ใช้ในแผ่นสรุป) */
 const TINT: Record<string, string> = {
   sky: "FFE0F2FE", emerald: "FFD1FAE5", amber: "FFFEF3C7", stone: "FFE7E5E4", green: "FFDCFCE7",
-  lime: "FFECFCCB", teal: "FFCCFBF1", pink: "FFFCE7F3", violet: "FFEDE9FE", orange: "FFFFEDD5",
+  lime: "FFECFCCB", teal: "FFCCFBF1", pink: "FFFCE7F3", violet: "FFEDE9FE", orange: "FFFFEDD5", indigo: "FFE0E7FF", rose: "FFFFE4E6", cyan: "FFCFFAFE",
 };
 
 export interface LedgerXlsxOptions { monthLabel: string; monthKey: string; projectKey: string; school?: string }

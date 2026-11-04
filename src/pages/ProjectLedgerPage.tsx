@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  GENERAL_QUICK, LEDGER_PROJECTS, UNITS, ledgerCsv, money, monthOfNow, parseVoice, projectOf, summarize, monthsLabel, thaiDate, thaiMonth, todayIso,
+  GENERAL_QUICK, LEDGER_PROJECTS, UNITS, ledgerCsv, money, monthOfNow, parseVoice, projectOf, summarize, monthsLabel, customKey, isCustomKey, thaiDate, thaiMonth, todayIso,
   type LedgerEntry, type LedgerKind,
 } from "@/lib/projectLedger";
 
@@ -19,16 +19,19 @@ const db = () => (supabase as any).from("project_ledger");
 
 /** สีประจำโครงการ (เขียนเป็นข้อความตรง ๆ เพื่อให้ Tailwind เก็บ class ไว้) */
 const HUE: Record<string, { idle: string; on: string }> = {
-  sky: { idle: "border-sky-200 bg-sky-50 text-sky-900", on: "border-sky-600 bg-sky-600 text-white" },
-  emerald: { idle: "border-emerald-200 bg-emerald-50 text-emerald-900", on: "border-emerald-600 bg-emerald-600 text-white" },
-  amber: { idle: "border-amber-200 bg-amber-50 text-amber-900", on: "border-amber-600 bg-amber-600 text-white" },
-  stone: { idle: "border-stone-300 bg-stone-100 text-stone-900", on: "border-stone-700 bg-stone-700 text-white" },
-  green: { idle: "border-green-200 bg-green-50 text-green-900", on: "border-green-600 bg-green-600 text-white" },
-  lime: { idle: "border-lime-300 bg-lime-50 text-lime-900", on: "border-lime-600 bg-lime-600 text-white" },
-  teal: { idle: "border-teal-200 bg-teal-50 text-teal-900", on: "border-teal-600 bg-teal-600 text-white" },
-  pink: { idle: "border-pink-200 bg-pink-50 text-pink-900", on: "border-pink-600 bg-pink-600 text-white" },
-  violet: { idle: "border-violet-200 bg-violet-50 text-violet-900", on: "border-violet-600 bg-violet-600 text-white" },
-  orange: { idle: "border-orange-200 bg-orange-50 text-orange-900", on: "border-orange-600 bg-orange-600 text-white" },
+  sky: { idle: "border-sky-200 border-b-[5px] border-b-sky-300 bg-gradient-to-b from-white to-sky-100 text-sky-900 shadow-md shadow-sky-200/70", on: "border-sky-700 border-b-[5px] border-b-sky-900 bg-gradient-to-b from-sky-400 to-sky-600 text-white shadow-lg shadow-sky-300" },
+  emerald: { idle: "border-emerald-200 border-b-[5px] border-b-emerald-300 bg-gradient-to-b from-white to-emerald-100 text-emerald-900 shadow-md shadow-emerald-200/70", on: "border-emerald-700 border-b-[5px] border-b-emerald-900 bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-300" },
+  amber: { idle: "border-amber-200 border-b-[5px] border-b-amber-300 bg-gradient-to-b from-white to-amber-100 text-amber-900 shadow-md shadow-amber-200/70", on: "border-amber-700 border-b-[5px] border-b-amber-900 bg-gradient-to-b from-amber-400 to-amber-600 text-white shadow-lg shadow-amber-300" },
+  stone: { idle: "border-stone-200 border-b-[5px] border-b-stone-300 bg-gradient-to-b from-white to-stone-100 text-stone-900 shadow-md shadow-stone-200/70", on: "border-stone-700 border-b-[5px] border-b-stone-900 bg-gradient-to-b from-stone-400 to-stone-600 text-white shadow-lg shadow-stone-300" },
+  green: { idle: "border-green-200 border-b-[5px] border-b-green-300 bg-gradient-to-b from-white to-green-100 text-green-900 shadow-md shadow-green-200/70", on: "border-green-700 border-b-[5px] border-b-green-900 bg-gradient-to-b from-green-400 to-green-600 text-white shadow-lg shadow-green-300" },
+  lime: { idle: "border-lime-200 border-b-[5px] border-b-lime-300 bg-gradient-to-b from-white to-lime-100 text-lime-900 shadow-md shadow-lime-200/70", on: "border-lime-700 border-b-[5px] border-b-lime-900 bg-gradient-to-b from-lime-400 to-lime-600 text-white shadow-lg shadow-lime-300" },
+  teal: { idle: "border-teal-200 border-b-[5px] border-b-teal-300 bg-gradient-to-b from-white to-teal-100 text-teal-900 shadow-md shadow-teal-200/70", on: "border-teal-700 border-b-[5px] border-b-teal-900 bg-gradient-to-b from-teal-400 to-teal-600 text-white shadow-lg shadow-teal-300" },
+  pink: { idle: "border-pink-200 border-b-[5px] border-b-pink-300 bg-gradient-to-b from-white to-pink-100 text-pink-900 shadow-md shadow-pink-200/70", on: "border-pink-700 border-b-[5px] border-b-pink-900 bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-300" },
+  violet: { idle: "border-violet-200 border-b-[5px] border-b-violet-300 bg-gradient-to-b from-white to-violet-100 text-violet-900 shadow-md shadow-violet-200/70", on: "border-violet-700 border-b-[5px] border-b-violet-900 bg-gradient-to-b from-violet-400 to-violet-600 text-white shadow-lg shadow-violet-300" },
+  orange: { idle: "border-orange-200 border-b-[5px] border-b-orange-300 bg-gradient-to-b from-white to-orange-100 text-orange-900 shadow-md shadow-orange-200/70", on: "border-orange-700 border-b-[5px] border-b-orange-900 bg-gradient-to-b from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-300" },
+  indigo: { idle: "border-indigo-200 border-b-[5px] border-b-indigo-300 bg-gradient-to-b from-white to-indigo-100 text-indigo-900 shadow-md shadow-indigo-200/70", on: "border-indigo-700 border-b-[5px] border-b-indigo-900 bg-gradient-to-b from-indigo-400 to-indigo-600 text-white shadow-lg shadow-indigo-300" },
+  rose: { idle: "border-rose-200 border-b-[5px] border-b-rose-300 bg-gradient-to-b from-white to-rose-100 text-rose-900 shadow-md shadow-rose-200/70", on: "border-rose-700 border-b-[5px] border-b-rose-900 bg-gradient-to-b from-rose-400 to-rose-600 text-white shadow-lg shadow-rose-300" },
+  cyan: { idle: "border-cyan-200 border-b-[5px] border-b-cyan-300 bg-gradient-to-b from-white to-cyan-100 text-cyan-900 shadow-md shadow-cyan-200/70", on: "border-cyan-700 border-b-[5px] border-b-cyan-900 bg-gradient-to-b from-cyan-400 to-cyan-600 text-white shadow-lg shadow-cyan-300" },
 };
 const hueOf = (key: string) => HUE[projectOf(key)?.hue ?? "stone"];
 
@@ -175,6 +178,26 @@ const ProjectLedgerPage = () => {
 
   const appendTo = (k: "item" | "note") => (t: string) => setForm((f) => ({ ...f, [k]: (f[k] ? f[k] + " " : "") + t }));
   const amountFromVoice = (t: string) => { const p = parseVoice(t + " บาท"); if (p.amount != null) set("amount", String(p.amount)); else toast({ title: "ฟังจำนวนเงินไม่ได้", description: "ลองพูดเป็นตัวเลข เช่น “หนึ่งพันสองร้อยบาท”", variant: "destructive" }); };
+
+  /** โครงการที่ครูตั้งชื่อเอง: ชื่อที่เคยบันทึกไว้ + ที่เพิ่งพิมพ์ยังไม่บันทึก */
+  const [extraKeys, setExtraKeys] = useState<string[]>([]);
+  const allProjects = useMemo(() => {
+    const keys = new Set<string>(extraKeys);
+    for (const e of entries) if (isCustomKey(e.project_key)) keys.add(e.project_key);
+    if (isCustomKey(form.project)) keys.add(form.project);
+    return [...LEDGER_PROJECTS, ...[...keys].sort((a, b) => a.localeCompare(b, "th")).map((k) => projectOf(k)!)];
+  }, [entries, extraKeys, form.project]);
+  const addCustomProject = async () => {
+    const r = await Swal.fire({
+      title: "ตั้งชื่อโครงการ / หมวดค่าใช้จ่ายอื่น", input: "text", inputPlaceholder: "เช่น ค่าน้ำค่าไฟโครงการ, เลี้ยงปลานิล",
+      showCancelButton: true, confirmButtonText: "ตกลง", cancelButtonText: "ยกเลิก", inputAttributes: { maxlength: "40" },
+      inputValidator: (v) => (v.trim() === "" ? "พิมพ์ชื่อโครงการก่อน" : undefined),
+    });
+    if (!r.isConfirmed) return;
+    const key = customKey(String(r.value));
+    setExtraKeys((l) => (l.includes(key) ? l : [...l, key]));
+    set("project", key);
+  };
 
   const project = projectOf(form.project);
   const quick = project ? [...project.quick, ...GENERAL_QUICK] : GENERAL_QUICK;
@@ -352,7 +375,7 @@ const ProjectLedgerPage = () => {
       <label className="col-span-2 text-sm font-bold text-slate-700">🌱 โครงการ
         <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-3 text-base">
           <option value="">ทุกโครงการ</option>
-          {LEDGER_PROJECTS.map((p) => <option key={p.key} value={p.key}>{p.emoji} {p.short}</option>)}
+          {allProjects.map((p) => <option key={p.key} value={p.key}>{p.emoji} {p.short}</option>)}
         </select>
       </label>
     </div>
@@ -408,18 +431,23 @@ const ProjectLedgerPage = () => {
             </div>
 
             {panel(1, "เลือกโครงการ", (
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                {LEDGER_PROJECTS.map((p) => {
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {allProjects.map((p) => {
                   const on = form.project === p.key;
                   return (
                     <button key={p.key} type="button" onClick={() => set("project", p.key)}
-                      className={`relative flex min-h-[72px] items-center gap-2.5 rounded-2xl border-2 px-3 py-2 text-left text-base font-bold transition active:scale-95 ${on ? `${HUE[p.hue].on} scale-[1.02] shadow-lg` : HUE[p.hue].idle}`}>
-                      <span className="text-3xl drop-shadow-sm">{p.emoji}</span>
+                      className={`relative flex min-h-[76px] items-center gap-2.5 rounded-2xl border-2 px-3 py-2 text-left text-base font-bold transition active:translate-y-[3px] active:border-b-2 active:shadow-sm ${on ? `${HUE[p.hue].on} -translate-y-0.5` : HUE[p.hue].idle}`}>
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white/90 text-3xl shadow-inner ring-1 ring-black/10">{p.emoji}</span>
                       <span className="leading-tight">{p.label}</span>
                       {on && <span className="absolute right-2 top-1.5 text-sm">✓</span>}
                     </button>
                   );
                 })}
+                <button type="button" onClick={() => void addCustomProject()}
+                  className="flex min-h-[76px] items-center gap-2.5 rounded-2xl border-2 border-dashed border-slate-400 bg-gradient-to-b from-white to-slate-100 px-3 py-2 text-left text-base font-bold text-slate-700 shadow-md transition active:translate-y-[3px] active:shadow-sm">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-3xl shadow-inner ring-1 ring-black/10">➕</span>
+                  <span className="leading-tight">ค่าใช้จ่ายอื่น<span className="block text-xs font-medium text-slate-500">ตั้งชื่อโครงการเอง</span></span>
+                </button>
               </div>
             ))}
 

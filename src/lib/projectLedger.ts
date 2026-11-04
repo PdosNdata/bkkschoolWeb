@@ -38,7 +38,20 @@ export const LEDGER_PROJECTS: LedgerProject[] = [
     quick: [["ซื้อเมล็ดพันธุ์", "expense"], ["ซื้อต้นกล้า", "expense"], ["ซื้อปุ๋ย", "expense"], ["ขายผัก", "income"]] },
 ];
 
-export const projectOf = (key: string) => LEDGER_PROJECTS.find((p) => p.key === key);
+/** โครงการอื่นที่ครูตั้งชื่อเอง เก็บใน project_key เป็น "x:ชื่อโครงการ" (ไม่ต้องแก้ฐานข้อมูล) */
+export const CUSTOM_PREFIX = "x:";
+export const isCustomKey = (key: string) => key.startsWith(CUSTOM_PREFIX);
+export const customKey = (name: string) => CUSTOM_PREFIX + name.trim().replace(/\s+/g, " ").slice(0, 40);
+const CUSTOM_HUES = ["indigo", "rose", "cyan"];
+const customProject = (key: string): LedgerProject => {
+  const name = key.slice(CUSTOM_PREFIX.length) || "โครงการอื่น";
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return { key, label: name, short: name, emoji: "🧾", words: [], quick: [], hue: CUSTOM_HUES[h % CUSTOM_HUES.length] };
+};
+
+export const projectOf = (key: string): LedgerProject | undefined =>
+  LEDGER_PROJECTS.find((p) => p.key === key) ?? (isCustomKey(key) ? customProject(key) : undefined);
 
 /** รายการด่วนที่ใช้ได้กับทุกโครงการ */
 export const GENERAL_QUICK: [string, LedgerKind][] = [["ซื้อวัสดุอุปกรณ์", "expense"], ["ค่าขนส่ง", "expense"], ["ค่าน้ำ/ค่าไฟ", "expense"], ["ค่าแรง", "expense"], ["เงินสนับสนุน/บริจาค", "income"]];
