@@ -1,5 +1,5 @@
 // ส่งออกบัญชีโครงการด้วยรักและห่วงใยเป็นไฟล์ Excel จัดรูปแบบพร้อมพิมพ์ (A4 แนวตั้ง) — โหลด exceljs เมื่อกดส่งออกเท่านั้น
-import { projectOf, summarize, thaiDate, thaiMonth, todayIso, type LedgerEntry } from "./projectLedger";
+import { projectOf, summarize, thaiDate, todayIso, type LedgerEntry } from "./projectLedger";
 
 const FONT = "TH Sarabun New";
 const GREEN = "FF047857";
@@ -13,12 +13,12 @@ const TINT: Record<string, string> = {
   lime: "FFECFCCB", teal: "FFCCFBF1", pink: "FFFCE7F3", violet: "FFEDE9FE", orange: "FFFFEDD5",
 };
 
-export interface LedgerXlsxOptions { month: string; projectKey: string; school?: string }
+export interface LedgerXlsxOptions { monthLabel: string; monthKey: string; projectKey: string; school?: string }
 
 export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOptions): Promise<void> {
   const ExcelJS = (await import("exceljs")).default;
   const school = opt.school ?? "โรงเรียนบ้านค้อดอนแคน";
-  const scope = `${thaiMonth(opt.month)} · ${opt.projectKey ? `โครงการ${projectOf(opt.projectKey)?.label ?? ""}` : "ทุกโครงการ"}`;
+  const scope = `${opt.monthLabel} · ${opt.projectKey ? `โครงการ${projectOf(opt.projectKey)?.label ?? ""}` : "ทุกโครงการ"}`;
   const sum = summarize(entries);
   const sorted = [...entries].sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.created_at.localeCompare(b.created_at));
 
@@ -140,7 +140,7 @@ export async function exportLedgerXlsx(entries: LedgerEntry[], opt: LedgerXlsxOp
   const buf = await wb.xlsx.writeBuffer();
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-  a.download = `บัญชีโครงการด้วยรัก-${opt.month || "ทั้งหมด"}${opt.projectKey ? "-" + (projectOf(opt.projectKey)?.short ?? opt.projectKey) : ""}.xlsx`;
+  a.download = `บัญชีโครงการด้วยรัก-${opt.monthKey}${opt.projectKey ? "-" + (projectOf(opt.projectKey)?.short ?? opt.projectKey) : ""}.xlsx`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }

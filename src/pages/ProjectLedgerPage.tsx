@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  GENERAL_QUICK, LEDGER_PROJECTS, UNITS, ledgerCsv, money, monthOfNow, parseVoice, projectOf, summarize, thaiDate, thaiMonth, todayIso,
+  GENERAL_QUICK, LEDGER_PROJECTS, UNITS, ledgerCsv, money, monthOfNow, parseVoice, projectOf, summarize, monthsLabel, thaiDate, thaiMonth, todayIso,
   type LedgerEntry, type LedgerKind,
 } from "@/lib/projectLedger";
 
@@ -109,7 +109,7 @@ const ProjectLedgerPage = () => {
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [owners, setOwners] = useState<Record<string, string>>({}); // user_id → อีเมล (แอดมินดูว่าใครบันทึก)
-  const [month, setMonth] = useState(monthOfNow());
+  const [months, setMonths] = useState<string[]>([monthOfNow()]); // ว่าง = ทุกเดือน
   const [filterProject, setFilterProject] = useState("");
   const [micActive, setMicActive] = useState("");
   const [heard, setHeard] = useState("");
@@ -240,9 +240,16 @@ const ProjectLedgerPage = () => {
   };
 
   const shown = useMemo(
-    () => entries.filter((e) => (!month || e.entry_date.startsWith(month)) && (!filterProject || e.project_key === filterProject)),
-    [entries, month, filterProject],
+    () => entries.filter((e) => (months.length === 0 || months.includes(e.entry_date.slice(0, 7))) && (!filterProject || e.project_key === filterProject)),
+    [entries, months, filterProject],
   );
+  const monthKey = months.length ? [...months].sort().join("_") : "ทั้งหมด";
+  const monthLabel = monthsLabel(months);
+  const monthChoices = useMemo(() => {
+    const set = new Set<string>([monthOfNow(), ...entries.map((e) => e.entry_date.slice(0, 7)), ...months]);
+    return [...set].sort().reverse();
+  }, [entries, months]);
+  const toggleMonth = (m: string) => setMonths((l) => (l.includes(m) ? l.filter((x) => x !== m) : [...l, m].sort()));
   const grouped = useMemo(() => {
     const m = new Map<string, LedgerEntry[]>();
     for (const e of shown) m.set(e.entry_date, [...(m.get(e.entry_date) ?? []), e]);
@@ -256,12 +263,12 @@ const ProjectLedgerPage = () => {
 
   /** ลบทั้งหมดของเดือนที่เลือก (ตามตัวกรองโครงการด้วย) — ต้องพิมพ์ "ลบ" ยืนยัน */
   const removeMonth = async () => {
-    if (!month || deletable.length === 0) return;
-    const scope = `${thaiMonth(month)}${filterProject ? ` · ${projectOf(filterProject)?.short ?? ""}` : " · ทุกโครงการ"}`;
+    if (months.length === 0 || deletable.length === 0) return;
+    const scope = `${monthLabel}${filterProject ? ` · ${projectOf(filterProject)?.short ?? ""}` : " · ทุกโครงการ"}`;
     const total = deletable.reduce((a, e) => a + (e.kind === "income" ? 1 : -1) * Number(e.amount), 0);
     const others = shown.length - deletable.length;
     const r = await Swal.fire({
-      title: "ลบทั้งหมดของเดือนนี้?",
+      title: "ลบทั้งหมดของเดือนที่เลือก?",
       html: `<div style="font-size:19px;line-height:1.5"><b>${scope}</b><br/>จะลบ <b style="color:#dc2626">${deletable.length} รายการ</b> (คงเหลือสุทธิ ${money(total)} บาท)<br/>ลบแล้ว<b>กู้คืนไม่ได้</b> — ควรส่งออก Excel (CSV) เก็บไว้ก่อน${others > 0 ? `<br/><span style="color:#b45309">ไม่รวม ${others} รายการที่คนอื่นบันทึก (ลบไม่ได้)</span>` : ""}<br/><br/>พิมพ์คำว่า <b>ลบ</b> เพื่อยืนยัน</div>`,
       icon: "warning", input: "text", inputPlaceholder: "ลบ", showCancelButton: true, confirmButtonText: "ลบทั้งหมด", cancelButtonText: "ยกเลิก", confirmButtonColor: "#dc2626",
       inputValidator: (v) => (v.trim() === "ลบ" ? undefined : "พิมพ์คำว่า ลบ ให้ตรงเพื่อยืนยัน"),
@@ -282,7 +289,7 @@ const ProjectLedgerPage = () => {
   const printReport = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้พิมพ์", variant: "destructive" });
     const old = document.title;
-    document.title = `รายงานสรุปบัญชีโครงการด้วยรัก-${month || "ทั้งหมด"}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}`;
+    document.title = `รายงานสรุปบัญชีโครงการด้วยรัก-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}`;
     window.addEventListener("afterprint", () => { document.title = old; }, { once: true });
     window.print();
   };
@@ -292,7 +299,7 @@ const ProjectLedgerPage = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     try {
       const { exportLedgerXlsx } = await import("@/lib/projectLedgerXlsx"); // โหลด exceljs เมื่อกดใช้เท่านั้น
-      await exportLedgerXlsx(shown, { month, projectKey: filterProject });
+      await exportLedgerXlsx(shown, { monthLabel, monthKey, projectKey: filterProject });
     } catch (e) {
       toast({ title: "ส่งออก Excel ไม่สำเร็จ", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
     }
@@ -302,7 +309,7 @@ const ProjectLedgerPage = () => {
     if (shown.length === 0) return toast({ title: "ไม่มีรายการให้ส่งออก", variant: "destructive" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + ledgerCsv(shown)], { type: "text/csv;charset=utf-8" }));
-    a.download = `บัญชีโครงการด้วยรัก-${month || "ทั้งหมด"}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}.csv`;
+    a.download = `บัญชีโครงการด้วยรัก-${monthKey}${filterProject ? "-" + (projectOf(filterProject)?.short ?? filterProject) : ""}.csv`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
@@ -332,16 +339,22 @@ const ProjectLedgerPage = () => {
 
   const filters = (
     <div className="grid grid-cols-2 gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
-      <label className="text-sm font-bold text-slate-700">📅 เดือน
-        <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="mt-1 h-12 rounded-xl text-base" />
-      </label>
-      <label className="text-sm font-bold text-slate-700">🌱 โครงการ
+      <div className="col-span-2 text-sm font-bold text-slate-700">📅 เดือน <span className="font-normal text-slate-500">(แตะเลือกได้หลายเดือน)</span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button type="button" onClick={() => setMonths([])}
+            className={`rounded-full px-4 py-2 text-sm font-bold ring-1 transition active:scale-95 ${months.length === 0 ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>ทุกเดือน</button>
+          {monthChoices.map((m) => (
+            <button key={m} type="button" onClick={() => toggleMonth(m)}
+              className={`rounded-full px-4 py-2 text-sm font-bold ring-1 transition active:scale-95 ${months.includes(m) ? "bg-emerald-600 text-white ring-emerald-600" : "bg-white text-slate-600 ring-slate-300"}`}>{months.includes(m) ? "✓ " : ""}{thaiMonth(m)}</button>
+          ))}
+        </div>
+      </div>
+      <label className="col-span-2 text-sm font-bold text-slate-700">🌱 โครงการ
         <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-3 text-base">
           <option value="">ทุกโครงการ</option>
           {LEDGER_PROJECTS.map((p) => <option key={p.key} value={p.key}>{p.emoji} {p.short}</option>)}
         </select>
       </label>
-      {month && <button type="button" onClick={() => setMonth("")} className="col-span-2 text-left text-sm font-semibold text-teal-700 underline">ดูทุกเดือน</button>}
     </div>
   );
 
@@ -486,13 +499,13 @@ const ProjectLedgerPage = () => {
               {stat("รับ", sum.income, "bg-green-100 text-green-800")}
               {stat("คงเหลือ", sum.net, sum.net >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800")}
             </div>
-            {month && deletable.length > 0 && (
+            {months.length > 0 && deletable.length > 0 && (
               <button type="button" onClick={() => void removeMonth()} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-red-200 bg-white text-base font-bold text-red-600 active:scale-95">
-                <Trash2 className="h-5 w-5" />ลบทั้งหมดของ {thaiMonth(month)}{filterProject ? ` (${projectOf(filterProject)?.short})` : ""} · {deletable.length} รายการ
+                <Trash2 className="h-5 w-5" />ลบทั้งหมดของ {monthLabel}{filterProject ? ` (${projectOf(filterProject)?.short})` : ""} · {deletable.length} รายการ
               </button>
             )}
             {loading ? <p className="py-10 text-center text-slate-500">กำลังโหลด…</p> : grouped.length === 0 ? (
-              <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📭</p><p className="mt-2">ยังไม่มีรายการ{month ? `ใน${thaiMonth(month)}` : ""}</p></div>
+              <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📭</p><p className="mt-2">ยังไม่มีรายการ{months.length ? `ใน${monthLabel}` : ""}</p></div>
             ) : grouped.map(([date, list]) => (
               <div key={date}>
                 <h3 className="mb-2 mt-4 flex items-center gap-2 text-sm font-extrabold text-slate-600"><span className="rounded-full bg-slate-800 px-3 py-1 text-white">{thaiDate(date)}</span></h3>
@@ -523,7 +536,7 @@ const ProjectLedgerPage = () => {
           <section className="space-y-3">
             {filters}
             <div className="rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-center text-white shadow-lg">
-              <p className="text-sm text-white/90">{thaiMonth(month)}{filterProject ? ` · ${projectOf(filterProject)?.short}` : ""}</p>
+              <p className="text-sm text-white/90">{monthLabel}{filterProject ? ` · ${projectOf(filterProject)?.short}` : ""}</p>
               <p className="my-1 text-5xl font-extrabold drop-shadow">{sum.net >= 0 ? "+" : "−"}{money(Math.abs(sum.net))}</p>
               <p className="text-sm text-white/90">รับ {money(sum.income)} − จ่าย {money(sum.expense)} บาท</p>
             </div>
@@ -569,7 +582,7 @@ const ProjectLedgerPage = () => {
         <div className="hidden px-1 text-black print:block">
           <h1 className="text-center text-xl font-bold">รายงานสรุปบัญชีโครงการด้วยรักและห่วงใย</h1>
           <p className="text-center text-base">โรงเรียนบ้านค้อดอนแคน</p>
-          <p className="mb-3 text-center text-sm">ช่วงเวลา: {thaiMonth(month)} · {filterProject ? `โครงการ${projectOf(filterProject)?.label ?? ""}` : "ทุกโครงการ"} · พิมพ์เมื่อ {thaiDate(todayIso())}</p>
+          <p className="mb-3 text-center text-sm">ช่วงเวลา: {monthLabel} · {filterProject ? `โครงการ${projectOf(filterProject)?.label ?? ""}` : "ทุกโครงการ"} · พิมพ์เมื่อ {thaiDate(todayIso())}</p>
           <table className="w-full border-collapse text-sm">
             <thead><tr className="bg-gray-100">{["โครงการ", "รายการ", "รายรับ (บาท)", "รายจ่าย (บาท)", "คงเหลือ (บาท)"].map((h) => <th key={h} className="border border-black px-2 py-1">{h}</th>)}</tr></thead>
             <tbody>

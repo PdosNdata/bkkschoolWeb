@@ -71,6 +71,16 @@ export const thaiDate = (iso: string) => { const p = parts(iso); return p ? `${p
 /** 2026-11 → "พฤศจิกายน 2569" */
 export const thaiMonth = (ym: string) => { const m = ym.match(/^(\d{4})-(\d{2})$/); return m ? `${TH_MONTHS_FULL[+m[2] - 1]} ${+m[1] + 543}` : "ทุกเดือน"; };
 
+/** หลายเดือน → "ทุกเดือน" / "พ.ย. 2569" / "ต.ค. – ธ.ค. 2569" (ติดกัน) / "ก.ย., พ.ย. 2569" */
+export const monthsLabel = (ms: string[]) => {
+  const l = [...ms].sort();
+  if (l.length === 0) return "ทุกเดือน";
+  if (l.length === 1) return thaiMonth(l[0]);
+  const idx = (m: string) => +m.slice(0, 4) * 12 + +m.slice(5, 7);
+  const contiguous = l.every((m, i) => i === 0 || idx(m) === idx(l[i - 1]) + 1);
+  return contiguous ? `${thaiMonth(l[0])} – ${thaiMonth(l[l.length - 1])}` : l.map(thaiMonth).join(", ");
+};
+
 export const money = (n: number) => n.toLocaleString("th-TH", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
 /* ───────── แยกคำพูด → ช่องในฟอร์ม ───────── */
