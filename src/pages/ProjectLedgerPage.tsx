@@ -324,7 +324,7 @@ const ProjectLedgerPage = () => {
   // ฟังก์ชันธรรมดา (ไม่ใช่คอมโพเนนต์) เพื่อไม่ให้ช่องกรอกถูกสร้างใหม่ทุกครั้งที่พิมพ์ — โฟกัสจะได้ไม่หลุด
   const tabBtn = (id: Tab, icon: string, label: string) => (
     <button key={id} type="button" onClick={() => setTab(id)}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl py-3 text-base font-bold transition active:scale-95 ${tab === id ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md" : "text-slate-500"}`}>
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl py-3 text-base lg:flex-none lg:justify-start lg:px-4 font-bold transition active:scale-95 ${tab === id ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md" : "text-slate-500"}`}>
       <span className="text-xl">{icon}</span>{label}
     </button>
   );
@@ -369,9 +369,9 @@ const ProjectLedgerPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-sky-50">
       <style>{"@media print{@page{size:A4;margin:12mm}}"}</style>
       <div className="print:hidden"><Header /></div>
-      <main className={`container mx-auto max-w-2xl space-y-4 px-3 pb-36 pt-4${tab === "sum" ? " print:hidden" : ""}`}>
+      <main className={`container mx-auto max-w-2xl space-y-4 px-3 pb-36 pt-4 lg:grid lg:max-w-5xl lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4 lg:space-y-0 [&>*]:lg:col-start-2${tab === "sum" ? " print:hidden" : ""}`}>
         {/* หัวเรื่อง + ยอดสรุปย่อ */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 p-5 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 p-5 text-white shadow-lg lg:!col-span-2 lg:!col-start-1">
           <span className="pointer-events-none absolute -right-4 -top-5 text-8xl opacity-20">🌱</span>
           <span className="pointer-events-none absolute -bottom-6 left-24 text-7xl opacity-10">🐟</span>
           <h1 className="relative text-2xl font-extrabold leading-tight drop-shadow sm:text-3xl">บัญชีโครงการด้วยรักและห่วงใย</h1>
@@ -386,7 +386,7 @@ const ProjectLedgerPage = () => {
 
         {loadError && <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{loadError}<button onClick={() => void load()} className="ml-2 font-bold underline">ลองอีกครั้ง</button></div>}
 
-        <div className="flex gap-1 rounded-3xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">{tabBtn("add", "✏️", "บันทึก")}{tabBtn("list", "📒", "รายการ")}{tabBtn("sum", "📊", "สรุป")}</div>
+        <div className="flex gap-1 rounded-3xl bg-white p-1.5 shadow-sm ring-1 ring-black/5 lg:sticky lg:top-4 lg:row-span-6 lg:row-start-2 lg:flex-col lg:!col-start-1">{tabBtn("add", "✏️", "บันทึก")}{tabBtn("list", "📒", "รายการ")}{tabBtn("sum", "📊", "สรุป")}</div>
 
         {tab === "add" && (
           <div className="space-y-4">
