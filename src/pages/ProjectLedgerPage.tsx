@@ -38,8 +38,8 @@ const SpeechCtor: any = typeof window !== "undefined" ? (window as any).SpeechRe
 const speechSupported = !!SpeechCtor;
 
 /** ปุ่มไมค์: กดแล้วพูด ได้ข้อความเมื่อพูดจบ (th-TH) · กดซ้ำเพื่อหยุด */
-function MicButton({ onText, onInterim, label = "พูด", className = "", activeId, setActiveId, id }: {
-  onText: (t: string) => void; onInterim?: (t: string) => void; label?: string; className?: string; id: string; activeId: string; setActiveId: Dispatch<SetStateAction<string>>;
+function MicButton({ onText, onInterim, label = "พูด", className = "", variant = "soft", activeId, setActiveId, id }: {
+  onText: (t: string) => void; onInterim?: (t: string) => void; label?: string; className?: string; variant?: "soft" | "hero"; id: string; activeId: string; setActiveId: Dispatch<SetStateAction<string>>;
 }) {
   const recRef = useRef<{ stop: () => void; abort: () => void } | null>(null);
   const listening = activeId === id;
@@ -85,8 +85,8 @@ function MicButton({ onText, onInterim, label = "พูด", className = "", act
 
   return (
     <button type="button" onClick={start} aria-label={listening ? "หยุดฟัง" : "พูดเพื่อกรอก"}
-      className={`inline-flex shrink-0 items-center justify-center gap-1 rounded-full font-semibold transition active:scale-95 ${listening ? "animate-pulse bg-red-600 text-white" : "bg-primary/10 text-primary hover:bg-primary/20"} ${className}`}>
-      {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+      className={`inline-flex shrink-0 items-center justify-center gap-1 rounded-full font-semibold transition active:scale-95 ${listening ? "animate-pulse bg-red-600 text-white ring-4 ring-red-300" : variant === "hero" ? "bg-white text-rose-600 shadow-lg" : "bg-gradient-to-br from-rose-100 to-orange-100 text-rose-600 shadow-sm hover:from-rose-200"} ${className}`}>
+      {listening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
       {label && <span>{listening ? "กำลังฟัง…" : label}</span>}
     </button>
   );
@@ -231,147 +231,191 @@ const ProjectLedgerPage = () => {
   };
 
   const todayTotal = useMemo(() => summarize(entries.filter((e) => e.entry_date === todayIso())), [entries]);
+  const monthTotal = useMemo(() => summarize(entries.filter((e) => e.entry_date.startsWith(monthOfNow()))), [entries]);
 
-  const TabBtn = ({ id, label }: { id: Tab; label: string }) => (
-    <button type="button" onClick={() => setTab(id)} className={`flex-1 rounded-xl py-3 text-base font-bold transition ${tab === id ? "bg-primary text-primary-foreground shadow" : "bg-muted text-muted-foreground"}`}>{label}</button>
+  const QUICK_AMOUNTS = [20, 50, 100, 200, 500, 1000];
+  const addAmount = (n: number) => set("amount", String(Math.round(((Number(form.amount.replace(/,/g, "")) || 0) + n) * 100) / 100));
+  const stepQty = (d: number) => set("qty", String(Math.max(0, Math.round(((Number(form.qty) || 0) + d) * 100) / 100)));
+
+  // ฟังก์ชันธรรมดา (ไม่ใช่คอมโพเนนต์) เพื่อไม่ให้ช่องกรอกถูกสร้างใหม่ทุกครั้งที่พิมพ์ — โฟกัสจะได้ไม่หลุด
+  const tabBtn = (id: Tab, icon: string, label: string) => (
+    <button key={id} type="button" onClick={() => setTab(id)}
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl py-3 text-base font-bold transition active:scale-95 ${tab === id ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md" : "text-slate-500"}`}>
+      <span className="text-xl">{icon}</span>{label}
+    </button>
+  );
+  const panel = (n: number, title: string, body: React.ReactNode) => (
+    <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+      <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-slate-800">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-extrabold text-white shadow">{n}</span>{title}
+      </h2>
+      {body}
+    </section>
   );
 
   const filters = (
-    <div className="grid grid-cols-2 gap-2">
-      <label className="text-sm font-semibold">เดือน
-        <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="mt-1 h-12 text-base" />
+    <div className="grid grid-cols-2 gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+      <label className="text-sm font-bold text-slate-700">📅 เดือน
+        <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="mt-1 h-12 rounded-xl text-base" />
       </label>
-      <label className="text-sm font-semibold">โครงการ
-        <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className="mt-1 h-12 w-full rounded-md border border-input bg-background px-3 text-base">
+      <label className="text-sm font-bold text-slate-700">🌱 โครงการ
+        <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-3 text-base">
           <option value="">ทุกโครงการ</option>
           {LEDGER_PROJECTS.map((p) => <option key={p.key} value={p.key}>{p.emoji} {p.short}</option>)}
         </select>
       </label>
-      {month && <button type="button" onClick={() => setMonth("")} className="col-span-2 text-left text-sm text-primary underline">ดูทุกเดือน</button>}
+      {month && <button type="button" onClick={() => setMonth("")} className="col-span-2 text-left text-sm font-semibold text-teal-700 underline">ดูทุกเดือน</button>}
+    </div>
+  );
+
+  const stat = (label: string, value: number, tone: string) => (
+    <div className={`rounded-2xl px-2 py-2 text-center ${tone}`}>
+      <p className="text-xs font-semibold opacity-90">{label}</p>
+      <p className="text-lg font-extrabold leading-tight">{money(value)}</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-sky-50">
       <Header />
-      <main className="container mx-auto max-w-2xl px-3 pb-32 pt-5">
-        <div className="mb-4 text-center">
-          <h1 className="text-2xl font-bold text-primary sm:text-3xl">บัญชีโครงการด้วยรักและห่วงใย</h1>
-          <p className="text-sm text-muted-foreground">บันทึกรายรับ-รายจ่ายรายวัน · กดไมค์พูดได้</p>
+      <main className="container mx-auto max-w-2xl space-y-4 px-3 pb-36 pt-4">
+        {/* หัวเรื่อง + ยอดสรุปย่อ */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 p-5 text-white shadow-lg">
+          <span className="pointer-events-none absolute -right-4 -top-5 text-8xl opacity-20">🌱</span>
+          <span className="pointer-events-none absolute -bottom-6 left-24 text-7xl opacity-10">🐟</span>
+          <h1 className="relative text-2xl font-extrabold leading-tight drop-shadow sm:text-3xl">บัญชีโครงการด้วยรักและห่วงใย</h1>
+          <p className="relative text-sm text-white/90">บันทึกรายรับ-รายจ่ายรายวัน · กดไมค์พูดได้</p>
+          <div className="relative mt-4 grid grid-cols-3 gap-2">
+            {stat("วันนี้จ่าย", todayTotal.expense, "bg-white/20 text-white backdrop-blur")}
+            {stat("วันนี้รับ", todayTotal.income, "bg-white/20 text-white backdrop-blur")}
+            {stat("เดือนนี้คงเหลือ", monthTotal.net, "bg-white text-emerald-800")}
+          </div>
         </div>
 
-        {loadError && <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{loadError}<button onClick={() => void load()} className="ml-2 underline">ลองอีกครั้ง</button></div>}
+        {loadError && <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{loadError}<button onClick={() => void load()} className="ml-2 font-bold underline">ลองอีกครั้ง</button></div>}
 
-        <div className="mb-4 flex gap-2"><TabBtn id="add" label="✏️ บันทึก" /><TabBtn id="list" label="📒 รายการ" /><TabBtn id="sum" label="📊 สรุป" /></div>
+        <div className="flex gap-1 rounded-3xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">{tabBtn("add", "✏️", "บันทึก")}{tabBtn("list", "📒", "รายการ")}{tabBtn("sum", "📊", "สรุป")}</div>
 
         {tab === "add" && (
-          <section className="space-y-4">
-            {(todayTotal.income > 0 || todayTotal.expense > 0) && (
-              <div className="grid grid-cols-2 gap-2 text-center text-sm">
-                <div className="rounded-xl bg-red-50 p-2 text-red-800">วันนี้จ่าย <b className="block text-lg">{money(todayTotal.expense)}</b></div>
-                <div className="rounded-xl bg-green-50 p-2 text-green-800">วันนี้รับ <b className="block text-lg">{money(todayTotal.income)}</b></div>
-              </div>
-            )}
-
+          <div className="space-y-4">
             {/* พูดทั้งประโยค */}
-            <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 p-3">
+            <div className="rounded-3xl bg-gradient-to-br from-rose-500 to-orange-400 p-4 text-white shadow-lg">
               <div className="flex items-center gap-3">
-                <MicButton id="all" activeId={micActive} setActiveId={setMicActive} onText={applyVoice} onInterim={setInterim} label="พูดทั้งประโยค" className="h-14 px-5 text-lg" />
-                <p className="text-sm text-muted-foreground">เช่น “ซื้ออาหารปลา 2 กระสอบ 1200 บาท” หรือ “ขายไข่ไก่ 3 แผง 270 บาท”</p>
+                <MicButton id="all" variant="hero" activeId={micActive} setActiveId={setMicActive} onText={applyVoice} onInterim={setInterim} label="แตะแล้วพูด" className="h-16 px-6 text-xl" />
+                <p className="text-sm leading-snug text-white/95">พูดทั้งประโยค เช่น<br />“ซื้ออาหารปลา 2 กระสอบ 1200 บาท”<br />“ขายไข่ไก่ 3 แผง 270 บาท”</p>
               </div>
-              {(interim || heard) && <p className="mt-2 rounded-lg bg-background p-2 text-base">🗣️ {interim || heard}</p>}
-              {!speechSupported && <p className="mt-2 text-xs text-amber-700">เบราว์เซอร์นี้ไม่มีไมค์ในเว็บ — แตะช่องพิมพ์แล้วใช้ไมค์บนแป้นพิมพ์มือถือแทนได้</p>}
+              {(interim || heard) && <p className="mt-3 rounded-2xl bg-white/95 p-3 text-base font-medium text-slate-800">🗣️ {interim || heard}</p>}
+              {!speechSupported && <p className="mt-2 rounded-xl bg-white/90 p-2 text-xs text-amber-800">เบราว์เซอร์นี้ไม่มีไมค์ในเว็บ — แตะช่องพิมพ์แล้วใช้ไมค์บนแป้นพิมพ์มือถือแทนได้</p>}
             </div>
 
-            <div>
-              <h2 className="mb-2 text-base font-bold">1. เลือกโครงการ</h2>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {LEDGER_PROJECTS.map((p) => (
-                  <button key={p.key} type="button" onClick={() => set("project", p.key)}
-                    className={`flex min-h-[64px] items-center gap-2 rounded-xl border-2 px-3 py-2 text-left text-base font-semibold transition active:scale-95 ${form.project === p.key ? HUE[p.hue].on : HUE[p.hue].idle}`}>
-                    <span className="text-2xl">{p.emoji}</span><span className="leading-tight">{p.label}</span>
-                  </button>
-                ))}
+            {panel(1, "เลือกโครงการ", (
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {LEDGER_PROJECTS.map((p) => {
+                  const on = form.project === p.key;
+                  return (
+                    <button key={p.key} type="button" onClick={() => set("project", p.key)}
+                      className={`relative flex min-h-[72px] items-center gap-2.5 rounded-2xl border-2 px-3 py-2 text-left text-base font-bold transition active:scale-95 ${on ? `${HUE[p.hue].on} scale-[1.02] shadow-lg` : HUE[p.hue].idle}`}>
+                      <span className="text-3xl drop-shadow-sm">{p.emoji}</span>
+                      <span className="leading-tight">{p.label}</span>
+                      {on && <span className="absolute right-2 top-1.5 text-sm">✓</span>}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            ))}
 
-            <div>
-              <h2 className="mb-2 text-base font-bold">2. รายรับหรือรายจ่าย</h2>
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => set("kind", "expense")} className={`h-14 rounded-xl border-2 text-lg font-bold transition ${form.kind === "expense" ? "border-red-600 bg-red-600 text-white" : "border-red-200 bg-red-50 text-red-800"}`}>➖ รายจ่าย</button>
-                <button type="button" onClick={() => set("kind", "income")} className={`h-14 rounded-xl border-2 text-lg font-bold transition ${form.kind === "income" ? "border-green-600 bg-green-600 text-white" : "border-green-200 bg-green-50 text-green-800"}`}>➕ รายรับ</button>
+            {panel(2, "รายรับหรือรายจ่าย", (
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => set("kind", "expense")} className={`h-16 rounded-2xl text-xl font-extrabold transition active:scale-95 ${form.kind === "expense" ? "bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg ring-4 ring-red-200" : "bg-red-50 text-red-700"}`}>➖ รายจ่าย</button>
+                <button type="button" onClick={() => set("kind", "income")} className={`h-16 rounded-2xl text-xl font-extrabold transition active:scale-95 ${form.kind === "income" ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg ring-4 ring-green-200" : "bg-green-50 text-green-700"}`}>➕ รายรับ</button>
               </div>
-            </div>
+            ))}
 
-            <div>
-              <h2 className="mb-2 text-base font-bold">3. รายการ</h2>
-              <div className="mb-2 flex flex-wrap gap-2">
-                {quick.filter(([, k]) => k === form.kind).map(([t, k]) => (
-                  <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, item: t, kind: k }))}
-                    className={`rounded-full border px-3 py-2 text-sm font-medium ${form.item === t ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{t}</button>
-                ))}
-              </div>
-              <div className="flex items-center gap-2">
-                <Input value={form.item} onChange={(e) => set("item", e.target.value)} placeholder="เช่น ซื้ออาหารปลา" className="h-14 text-lg" />
-                <MicButton id="item" activeId={micActive} setActiveId={setMicActive} onText={appendTo("item")} label="" className="h-14 w-14" />
-              </div>
-            </div>
+            {panel(3, "รายการ", (
+              <>
+                <p className="mb-2 text-sm text-slate-500">แตะเลือกรายการที่ใช้บ่อย หรือพิมพ์/พูดเอง</p>
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {quick.filter(([, k]) => k === form.kind).map(([t, k]) => (
+                    <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, item: t, kind: k }))}
+                      className={`rounded-full border-2 px-4 py-2.5 text-base font-semibold transition active:scale-95 ${form.item === t ? (k === "income" ? "border-green-600 bg-green-600 text-white" : "border-red-600 bg-red-600 text-white") : (k === "income" ? "border-green-200 bg-green-50 text-green-900" : "border-red-200 bg-red-50 text-red-900")}`}>{t}</button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input value={form.item} onChange={(e) => set("item", e.target.value)} placeholder="เช่น ซื้ออาหารปลา" className="h-14 rounded-2xl text-lg" />
+                  <MicButton id="item" activeId={micActive} setActiveId={setMicActive} onText={appendTo("item")} label="" className="h-14 w-14" />
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="mb-1 text-sm font-bold text-slate-700">จำนวน</p>
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => stepQty(-1)} aria-label="ลดจำนวน" className="h-14 w-12 shrink-0 rounded-2xl bg-slate-100 text-2xl font-bold text-slate-700 active:scale-95">−</button>
+                      <Input inputMode="decimal" value={form.qty} onChange={(e) => set("qty", e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" className="h-14 min-w-0 rounded-2xl px-1 text-center text-xl font-bold" />
+                      <button type="button" onClick={() => stepQty(1)} aria-label="เพิ่มจำนวน" className="h-14 w-12 shrink-0 rounded-2xl bg-slate-100 text-2xl font-bold text-slate-700 active:scale-95">+</button>
+                    </div>
+                  </div>
+                  <label className="text-sm font-bold text-slate-700">หน่วย
+                    <Input list="ledger-units" value={form.unit} onChange={(e) => set("unit", e.target.value)} placeholder="กระสอบ/ตัว/กก." className="mt-1 h-14 rounded-2xl text-lg" />
+                    <datalist id="ledger-units">{UNITS.map((u) => <option key={u} value={u} />)}</datalist>
+                  </label>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {UNITS.slice(0, 8).map((u) => <button key={u} type="button" onClick={() => set("unit", u)} className={`rounded-full px-3 py-1.5 text-sm font-medium ${form.unit === u ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-700"}`}>{u}</button>)}
+                </div>
+              </>
+            ))}
 
-            <div className="grid grid-cols-5 gap-2">
-              <label className="col-span-2 text-sm font-semibold">จำนวน
-                <Input inputMode="decimal" value={form.qty} onChange={(e) => set("qty", e.target.value.replace(/[^\d.]/g, ""))} placeholder="เช่น 2" className="mt-1 h-14 text-lg" />
-              </label>
-              <label className="col-span-3 text-sm font-semibold">หน่วย
-                <Input list="ledger-units" value={form.unit} onChange={(e) => set("unit", e.target.value)} placeholder="กระสอบ / ตัว / กก." className="mt-1 h-14 text-lg" />
-                <datalist id="ledger-units">{UNITS.map((u) => <option key={u} value={u} />)}</datalist>
-              </label>
-            </div>
-
-            <div>
-              <h2 className="mb-2 text-base font-bold">4. จำนวนเงิน (บาท)</h2>
-              <div className="flex items-center gap-2">
-                <Input inputMode="decimal" value={form.amount} onChange={(e) => set("amount", e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0" className={`h-16 text-right text-3xl font-bold ${form.kind === "income" ? "text-green-700" : "text-red-700"}`} />
-                <MicButton id="amount" activeId={micActive} setActiveId={setMicActive} onText={amountFromVoice} label="" className="h-16 w-16" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <label className="text-sm font-semibold">วันที่
-                <Input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className="mt-1 h-12 text-base" />
-                <span className="text-xs font-normal text-muted-foreground">{form.date ? thaiDate(form.date) : ""}</span>
-              </label>
-              <div className="text-sm font-semibold">หมายเหตุ (ไม่บังคับ)
-                <div className="mt-1 flex items-start gap-2">
-                  <Textarea value={form.note} onChange={(e) => set("note", e.target.value)} rows={2} className="text-base" />
-                  <MicButton id="note" activeId={micActive} setActiveId={setMicActive} onText={appendTo("note")} label="" className="h-12 w-12" />
+            {panel(4, "จำนวนเงิน (บาท)", (
+              <div className={`rounded-2xl p-3 ${form.kind === "income" ? "bg-green-50" : "bg-red-50"}`}>
+                <div className="flex items-center gap-2">
+                  <Input inputMode="decimal" value={form.amount} onChange={(e) => set("amount", e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0" className={`h-20 rounded-2xl border-0 bg-white text-right text-4xl font-extrabold shadow-inner ${form.kind === "income" ? "text-green-700" : "text-red-700"}`} />
+                  <MicButton id="amount" activeId={micActive} setActiveId={setMicActive} onText={amountFromVoice} label="" className="h-20 w-16" />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {QUICK_AMOUNTS.map((n) => <button key={n} type="button" onClick={() => addAmount(n)} className="rounded-full bg-white px-4 py-2.5 text-base font-bold text-slate-800 shadow-sm ring-1 ring-black/10 active:scale-95">+{money(n)}</button>)}
+                  <button type="button" onClick={() => set("amount", "")} className="rounded-full bg-slate-800 px-4 py-2.5 text-base font-bold text-white active:scale-95">ล้าง</button>
                 </div>
               </div>
-            </div>
-          </section>
+            ))}
+
+            {panel(5, "วันที่และหมายเหตุ", (
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-700">📅 วันที่
+                  <Input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className="mt-1 h-14 rounded-2xl text-lg" />
+                  <span className="text-sm font-normal text-slate-500">{form.date ? thaiDate(form.date) : ""}</span>
+                </label>
+                <div className="flex items-start gap-2">
+                  <Textarea value={form.note} onChange={(e) => set("note", e.target.value)} rows={2} placeholder="หมายเหตุ (ไม่บังคับ)" className="rounded-2xl text-base" />
+                  <MicButton id="note" activeId={micActive} setActiveId={setMicActive} onText={appendTo("note")} label="" className="h-14 w-14" />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
         {tab === "list" && (
           <section className="space-y-3">
             {filters}
-            <div className="grid grid-cols-3 gap-2 text-center text-sm">
-              <div className="rounded-xl bg-red-50 p-2 text-red-800">จ่าย<b className="block text-base">{money(sum.expense)}</b></div>
-              <div className="rounded-xl bg-green-50 p-2 text-green-800">รับ<b className="block text-base">{money(sum.income)}</b></div>
-              <div className={`rounded-xl p-2 ${sum.net >= 0 ? "bg-emerald-50 text-emerald-800" : "bg-orange-50 text-orange-800"}`}>คงเหลือ<b className="block text-base">{money(sum.net)}</b></div>
+            <div className="grid grid-cols-3 gap-2">
+              {stat("จ่าย", sum.expense, "bg-red-100 text-red-800")}
+              {stat("รับ", sum.income, "bg-green-100 text-green-800")}
+              {stat("คงเหลือ", sum.net, sum.net >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800")}
             </div>
-            {loading ? <p className="py-8 text-center text-muted-foreground">กำลังโหลด…</p> : grouped.length === 0 ? <p className="py-8 text-center text-muted-foreground">ยังไม่มีรายการ{month ? `ใน${thaiMonth(month)}` : ""}</p> : grouped.map(([date, list]) => (
+            {loading ? <p className="py-10 text-center text-slate-500">กำลังโหลด…</p> : grouped.length === 0 ? (
+              <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📭</p><p className="mt-2">ยังไม่มีรายการ{month ? `ใน${thaiMonth(month)}` : ""}</p></div>
+            ) : grouped.map(([date, list]) => (
               <div key={date}>
-                <h3 className="mb-1 mt-3 text-sm font-bold text-muted-foreground">{thaiDate(date)}</h3>
+                <h3 className="mb-2 mt-4 flex items-center gap-2 text-sm font-extrabold text-slate-600"><span className="rounded-full bg-slate-800 px-3 py-1 text-white">{thaiDate(date)}</span></h3>
                 <ul className="space-y-2">
                   {list.map((e) => (
-                    <li key={e.id} className={`flex items-center gap-3 rounded-xl border-l-4 bg-card p-3 shadow-sm ${e.kind === "income" ? "border-green-500" : "border-red-500"}`}>
-                      <span className="text-2xl">{projectOf(e.project_key)?.emoji ?? "📦"}</span>
+                    <li key={e.id} className={`flex items-center gap-3 rounded-2xl border-l-8 bg-white p-3 shadow-sm ring-1 ring-black/5 ${e.kind === "income" ? "border-green-500" : "border-red-500"}`}>
+                      <span className="text-3xl">{projectOf(e.project_key)?.emoji ?? "📦"}</span>
                       <div className="min-w-0 flex-1">
-                        <p className="break-words font-semibold leading-snug">{e.item}</p>
-                        <p className="text-xs text-muted-foreground">{projectOf(e.project_key)?.short ?? e.project_key}{e.qty != null ? ` · ${e.qty} ${e.unit ?? ""}` : ""}{e.note ? ` · ${e.note}` : ""}</p>
+                        <p className="break-words text-base font-bold leading-snug text-slate-800">{e.item}</p>
+                        <p className="text-xs text-slate-500">{projectOf(e.project_key)?.short ?? e.project_key}{e.qty != null ? ` · ${e.qty} ${e.unit ?? ""}` : ""}{e.note ? ` · ${e.note}` : ""}</p>
                       </div>
                       <b className={`shrink-0 text-lg ${e.kind === "income" ? "text-green-700" : "text-red-700"}`}>{e.kind === "income" ? "+" : "−"}{money(Number(e.amount))}</b>
                       {(isAdmin || e.created_by === userId) && (
-                        <button type="button" onClick={() => void remove(e)} aria-label="ลบรายการ" className="shrink-0 rounded-full p-2 text-muted-foreground hover:bg-red-50 hover:text-red-600"><Trash2 className="h-5 w-5" /></button>
+                        <button type="button" onClick={() => void remove(e)} aria-label="ลบรายการ" className="shrink-0 rounded-full p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-5 w-5" /></button>
                       )}
                     </li>
                   ))}
@@ -384,41 +428,42 @@ const ProjectLedgerPage = () => {
         {tab === "sum" && (
           <section className="space-y-3">
             {filters}
-            <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 text-center">
-              <p className="text-sm text-muted-foreground">{thaiMonth(month)}{filterProject ? ` · ${projectOf(filterProject)?.short}` : ""}</p>
-              <p className={`text-4xl font-extrabold ${sum.net >= 0 ? "text-emerald-700" : "text-orange-700"}`}>{sum.net >= 0 ? "+" : "−"}{money(Math.abs(sum.net))}</p>
-              <p className="text-sm text-muted-foreground">รับ {money(sum.income)} − จ่าย {money(sum.expense)} บาท</p>
+            <div className="rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-center text-white shadow-lg">
+              <p className="text-sm text-white/90">{thaiMonth(month)}{filterProject ? ` · ${projectOf(filterProject)?.short}` : ""}</p>
+              <p className="my-1 text-5xl font-extrabold drop-shadow">{sum.net >= 0 ? "+" : "−"}{money(Math.abs(sum.net))}</p>
+              <p className="text-sm text-white/90">รับ {money(sum.income)} − จ่าย {money(sum.expense)} บาท</p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {sum.rows.filter((r) => r.count > 0 && (!filterProject || r.key === filterProject)).map((r) => (
-                <div key={r.key} className={`rounded-xl border-2 p-3 ${hueOf(r.key).idle}`}>
+                <div key={r.key} className={`rounded-3xl border-2 p-4 shadow-sm ${hueOf(r.key).idle}`}>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold">{projectOf(r.key)?.emoji} {projectOf(r.key)?.label ?? r.key}</span>
-                    <span className="text-xs">{r.count} รายการ</span>
+                    <span className="text-lg font-extrabold">{projectOf(r.key)?.emoji} {projectOf(r.key)?.label ?? r.key}</span>
+                    <span className="rounded-full bg-white/70 px-2 py-0.5 text-xs font-semibold">{r.count} รายการ</span>
                   </div>
-                  <div className="mt-2 space-y-1 text-sm">
-                    <div className="flex items-center gap-2"><span className="w-10">รับ</span><div className="h-3 flex-1 overflow-hidden rounded bg-white/70"><div className="h-full bg-green-500" style={{ width: `${(r.income / maxMoney) * 100}%` }} /></div><b className="w-24 text-right">{money(r.income)}</b></div>
-                    <div className="flex items-center gap-2"><span className="w-10">จ่าย</span><div className="h-3 flex-1 overflow-hidden rounded bg-white/70"><div className="h-full bg-red-500" style={{ width: `${(r.expense / maxMoney) * 100}%` }} /></div><b className="w-24 text-right">{money(r.expense)}</b></div>
+                  <div className="mt-3 space-y-2 text-sm">
+                    <div className="flex items-center gap-2"><span className="w-9 font-semibold">รับ</span><div className="h-4 flex-1 overflow-hidden rounded-full bg-white/70"><div className="h-full rounded-full bg-green-500" style={{ width: `${(r.income / maxMoney) * 100}%` }} /></div><b className="w-24 text-right">{money(r.income)}</b></div>
+                    <div className="flex items-center gap-2"><span className="w-9 font-semibold">จ่าย</span><div className="h-4 flex-1 overflow-hidden rounded-full bg-white/70"><div className="h-full rounded-full bg-red-500" style={{ width: `${(r.expense / maxMoney) * 100}%` }} /></div><b className="w-24 text-right">{money(r.expense)}</b></div>
                   </div>
-                  <p className={`mt-1 text-right font-bold ${r.net >= 0 ? "text-emerald-800" : "text-orange-800"}`}>{r.net >= 0 ? "กำไร" : "ขาดทุน"} {money(Math.abs(r.net))} บาท</p>
+                  <p className={`mt-2 text-right text-base font-extrabold ${r.net >= 0 ? "text-emerald-800" : "text-orange-800"}`}>{r.net >= 0 ? "กำไร" : "ขาดทุน"} {money(Math.abs(r.net))} บาท</p>
                 </div>
               ))}
-              {sum.rows.every((r) => r.count === 0) && <p className="py-8 text-center text-muted-foreground">ยังไม่มีรายการ</p>}
+              {sum.rows.every((r) => r.count === 0) && <div className="rounded-3xl bg-white p-8 text-center text-slate-500 shadow-sm ring-1 ring-black/5"><p className="text-4xl">📊</p><p className="mt-2">ยังไม่มีรายการ</p></div>}
             </div>
-            <Button onClick={exportCsv} variant="outline" className="h-12 w-full text-base"><Download className="mr-2 h-5 w-5" />ส่งออกเป็นไฟล์ Excel (CSV)</Button>
+            <Button onClick={exportCsv} variant="outline" className="h-14 w-full rounded-2xl text-base font-bold"><Download className="mr-2 h-5 w-5" />ส่งออกเป็นไฟล์ Excel (CSV)</Button>
           </section>
         )}
       </main>
 
       {tab === "add" && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 p-3 backdrop-blur" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
           <div className="mx-auto flex max-w-2xl items-center gap-3">
-            <div className="min-w-0 flex-1 text-sm">
-              <p className="truncate font-semibold">{project ? `${project.emoji} ${project.short}` : "ยังไม่เลือกโครงการ"} · {form.kind === "income" ? "รายรับ" : "รายจ่าย"}</p>
-              <p className={`font-bold ${form.kind === "income" ? "text-green-700" : "text-red-700"}`}>{amountNum > 0 ? `${money(amountNum)} บาท` : "—"}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-slate-600">{project ? `${project.emoji} ${project.short}` : "ยังไม่เลือกโครงการ"} · {form.kind === "income" ? "รายรับ" : "รายจ่าย"}</p>
+              <p className={`text-xl font-extrabold leading-tight ${form.kind === "income" ? "text-green-700" : "text-red-700"}`}>{amountNum > 0 ? `${money(amountNum)} บาท` : "—"}</p>
             </div>
-            <Button onClick={() => void save()} disabled={!canSave} className="h-14 px-8 text-lg font-bold"><Save className="mr-2 h-5 w-5" />{saving ? "กำลังบันทึก…" : "บันทึก"}</Button>
+            <Button onClick={() => void save()} disabled={!canSave} className="h-14 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-8 text-lg font-extrabold text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"><Save className="mr-2 h-5 w-5" />{saving ? "กำลังบันทึก…" : "บันทึก"}</Button>
           </div>
+          {!canSave && !saving && <p className="mx-auto mt-1 max-w-2xl text-center text-xs text-slate-500">{!form.project ? "เลือกโครงการ" : !form.item.trim() ? "ใส่รายการ" : "ใส่จำนวนเงิน"}ก่อนกดบันทึก</p>}
         </div>
       )}
       <Footer />
