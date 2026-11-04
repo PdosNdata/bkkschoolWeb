@@ -24,7 +24,9 @@ export const LEDGER_PROJECTS: LedgerProject[] = [
     quick: [["ซื้อลูกไก่", "expense"], ["ซื้ออาหารไก่", "expense"], ["ซื้อวัคซีน/ยาไก่", "expense"], ["ขายไข่ไก่", "income"], ["ขายไก่", "income"]] },
   { key: "boar", label: "เลี้ยงหมูป่า", short: "หมูป่า", emoji: "🐗", words: ["หมูป่า", "หมู"], hue: "stone",
     quick: [["ซื้อลูกหมูป่า", "expense"], ["ซื้ออาหารหมูป่า", "expense"], ["ซื้อยา/วัคซีน", "expense"], ["ขายหมูป่า", "income"]] },
-  { key: "veg", label: "ปลูกผัก (ซื้อพันธุ์พืช)", short: "ปลูกผัก", emoji: "🥬", words: ["ปลูกผัก", "พันธุ์พืช", "เมล็ดพันธุ์", "ผัก"], hue: "green",
+  { key: "veg", label: "ปลูกผักตามฤดูกาล (ป.5)", short: "ผักฤดูกาล ป.5", emoji: "🥬", words: ["ป.5", "ป5", "ประถม5", "ประถมห้า", "ปลูกผัก", "ฤดูกาล", "พันธุ์พืช", "เมล็ดพันธุ์", "ผัก"], hue: "green",
+    quick: [["ซื้อเมล็ดพันธุ์", "expense"], ["ซื้อต้นกล้า", "expense"], ["ซื้อปุ๋ย", "expense"], ["ขายผัก", "income"]] },
+  { key: "veg6", label: "ปลูกผักตามฤดูกาล (ป.6)", short: "ผักฤดูกาล ป.6", emoji: "🥗", words: ["ป.6", "ป6", "ประถม6", "ประถมหก"], hue: "cyan",
     quick: [["ซื้อเมล็ดพันธุ์", "expense"], ["ซื้อต้นกล้า", "expense"], ["ซื้อปุ๋ย", "expense"], ["ขายผัก", "income"]] },
   { key: "lime", label: "ปลูกมะนาว", short: "มะนาว", emoji: "🍋", words: ["มะนาว"], hue: "lime",
     quick: [["ซื้อกิ่งพันธุ์มะนาว", "expense"], ["ซื้อปุ๋ย", "expense"], ["ซื้อบ่อซีเมนต์/วัสดุ", "expense"], ["ขายมะนาว", "income"]] },
@@ -152,7 +154,7 @@ const unitName = (u: string) => UNIT_ALIASES.find(([re]) => re.test(u))?.[1] ?? 
 /** เดาโครงการจากคำในประโยค (คำเฉพาะเจาะจงก่อน) */
 export function guessProject(text: string): string | undefined {
   const t = text.replace(/\s+/g, "");
-  const order = ["dragon", "lime", "mulberry", "vine", "boar", "otherveg", "catfish", "frog", "chicken", "veg"];
+  const order = ["dragon", "lime", "mulberry", "vine", "boar", "otherveg", "catfish", "frog", "chicken", "veg6", "veg"];
   for (const k of order) {
     const p = projectOf(k);
     if (p && p.words.some((w) => t.includes(w))) return k;
