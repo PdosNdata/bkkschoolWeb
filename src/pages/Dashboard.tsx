@@ -38,7 +38,7 @@ const Dashboard = () => {
     iconColor: "text-cyan-600",
     href: "/student-menu",
     roles: ["teacher", "admin"],
-    everyone: true, // มีเมนูย่อย "ข้อมูลนักเรียน" ที่ทุกบัญชีครูเห็น
+    everyone: true, // เมนูย่อยทั้งหมดในหมวดนักเรียน ทุกบัญชีครูเห็น
     permissionName: STUDENT_HUB_PERMISSION,
     anyOf: STUDENT_MENU_ITEMS.map((i) => i.permissionName)
   }, {

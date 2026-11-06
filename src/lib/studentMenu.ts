@@ -12,7 +12,7 @@ export interface StudentMenuItem {
 }
 
 export const STUDENT_MENU_ITEMS: StudentMenuItem[] = [
-  { permissionName: "attendance_system", title: "ระบบตรวจการมาเรียน", description: "การมาและกลับของนักเรียน", href: "/studentall" },
-  { permissionName: "student_affairs", title: "ระบบกิจการนักเรียน", description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน", href: "/StudentForm" },
+  { permissionName: "attendance_system", title: "ระบบตรวจการมาเรียน", description: "การมาและกลับของนักเรียน", href: "/studentall", everyone: true },
+  { permissionName: "student_affairs", title: "ระบบกิจการนักเรียน", description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน", href: "/StudentForm", everyone: true },
   { permissionName: "students_system", title: "ข้อมูลนักเรียน", description: "ทะเบียนรายชื่อนักเรียน ใช้ร่วมกันทุกระบบ", href: "/students", everyone: true },
 ];
