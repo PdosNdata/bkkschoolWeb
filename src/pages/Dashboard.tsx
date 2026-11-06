@@ -32,12 +32,13 @@ const Dashboard = () => {
   });
   const allSystemCards = [{
     title: "นักเรียน",
-    description: "ตรวจการมาเรียน และกิจการนักเรียน",
+    description: "ตรวจการมาเรียน กิจการนักเรียน ข้อมูลนักเรียน",
     icon: Backpack,
     color: "bg-cyan-50 border-cyan-200",
     iconColor: "text-cyan-600",
     href: "/student-menu",
     roles: ["teacher", "admin"],
+    everyone: true, // มีเมนูย่อย "ข้อมูลนักเรียน" ที่ทุกบัญชีครูเห็น
     permissionName: STUDENT_HUB_PERMISSION,
     anyOf: STUDENT_MENU_ITEMS.map((i) => i.permissionName)
   }, {
@@ -117,16 +118,6 @@ const Dashboard = () => {
     roles: ["teacher", "admin"],
     everyone: true, // every staff account sees it; only admins can add people
     permissionName: "personnel_system"
-  }, {
-    title: "ข้อมูลนักเรียน",
-    description: "ทะเบียนรายชื่อนักเรียน ใช้ร่วมกันทุกระบบ",
-    icon: Users,
-    color: "bg-emerald-50 border-emerald-200",
-    iconColor: "text-emerald-600",
-    href: "/students",
-    roles: ["teacher", "admin"],
-    everyone: true, // every staff account sees it (view-only unless approved)
-    permissionName: "students_system"
   }, {
     title: "ระบบตรวจคำตอบปรนัย",
     description: "สแกนกระดาษคำตอบด้วยกล้อง ตรวจเทียบเฉลย อ่านรหัสนักเรียนอัตโนมัติ",

@@ -7,9 +7,12 @@ export interface StudentMenuItem {
   title: string;
   description: string;
   href: string;
+  /** ทุกบัญชีครูเห็น (เหมือนการ์ดเดิมในหน้าหลัก) */
+  everyone?: boolean;
 }
 
 export const STUDENT_MENU_ITEMS: StudentMenuItem[] = [
   { permissionName: "attendance_system", title: "ระบบตรวจการมาเรียน", description: "การมาและกลับของนักเรียน", href: "/studentall" },
   { permissionName: "student_affairs", title: "ระบบกิจการนักเรียน", description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน", href: "/StudentForm" },
+  { permissionName: "students_system", title: "ข้อมูลนักเรียน", description: "ทะเบียนรายชื่อนักเรียน ใช้ร่วมกันทุกระบบ", href: "/students", everyone: true },
 ];
