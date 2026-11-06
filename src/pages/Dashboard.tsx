@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText, Wallet } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText, Wallet, Backpack } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -13,6 +13,7 @@ import Header from "@/components/Header";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import NewsForm from "@/components/NewsForm";
 import { supabase } from "@/integrations/supabase/client";
+import { STUDENT_HUB_PERMISSION, STUDENT_MENU_ITEMS } from "@/lib/studentMenu";
 const Dashboard = () => {
   const {
     toast
@@ -30,14 +31,15 @@ const Dashboard = () => {
     location: ""
   });
   const allSystemCards = [{
-    title: "ระบบตรวจการมาเรียน",
-    description: "การมาและกลับของนักเรียน",
-    icon: BookOpen,
-    color: "bg-blue-50 border-blue-200",
-    iconColor: "text-blue-600",
-    href: "/studentall",
+    title: "นักเรียน",
+    description: "ตรวจการมาเรียน และกิจการนักเรียน",
+    icon: Backpack,
+    color: "bg-cyan-50 border-cyan-200",
+    iconColor: "text-cyan-600",
+    href: "/student-menu",
     roles: ["teacher", "admin"],
-    permissionName: "attendance_system"
+    permissionName: STUDENT_HUB_PERMISSION,
+    anyOf: STUDENT_MENU_ITEMS.map((i) => i.permissionName)
   }, {
     title: "ระบบงานพัสดุ",
     description: "จัดการพัสดุ วัสดุ อุปกรณ์การศึกษา",
@@ -47,15 +49,6 @@ const Dashboard = () => {
     href: "/supplies",
     roles: ["teacher", "admin"],
     permissionName: "supplies_system"
-   }, {
-    title: "ระบบกิจการนักเรียน",
-    description: "การจัดกิจกรรมทั้งภายในและภายนอกโรงเรียน",
-    icon: GraduationCap,
-    color: "bg-purple-50 border-purple-200",
-    iconColor: "text-purple-600",
-    href: "/StudentForm",
-    roles: ["student", "teacher", "admin"],
-    permissionName: "student_affairs"
   }, 
   {
     title: "โครงการด้วยรักและห่วงใย",
@@ -227,6 +220,8 @@ const Dashboard = () => {
     if (userRole === "admin") return true;
     // Cards open to every staff account
     if ("everyone" in card && card.everyone) return true;
+    // กลุ่มเมนู: แสดงเมื่อมีสิทธิ์อย่างน้อยหนึ่งเมนูย่อย
+    if ("anyOf" in card && card.anyOf) return card.anyOf.some((p) => userPermissions.includes(p));
     // For other roles, check if they have the specific permission
     return card.permissionName && userPermissions.includes(card.permissionName);
   });

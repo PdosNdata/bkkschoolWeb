@@ -15,6 +15,7 @@ import NewsFormPage from "./pages/NewsFormPage";
 import MediaFormPage from "./pages/MediaFormPage";
 import ActivitiesFormPage from "./pages/ActivitiesFormPage";
 import ProjectLedgerPage from "./pages/ProjectLedgerPage";
+import StudentMenuPage from "./pages/StudentMenuPage";
 import AllActivitiesPage from "./pages/AllActivitiesPage";
 import ActivityAllFormPage from "./pages/ActivityAllFormPage";
 import ActivityDetailPage from "./pages/ActivityDetailPage";
@@ -298,6 +299,14 @@ const App = () => {
                     <NewsFormPage />
                   </ProtectedRoute>
                 } 
+              />
+              <Route
+                path="/student-menu"
+                element={
+                  <ProtectedRoute>
+                    <StudentMenuPage />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/project-ledger"

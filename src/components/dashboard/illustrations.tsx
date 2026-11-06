@@ -299,6 +299,7 @@ export const ILLUSTRATIONS: Record<string, () => JSX.Element> = {
   document_upload: Upload,
   personnel_system: Personnel,
   students_system: Students,
+  student_hub: Students,
   omr_system: Omr,
   pp5_system: Pp5,
   teacher_import: TeacherImport,
