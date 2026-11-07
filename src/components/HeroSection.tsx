@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Award, Lightbulb, Download, ArrowRight, type LucideIcon } from "lucide-react";
+import { BookOpen, Users, Award, Lightbulb, Download, ArrowRight, Link2, Check, type LucideIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,9 +56,13 @@ const FEATURE_CARDS: FeatureCard[] = [
   },
 ];
 
+/** ลิงก์ตรงมาที่หัวข้อนี้: https://www.bankhodonkhan.ac.th/#agri-lunch */
+const AGRI_LUNCH_ANCHOR = "agri-lunch";
+
 const HeroSection = () => {
   const styles = useCardStyles();
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
   
   const { data: activities = [] } = useQuery({
     queryKey: ['activities', 'กิจกรรมด้วยรักและห่วงใย'],
@@ -72,6 +77,26 @@ const HeroSection = () => {
       return data || [];
     },
   });
+
+  // เปิดลิงก์ /#agri-lunch → เลื่อนมาที่หัวข้อ (รอให้การ์ดโหลดก่อน ตำแหน่งจะได้ไม่เลื่อน)
+  const loaded = activities.length > 0;
+  useEffect(() => {
+    if (window.location.hash !== `#${AGRI_LUNCH_ANCHOR}`) return;
+    const t = setTimeout(() => document.getElementById(AGRI_LUNCH_ANCHOR)?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    return () => clearTimeout(t);
+  }, [loaded]);
+
+  const copyLink = async () => {
+    const url = `${window.location.origin}/#${AGRI_LUNCH_ANCHOR}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.prompt("คัดลอกลิงก์นี้", url);
+    }
+    window.history.replaceState(null, "", `#${AGRI_LUNCH_ANCHOR}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   
   return <section id="home" className="relative min-h-[90vh] bg-gradient-to-b from-pink-100 via-pink-50 to-white overflow-hidden">
       {/* Background decorative elements */}
@@ -111,9 +136,16 @@ const HeroSection = () => {
               </div>
 
               {/* Activity Cards - 4 คอลัมน์ 2 แถว: กิจกรรมเกษตรเพื่ออาหารกลางวัน */}
-              <div className="mb-6 flex flex-col items-center gap-1">
-                <h3 className="flex items-center gap-2 text-2xl font-bold text-emerald-800 md:text-3xl">
-                  <span aria-hidden>🌱</span>กิจกรรมเกษตรเพื่ออาหารกลางวัน<span aria-hidden>🥬</span>
+              <div id={AGRI_LUNCH_ANCHOR} className="mb-6 flex scroll-mt-24 flex-col items-center gap-1">
+                <h3 className="flex flex-wrap items-center justify-center gap-2 text-2xl font-bold text-emerald-800 md:text-3xl">
+                  <a href={`#${AGRI_LUNCH_ANCHOR}`} className="flex items-center gap-2 hover:underline decoration-emerald-300 underline-offset-4">
+                    <span aria-hidden>🌱</span>กิจกรรมเกษตรเพื่ออาหารกลางวัน<span aria-hidden>🥬</span>
+                  </a>
+                  <button type="button" onClick={() => void copyLink()} title="คัดลอกลิงก์มาที่หัวข้อนี้"
+                    className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow ring-1 ring-emerald-200 transition hover:bg-emerald-50">
+                    {copied ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+                    {copied ? "คัดลอกแล้ว" : "คัดลอกลิงก์"}
+                  </button>
                 </h3>
                 <p className="text-sm text-gray-600 md:text-base">ปลูกผัก เลี้ยงสัตว์ ผลผลิตส่งต่อสู่อาหารกลางวันของนักเรียน</p>
                 <span aria-hidden className="mt-1 h-1 w-24 rounded-full bg-gradient-to-r from-emerald-400 via-lime-400 to-emerald-500" />
