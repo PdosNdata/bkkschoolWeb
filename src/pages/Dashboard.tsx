@@ -52,8 +52,8 @@ const Dashboard = () => {
     permissionName: "supplies_system"
   }, 
   {
-    title: "โครงการด้วยรักและห่วงใย",
-    description: "บันทึกกิจกรรมโครงการด้วยรักและห่วงใยของโรงเรียน",
+    title: "กิจกรรมโครงการเกษตรเพื่ออาหารกลางวัน",
+    description: "บันทึกกิจกรรมโครงการเกษตรเพื่ออาหารกลางวันของโรงเรียน",
     icon: HeartHandshake,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
