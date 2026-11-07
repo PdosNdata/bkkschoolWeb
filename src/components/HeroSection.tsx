@@ -110,7 +110,14 @@ const HeroSection = () => {
                 </div>
               </div>
 
-              {/* Activity Cards - 4 คอลัมน์ 2 แถว */}
+              {/* Activity Cards - 4 คอลัมน์ 2 แถว: กิจกรรมเกษตรเพื่ออาหารกลางวัน */}
+              <div className="mb-6 flex flex-col items-center gap-1">
+                <h3 className="flex items-center gap-2 text-2xl font-bold text-emerald-800 md:text-3xl">
+                  <span aria-hidden>🌱</span>กิจกรรมเกษตรเพื่ออาหารกลางวัน<span aria-hidden>🥬</span>
+                </h3>
+                <p className="text-sm text-gray-600 md:text-base">ปลูกผัก เลี้ยงสัตว์ ผลผลิตส่งต่อสู่อาหารกลางวันของนักเรียน</p>
+                <span aria-hidden className="mt-1 h-1 w-24 rounded-full bg-gradient-to-r from-emerald-400 via-lime-400 to-emerald-500" />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {activities.length > 0 ? (
                   activities.map((activity, index) => {
@@ -142,7 +149,7 @@ const HeroSection = () => {
                             )}
                             <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
                             <span className="absolute left-2 top-2 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={t.btn}>
-                              กิจกรรม
+                              🌱 กิจกรรมเกษตร
                             </span>
                           </div>
                           <div className="flex flex-1 flex-col p-4">
@@ -158,7 +165,7 @@ const HeroSection = () => {
                   })
                 ) : (
                   <div className="col-span-full text-center py-8">
-                    <p className="text-gray-500">ยังไม่มีกิจกรรมในหมวดนี้</p>
+                    <p className="text-gray-500">ยังไม่มีกิจกรรมเกษตรเพื่ออาหารกลางวัน</p>
                   </div>
                 )}
               </div>

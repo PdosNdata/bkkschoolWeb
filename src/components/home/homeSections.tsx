@@ -39,7 +39,7 @@ export interface HomeSectionDef {
 // Default order = the layout the site had before it became configurable.
 export const HOME_SECTIONS: HomeSectionDef[] = [
   { key: "slider", label: "สไลด์ภาพหน้าแรก", description: "แถบภาพเลื่อนด้านบน", render: () => <ImageSlider /> },
-  { key: "hero", label: "โรงเรียนด้วยรักและห่วงใย + การ์ดเมนูสำคัญ", description: "วิดีโอ กิจกรรมโครงการ และการ์ด 5 ใบ", render: () => <HeroSection /> },
+  { key: "hero", label: "โรงเรียนด้วยรักและห่วงใย + การ์ดเมนูสำคัญ", description: "วิดีโอ กิจกรรมเกษตรเพื่ออาหารกลางวัน และการ์ด 5 ใบ", render: () => <HeroSection /> },
   { key: "about", label: "ประวัติโรงเรียน", description: "ภาพประวัติ สถิติ วิสัยทัศน์ พันธกิจ เป้าประสงค์", render: () => <div className="bg-muted/30"><AboutSection /></div> },
   { key: "activities", label: "กิจกรรมสร้างสรรค์", description: "การ์ดกิจกรรมภายใน/ภายนอก", render: () => <div className="bg-pink-50/70"><ActivitiesSection /></div> },
   { key: "news", label: "ข่าวสารและประกาศ", description: "การ์ดข่าวล่าสุด", render: () => <div className="bg-muted/30"><NewsSection /></div> },
