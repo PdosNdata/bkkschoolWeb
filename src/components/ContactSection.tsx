@@ -11,7 +11,9 @@ import {
   ExternalLink,
   Globe,
   Share2,
-  Copy
+  Copy,
+  Link2,
+  Check
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +34,26 @@ const ContactSection = () => {
   const styles = useCardStyles();
   const [mediaResources, setMediaResources] = useState<MediaResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  // เปิดลิงก์ /#media → เลื่อนมาที่คลังสื่อหลังโหลดรายการเสร็จ (ตำแหน่งจะได้ไม่คลาด)
+  useEffect(() => {
+    if (isLoading || window.location.hash !== "#media") return;
+    const t = setTimeout(() => document.getElementById("media")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    return () => clearTimeout(t);
+  }, [isLoading]);
+
+  const copySectionLink = async () => {
+    const url = `${window.location.origin}/#media`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.prompt("คัดลอกลิงก์นี้", url);
+    }
+    window.history.replaceState(null, "", "#media");
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,7 +138,7 @@ const ContactSection = () => {
 
   if (isLoading) {
     return (
-      <section id="media" className="py-20 bg-accent/30">
+      <section id="media" className="scroll-mt-20 py-20 bg-accent/30">
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -128,15 +150,20 @@ const ContactSection = () => {
   }
 
   return (
-    <section id="media" className="py-20 bg-accent/30">
+    <section id="media" className="scroll-mt-20 py-20 bg-accent/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
             <ImageIcon className="w-4 h-4 mr-2" />
             สื่อออนไลน์
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            คลังสื่อออนไลน์
+          <h2 className="mb-4 flex flex-wrap items-center justify-center gap-3 text-3xl font-bold text-foreground md:text-4xl">
+            <a href="#media" className="decoration-primary/40 underline-offset-4 hover:underline">คลังสื่อออนไลน์</a>
+            <button type="button" onClick={() => void copySectionLink()} title="คัดลอกลิงก์มาที่คลังสื่อออนไลน์"
+              className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow ring-1 ring-primary/20 transition hover:bg-white">
+              {linkCopied ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+              {linkCopied ? "คัดลอกแล้ว" : "คัดลอกลิงก์"}
+            </button>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             รวบรวมสื่อการเรียนรู้ ภาพถ่าย วิดีโอ และเอกสารต่างๆ
