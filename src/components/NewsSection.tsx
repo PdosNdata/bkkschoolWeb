@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SectionLinkButton from "@/components/home/SectionLinkButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -139,15 +140,16 @@ const NewsSection = () => {
   };
 
   return (
-    <section id="news" className="py-20 bg-gradient-news-bg">
+    <section id="news" className="scroll-mt-20 py-20 bg-gradient-news-bg">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
             <Newspaper className="w-4 h-4 mr-2" />
             ข่าวสาร
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            ข่าวสารและประกาศล่าสุด
+          <h2 className="mb-4 flex flex-wrap items-center justify-center gap-3 text-3xl font-bold text-foreground md:text-4xl">
+            <a href="#news" className="decoration-primary/40 underline-offset-4 hover:underline">ข่าวสารและประกาศล่าสุด</a>
+            <SectionLinkButton anchor="news" label="ข่าวสารและประกาศ" />
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             ติดตามข่าวสาร กิจกรรม และประกาศสำคัญต่าง ๆ 

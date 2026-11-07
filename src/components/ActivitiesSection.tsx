@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SectionLinkButton from "@/components/home/SectionLinkButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,14 +72,14 @@ const ActivitiesSection = () => {
       day: 'numeric'
     });
   };
-  return <section id="activities" className="py-20 bg-gradient-news-bg">
+  return <section id="activities" className="scroll-mt-20 py-20 bg-gradient-news-bg">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
             <Users className="w-4 h-4 mr-2" />
             กิจกรรมสร้างสรรค์
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">กิจกรรมสร้างสรรค์</h2>
+          <h2 className="mb-4 flex flex-wrap items-center justify-center gap-3 text-3xl font-bold text-foreground md:text-4xl"><a href="#activities" className="decoration-primary/40 underline-offset-4 hover:underline">กิจกรรมสร้างสรรค์</a><SectionLinkButton anchor="activities" label="กิจกรรมสร้างสรรค์" /></h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             ส่งเสริมการเรียนรู้ผ่านกิจกรรมที่หลากหลาย 
             เพื่อพัฒนาทักษะชีวิตและความสามารถในด้านต่าง ๆ อย่างรอบด้าน
