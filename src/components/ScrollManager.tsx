@@ -9,6 +9,8 @@ import { useLocation, useNavigationType } from "react-router-dom";
  *    (ปล่อยเบราว์เซอร์ทำเองจะไปตกที่ footer เพราะตอนนั้นข้อมูลยังโหลดไม่เสร็จ หน้ายังสั้นอยู่)
  */
 const MAX_WAIT_MS = 4000;
+/** เวลาที่คอยจัดหัวข้อ #anchor ให้ตรงขณะรูปด้านบนยังโหลด (เน็ตมือถือช้าอาจหลายวินาที) */
+const ANCHOR_HOLD_MS = 15000;
 
 const ScrollManager = () => {
   const location = useLocation();
@@ -42,15 +44,18 @@ const ScrollManager = () => {
     first.current = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let cancelled = false;
+    let resizeObs: ResizeObserver | undefined;
     const stop = () => {
       cancelled = true;
     };
     // ผู้ใช้เลื่อนเองระหว่างรอ → หยุดเลื่อนอัตโนมัติ
     window.addEventListener("wheel", stop, { passive: true });
     window.addEventListener("touchstart", stop, { passive: true });
+    window.addEventListener("keydown", stop);
     const started = Date.now();
 
-    const saved = positions.current[location.key];    if (navType === "POP" && !isFirst && saved !== undefined) {
+    const saved = positions.current[location.key];
+    if (navType === "POP" && !isFirst && saved !== undefined) {
       // กลับไปตำแหน่งเดิม: รอจนหน้ายาวพอ (ข้อมูลโหลดครบ) แล้วค่อยเลื่อน
       const restore = () => {
         if (cancelled) return;
@@ -62,26 +67,33 @@ const ScrollManager = () => {
     } else if (location.hash) {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       const id = decodeURIComponent(location.hash.slice(1));
-      // กระโดดไปที่หัวข้อทันที (ไม่ใช้ smooth) แล้วคอยจัดให้ตรงซ้ำจนเนื้อหาด้านบนโหลดเสร็จ
-      // ไม่อย่างนั้นรูป/การ์ดที่โหลดทีหลังจะดันหัวข้อลงไป ผู้ใช้ไม่ได้อยู่ตรงหัวข้อจริง
-      const seek = () => {
-        if (cancelled) return;
+      // กระโดดไปที่หัวข้อทันที (ไม่ใช้ smooth) แล้วจัดให้ตรงใหม่ทุกครั้งที่ความสูงหน้าเปลี่ยน
+      // เพราะรูป/การ์ดด้านบนโหลดทีหลัง (บนมือถืออาจหลายวินาที) แล้วดันหัวข้อลงไป
+      // หยุดเมื่อผู้ใช้แตะ/เลื่อนเอง หรือครบ ANCHOR_HOLD_MS
+      const align = () => {
+        if (cancelled || Date.now() - started > ANCHOR_HOLD_MS) return;
         const el = document.getElementById(id);
-        if (el) {
-          const offset = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
-          if (Math.abs(el.getBoundingClientRect().top - offset) > 4) {
-            el.scrollIntoView({ behavior: "auto", block: "start" });
-          }
+        if (!el) return;
+        const offset = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        if (Math.abs(el.getBoundingClientRect().top - offset) > 4) {
+          el.scrollIntoView({ behavior: "auto", block: "start" });
         }
-        if (Date.now() - started < MAX_WAIT_MS + 2000) timer = setTimeout(seek, 150);
       };
-      timer = setTimeout(seek, 60);
+      resizeObs = new ResizeObserver(() => align());
+      resizeObs.observe(document.body);
+      const poll = () => {
+        align();
+        if (!cancelled && Date.now() - started < ANCHOR_HOLD_MS) timer = setTimeout(poll, 250);
+      };
+      timer = setTimeout(poll, 60);
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
 
     return () => {
       if (timer) clearTimeout(timer);
+      resizeObs?.disconnect();
+      window.removeEventListener("keydown", stop);
       window.removeEventListener("wheel", stop);
       window.removeEventListener("touchstart", stop);
     };
