@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, HeartHandshake, LayoutGrid, Palette, ScrollText, Wallet, Backpack } from "lucide-react";
+import { Calendar, Plus, BookOpen, Package, GraduationCap, Recycle, Megaphone, UsersRound, Building, Settings, UserCheck, Shield, Book, Upload, Images, Users, ClipboardCheck, Clapperboard, Sprout, LayoutGrid, Palette, ScrollText, Wallet, Backpack } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -54,7 +54,7 @@ const Dashboard = () => {
   {
     title: "กิจกรรมโครงการเกษตรเพื่ออาหารกลางวัน",
     description: "บันทึกกิจกรรมโครงการเกษตรเพื่ออาหารกลางวันของโรงเรียน",
-    icon: HeartHandshake,
+    icon: Sprout,
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
     href: "/activities-form",

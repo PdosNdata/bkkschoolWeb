@@ -19,7 +19,7 @@ export const DASHBOARD_THEMES: Record<string, CardTheme> = {
   attendance_system:   { from: "#EAF2FF", to: "#C7DBFF", deep: "#3B82F6", deep2: "#1D4ED8", ink: "#0F2A63", glow: "37 99 235" },
   supplies_system:     { from: "#EAFBF0", to: "#BDEFD0", deep: "#22C55E", deep2: "#15803D", ink: "#0B3B1F", glow: "22 163 74" },
   student_affairs:     { from: "#F4ECFF", to: "#DAC6FF", deep: "#A855F7", deep2: "#7E22CE", ink: "#3B0F6B", glow: "147 51 234" },
-  internal_activities: { from: "#FFEBF1", to: "#FFC4D7", deep: "#FB7185", deep2: "#E11D48", ink: "#6B0F2B", glow: "225 29 72" },
+  internal_activities: { from: "#F1FCE6", to: "#C6EEA2", deep: "#84CC16", deep2: "#3F8F14", ink: "#1C3A08", glow: "101 163 13" },
   project_ledger:      { from: "#E8FBEF", to: "#B7EFCB", deep: "#22C55E", deep2: "#15803D", ink: "#0B3B1F", glow: "22 163 74" },
   all_activities:      { from: "#ECEEFF", to: "#C9CDFF", deep: "#6366F1", deep2: "#4338CA", ink: "#1E1B6B", glow: "79 70 229" },
   public_relations:    { from: "#FFE9F6", to: "#F8BFE3", deep: "#EC4899", deep2: "#BE185D", ink: "#6B0F42", glow: "219 39 119" },

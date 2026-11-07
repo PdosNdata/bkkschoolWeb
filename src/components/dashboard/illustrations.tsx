@@ -91,6 +91,33 @@ const Care = () => (
   </Scene>
 );
 
+// ── กิจกรรมโครงการเกษตรเพื่ออาหารกลางวัน: seedling in soil ─────────
+const Seedling = () => (
+  <Scene>
+    {/* soil mound */}
+    <ellipse cx="80" cy="104" rx="56" ry="9" style={D2} opacity=".25" />
+    <path d="M30 104 Q80 74 130 104Z" fill="#8B5E34" />
+    <path d="M30 104 Q80 74 130 104Z" fill="#fff" opacity=".08" />
+    <circle cx="58" cy="97" r="2.2" fill="#fff" opacity=".35" />
+    <circle cx="96" cy="95" r="1.8" fill="#fff" opacity=".3" />
+    <circle cx="110" cy="100" r="1.6" fill="#fff" opacity=".3" />
+    {/* stem */}
+    <path d="M80 92 C80 74 78 62 82 48" stroke="var(--c-deep2)" strokeWidth="5" strokeLinecap="round" fill="none" />
+    {/* left leaf */}
+    <path d="M80 66 C62 68 44 58 40 40 C58 38 76 46 80 66Z" style={D} />
+    <path d="M80 66 C66 58 54 50 44 42" stroke="#fff" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" fill="none" />
+    {/* right leaf */}
+    <path d="M82 50 C90 30 110 20 128 24 C124 44 104 54 82 50Z" style={D} />
+    <path d="M82 50 C96 42 110 34 124 27" stroke="#fff" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M82 50 C90 30 110 20 128 24 C124 44 104 54 82 50Z" fill="#fff" opacity=".12" />
+    {/* water drops */}
+    <path d="M128 60 q5 8 0 11 q-5 -3 0 -11z" fill="#fff" />
+    <path d="M140 74 q4 6 0 8.5 q-4 -2.5 0 -8.5z" fill="#fff" opacity=".85" />
+    <Spark x={30} y={26} s={0.9} />
+    <Spark x={142} y={42} s={0.6} />
+  </Scene>
+);
+
 // ── กิจกรรมทั้งหมด: calendar ────────────────────────────────────────
 const Activities = () => (
   <Scene>
@@ -292,7 +319,7 @@ export const ILLUSTRATIONS: Record<string, () => JSX.Element> = {
   attendance_system: Attendance,
   supplies_system: Supplies,
   student_affairs: StudentAffairs,
-  internal_activities: Care,
+  internal_activities: Seedling,
   all_activities: Activities,
   public_relations: PublicRelations,
   media_library: Media,
