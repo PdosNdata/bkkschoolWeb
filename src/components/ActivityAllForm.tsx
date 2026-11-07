@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { shrinkImage } from "@/lib/shrinkImage";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
 
 const MAX_IMAGE_MB = 12;
+const MAX_IMAGES = 50; // รูปต่อกิจกรรม (นับรวมรูปเดิมตอนแก้ไข)
 
 interface ActivityAllFormData {
   title: string;
@@ -52,6 +54,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,10 +112,11 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files || []);
-    if (picked.length + selectedFiles.length > 10) {
+    const have = formData.images.length + selectedFiles.length;
+    if (have + picked.length > MAX_IMAGES) {
       toast({
         title: "จำนวนไฟล์เกินกำหนด",
-        description: "สามารถอัปโหลดได้สูงสุด 10 ภาพ",
+        description: `ใส่ภาพได้สูงสุด ${MAX_IMAGES} ภาพต่อกิจกรรม (ตอนนี้มี ${have} ภาพ เพิ่มได้อีก ${Math.max(0, MAX_IMAGES - have)} ภาพ)`,
         variant: "destructive",
       });
       return;
@@ -147,31 +151,33 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   };
 
   const uploadImages = async (): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
-
-    for (const file of selectedFiles) {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
+    const files = selectedFiles;
+    const urls: string[] = new Array(files.length);
+    let done = 0;
+    setUploadProgress(`กำลังอัปโหลดภาพ 0/${files.length}`);
+    const one = async (i: number) => {
+      const small = await shrinkImage(files[i]);
+      const fileExt = small.name.split(".").pop();
+      const filePath = `${Math.random()}.${fileExt}`;
       const { error: uploadError } = await withTimeout(
-        supabase.storage.from("media-files").upload(filePath, file),
-        30000,
-        `อัพโหลดรูปภาพ ${file.name}`,
+        supabase.storage.from("media-files").upload(filePath, small),
+        60000,
+        `อัพโหลดรูปภาพ ${files[i].name}`,
       );
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("media-files")
-        .getPublicUrl(filePath);
-
-      uploadedUrls.push(publicUrl);
+      if (uploadError) throw uploadError;
+      urls[i] = supabase.storage.from("media-files").getPublicUrl(filePath).data.publicUrl;
+      done++;
+      setUploadProgress(`กำลังอัปโหลดภาพ ${done}/${files.length}`);
+    };
+    // อัปโหลดพร้อมกันทีละ 4 ภาพ คงลำดับตามที่เลือก — ถ้าภาพใดล้มเหลวจะหยุดและแจ้งข้อผิดพลาด
+    let next = 0;
+    const worker = async () => { while (next < files.length) await one(next++); };
+    try {
+      await Promise.all(Array.from({ length: Math.min(4, files.length) }, worker));
+    } finally {
+      setUploadProgress("");
     }
-
-    return uploadedUrls;
+    return urls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -404,7 +410,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
             </div>
 
             <div className="rounded-2xl border p-4 shadow-sm border-rose-100 bg-rose-50/50">
-              <Label htmlFor="images" className="mb-2 flex items-center gap-2 text-base font-semibold text-rose-900">📷 อัปโหลดภาพ (สูงสุด 10 ภาพ)</Label>
+              <Label htmlFor="images" className="mb-2 flex items-center gap-2 text-base font-semibold text-rose-900">📷 อัปโหลดภาพ (สูงสุด {MAX_IMAGES} ภาพ · เลือกหลายภาพพร้อมกันได้ ระบบย่อขนาดให้อัตโนมัติ)</Label>
               <Input
                 id="images"
                 type="file"
@@ -417,7 +423,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
 
             {imagePreviews.length > 0 && (
               <div className="rounded-2xl border p-4 shadow-sm border-slate-100 bg-white">
-                <Label className="mb-2 flex items-center gap-2 text-base font-semibold text-slate-700">🖼 ภาพที่เลือก ({imagePreviews.length}/10)</Label>
+                <Label className="mb-2 flex items-center gap-2 text-base font-semibold text-slate-700">🖼 ภาพที่เลือกใหม่ {imagePreviews.length} ภาพ (รวมทั้งหมด {formData.images.length + imagePreviews.length}/{MAX_IMAGES})</Label>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-2">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="group relative rounded-xl bg-white p-1 shadow-md ring-1 ring-black/5 transition hover:-translate-y-0.5">
@@ -455,7 +461,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={uploading} className="h-11 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-6 font-semibold text-white shadow-md shadow-indigo-200 hover:from-sky-600 hover:to-indigo-600">
-                {uploading ? "กำลังบันทึก..." : editingId ? "อัปเดตกิจกรรม" : "เพิ่มกิจกรรม"}
+                {uploading ? (uploadProgress || "กำลังบันทึก...") : editingId ? "อัปเดตกิจกรรม" : "เพิ่มกิจกรรม"}
               </Button>
               {editingId && (
                 <Button type="button" variant="outline" onClick={resetForm} className="h-11 rounded-full border-slate-200 px-5">
