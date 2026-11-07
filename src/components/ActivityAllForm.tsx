@@ -57,6 +57,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
   const [titleInterim, setTitleInterim] = useState(""); // ข้อความระหว่างพูดหัวข้อ
+  const [contentInterim, setContentInterim] = useState(""); // ข้อความระหว่างพูดรายละเอียด
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -406,16 +407,24 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
             </div>
 
             <div className="rounded-2xl border p-4 shadow-sm border-violet-100 bg-violet-50/60">
-              <Label htmlFor="content" className="mb-2 flex items-center gap-2 text-base font-semibold text-violet-900">📖 รายละเอียดกิจกรรม *</Label>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <Label htmlFor="content" className="flex items-center gap-2 text-base font-semibold text-violet-900">📖 รายละเอียดกิจกรรม *</Label>
+                <VoiceInputButton
+                  onText={(t) => setFormData((prev) => ({ ...prev, content: prev.content ? `${prev.content} ${t}` : t }))}
+                  onInterim={setContentInterim}
+                  className="text-violet-700 ring-violet-200 hover:bg-violet-50"
+                />
+              </div>
               <Textarea
                 id="content"
                 name="content"
                 value={formData.content}
                 onChange={handleInputChange}
-                placeholder="ระบุรายละเอียดกิจกรรม"
+                placeholder="ระบุรายละเอียดกิจกรรม หรือกดปุ่ม พูด แล้วเล่าได้เลย"
                 className="min-h-[200px] rounded-xl bg-white shadow-inner border-violet-200 focus-visible:ring-violet-400"
                 required
               />
+              {contentInterim && <p className="mt-2 rounded-lg bg-white/80 px-3 py-1.5 text-sm text-violet-800">🗣️ {contentInterim}</p>}
             </div>
 
             <div className="rounded-2xl border p-4 shadow-sm border-rose-100 bg-rose-50/50">
