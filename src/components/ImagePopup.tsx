@@ -2,12 +2,26 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import popupImage from "@/assets/popup-image-optimized.webp";
+
+const POPUP_SEEN_KEY = "bkk-popup-seen";
 const ImagePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
-    // Show popup after a short delay when component mounts
+    // แสดงครั้งเดียวต่อการเข้าเว็บ (ไม่เด้งซ้ำทุกครั้งที่กลับมาหน้าแรก ซึ่งล็อกการเลื่อนหน้า)
+    // และไม่แสดงเมื่อเปิดลิงก์ตรงไปที่หัวข้อ เช่น /#agri-lunch จาก LINE จะได้เห็นเนื้อหาทันที
+    if (window.location.hash) return;
+    try {
+      if (sessionStorage.getItem(POPUP_SEEN_KEY)) return;
+    } catch {
+      /* เปิดแบบส่วนตัว/บล็อก storage → แสดงตามปกติ */
+    }
     const timer = setTimeout(() => {
       setIsOpen(true);
+      try {
+        sessionStorage.setItem(POPUP_SEEN_KEY, "1");
+      } catch {
+        /* ignore */
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, []);

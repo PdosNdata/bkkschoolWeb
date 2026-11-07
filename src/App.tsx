@@ -39,6 +39,7 @@ import HomeSliderFormPage from "./pages/HomeSliderFormPage";
 import HomeLayoutPage from "./pages/HomeLayoutPage";
 import CardStylesPage from "./pages/CardStylesPage";
 import NotFound from "./pages/NotFound";
+import ScrollManager from "./components/ScrollManager";
 
 
 const queryClient = new QueryClient();
@@ -279,6 +280,7 @@ const App = () => {
         <Sonner />
         <SpeedInsights />
         <BrowserRouter>
+          <ScrollManager />
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
