@@ -342,39 +342,45 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   return (
     <div className="space-y-8">
       {/* Form */}
-      <Card>
+      <Card className="overflow-hidden rounded-3xl border-sky-100 shadow-[0_12px_30px_-16px_rgba(56,189,248,0.6)]">
+        <div className="flex items-center gap-3 bg-gradient-to-r from-sky-100 via-indigo-50 to-violet-100 px-6 py-4">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-xl shadow-sm">{editingId ? "✏️" : "📝"}</span>
+          <h2 className="text-xl font-bold text-indigo-900">{editingId ? "แก้ไขกิจกรรม" : "เพิ่มกิจกรรมใหม่"}</h2>
+        </div>
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="title">ชื่อหัวข้อ *</Label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="rounded-2xl border p-4 shadow-sm border-sky-100 bg-sky-50/60">
+              <Label htmlFor="title" className="mb-2 flex items-center gap-2 text-base font-semibold text-sky-900">📌 ชื่อหัวข้อ *</Label>
               <Input
                 id="title"
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="ระบุชื่อหัวข้อกิจกรรม"
+                className="h-11 rounded-xl bg-white shadow-inner border-sky-200 focus-visible:ring-sky-400"
                 required
               />
             </div>
 
-            <div>
-              <Label htmlFor="author_name">ผู้เขียน</Label>
+            <div className="rounded-2xl border p-4 shadow-sm border-teal-100 bg-teal-50/60">
+              <Label htmlFor="author_name" className="mb-2 flex items-center gap-2 text-base font-semibold text-teal-900">👤 ผู้เขียน</Label>
               <Input
                 id="author_name"
                 name="author_name"
                 value={formData.author_name}
                 onChange={handleInputChange}
                 placeholder="ชื่อผู้เขียน"
+                className="h-11 rounded-xl bg-white shadow-inner border-teal-200 focus-visible:ring-teal-400"
               />
             </div>
 
-            <div>
-              <Label htmlFor="category">ประเภทกิจกรรม *</Label>
+            <div className="rounded-2xl border p-4 shadow-sm border-amber-100 bg-amber-50/60">
+              <Label htmlFor="category" className="mb-2 flex items-center gap-2 text-base font-semibold text-amber-900">🔖 ประเภทกิจกรรม *</Label>
               <Select 
                 value={formData.category} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
               >
-                <SelectTrigger id="category">
+                <SelectTrigger id="category" className="h-11 rounded-xl bg-white shadow-inner border-amber-200 focus:ring-amber-400">
                   <SelectValue placeholder="เลือกประเภทกิจกรรม" />
                 </SelectTrigger>
                 <SelectContent>
@@ -384,37 +390,37 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="content">รายละเอียดกิจกรรม *</Label>
+            <div className="rounded-2xl border p-4 shadow-sm border-violet-100 bg-violet-50/60">
+              <Label htmlFor="content" className="mb-2 flex items-center gap-2 text-base font-semibold text-violet-900">📖 รายละเอียดกิจกรรม *</Label>
               <Textarea
                 id="content"
                 name="content"
                 value={formData.content}
                 onChange={handleInputChange}
                 placeholder="ระบุรายละเอียดกิจกรรม"
-                className="min-h-[200px]"
+                className="min-h-[200px] rounded-xl bg-white shadow-inner border-violet-200 focus-visible:ring-violet-400"
                 required
               />
             </div>
 
-            <div>
-              <Label htmlFor="images">อัปโหลดภาพ (สูงสุด 10 ภาพ)</Label>
+            <div className="rounded-2xl border p-4 shadow-sm border-rose-100 bg-rose-50/50">
+              <Label htmlFor="images" className="mb-2 flex items-center gap-2 text-base font-semibold text-rose-900">📷 อัปโหลดภาพ (สูงสุด 10 ภาพ)</Label>
               <Input
                 id="images"
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleFileSelect}
-                className="cursor-pointer"
+                className="h-11 cursor-pointer rounded-xl bg-white shadow-inner border-dashed border-rose-200 file:mr-3 file:rounded-full file:border-0 file:bg-rose-100 file:px-3 file:text-rose-700"
               />
             </div>
 
             {imagePreviews.length > 0 && (
-              <div>
-                <Label>ภาพที่เลือก ({imagePreviews.length}/10)</Label>
+              <div className="rounded-2xl border p-4 shadow-sm border-slate-100 bg-white">
+                <Label className="mb-2 flex items-center gap-2 text-base font-semibold text-slate-700">🖼 ภาพที่เลือก ({imagePreviews.length}/10)</Label>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-2">
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
+                    <div key={index} className="group relative rounded-xl bg-white p-1 shadow-md ring-1 ring-black/5 transition hover:-translate-y-0.5">
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
@@ -447,12 +453,12 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
               </div>
             )}
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={uploading}>
+            <div className="flex gap-3">
+              <Button type="submit" disabled={uploading} className="h-11 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-6 font-semibold text-white shadow-md shadow-indigo-200 hover:from-sky-600 hover:to-indigo-600">
                 {uploading ? "กำลังบันทึก..." : editingId ? "อัปเดตกิจกรรม" : "เพิ่มกิจกรรม"}
               </Button>
               {editingId && (
-                <Button type="button" variant="outline" onClick={resetForm}>
+                <Button type="button" variant="outline" onClick={resetForm} className="h-11 rounded-full border-slate-200 px-5">
                   ยกเลิก
                 </Button>
               )}
@@ -462,18 +468,22 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
       </Card>
 
       {/* Activities List */}
-      <Card>
+      <Card className="overflow-hidden rounded-3xl border-violet-100 shadow-[0_12px_30px_-16px_rgba(139,92,246,0.5)]">
+        <div className="flex items-center gap-3 bg-gradient-to-r from-violet-100 via-indigo-50 to-sky-100 px-6 py-4">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-xl shadow-sm">📚</span>
+          <h2 className="text-xl font-bold text-indigo-900">รายการกิจกรรมทั้งหมด</h2>
+        </div>
         <CardContent className="pt-6">
-          <h2 className="text-2xl font-bold mb-4">รายการกิจกรรมทั้งหมด</h2>
           
           {/* Search and Filter */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-4 rounded-2xl bg-slate-50 p-4 md:grid-cols-2">
             <div>
               <Label htmlFor="search">ค้นหาชื่อกิจกรรม</Label>
               <Input
                 id="search"
                 type="text"
-                placeholder="ค้นหาจากชื่อกิจกรรม..."
+                placeholder="🔍 ค้นหาจากชื่อกิจกรรม..."
+                className="mt-1 h-11 rounded-xl bg-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -481,7 +491,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
             <div>
               <Label htmlFor="filter-category">ประเภทกิจกรรม</Label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger id="filter-category">
+                <SelectTrigger id="filter-category" className="mt-1 h-11 rounded-xl bg-white">
                   <SelectValue placeholder="เลือกประเภทกิจกรรม" />
                 </SelectTrigger>
                 <SelectContent>
@@ -510,7 +520,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-indigo-50/70 hover:bg-indigo-50/70">
                     <TableHead>ภาพปก</TableHead>
                     <TableHead>หัวข้อ</TableHead>
                     <TableHead>ประเภท</TableHead>
@@ -523,23 +533,23 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                   {filteredActivities.map((activity) => {
                     const canManage = userRole === "admin" || (!!currentUserId && activity.user_id === currentUserId);
                     return (
-                    <TableRow key={activity.id}>
+                    <TableRow key={activity.id} className="transition-colors hover:bg-sky-50/60">
                       <TableCell>
                         {activity.images && activity.images.length > 0 ? (
                           <img
                             src={activity.images[activity.cover_image_index || 0]}
                             alt={activity.title}
-                            className="w-20 h-20 object-cover rounded-lg"
+                            className="h-20 w-20 rounded-xl object-cover shadow-sm ring-2 ring-white"
                           />
                         ) : (
-                          <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-violet-100">
                             <ImageIcon className="w-8 h-8 text-gray-400" />
                           </div>
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{activity.title}</TableCell>
                       <TableCell>
-                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${activity.category === "กิจกรรมภายนอก" ? "bg-amber-100 text-amber-800" : "bg-sky-100 text-sky-800"}`}>
                           {activity.category || 'กิจกรรมภายใน'}
                         </span>
                       </TableCell>
@@ -552,6 +562,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                             size="icon"
                             onClick={() => handleCopyLink(activity.id)}
                             title="คัดลอกลิงก์"
+                            className="rounded-full bg-sky-50 text-sky-700 hover:bg-sky-100"
                           >
                             <Share2 className="w-4 h-4" />
                           </Button>
@@ -560,6 +571,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                             size="icon"
                             onClick={() => handleShareFacebook(activity)}
                             title="แชร์ Facebook"
+                            className="rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
                           >
                             <Facebook className="w-4 h-4" />
                           </Button>
@@ -569,6 +581,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                               size="icon"
                               onClick={() => handleEdit(activity)}
                               title="แก้ไข"
+                              className="rounded-full bg-amber-50 text-amber-700 hover:bg-amber-100"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -579,6 +592,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                               size="icon"
                               onClick={() => handleDelete(activity.id)}
                               title="ลบ"
+                              className="rounded-full bg-rose-50 hover:bg-rose-100"
                             >
                               <Trash2 className="w-4 h-4 text-red-500" />
                             </Button>

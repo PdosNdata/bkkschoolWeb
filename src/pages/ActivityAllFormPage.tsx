@@ -49,21 +49,25 @@ const ActivityAllFormPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-white to-violet-50/60">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard")}
-          className="mb-4 gap-2"
+          className="mb-4 gap-2 rounded-full text-sky-800 hover:bg-sky-100"
         >
           <ArrowLeft className="h-4 w-4" />
           ย้อนกลับ Dashboard
         </Button>
-        <h1 className="text-3xl font-bold mb-2">จัดการกิจกรรมทั้งหมด</h1>
-        <p className="text-muted-foreground mb-8">
-          เพิ่ม แก้ไข และจัดการกิจกรรมของโรงเรียน
-        </p>
+        <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-sky-400 via-indigo-400 to-violet-400 p-6 text-white shadow-[0_14px_30px_-14px_rgba(99,102,241,0.55)]">
+          <span aria-hidden className="pointer-events-none absolute -right-4 -top-6 text-8xl opacity-20">📅</span>
+          <span aria-hidden className="pointer-events-none absolute -bottom-6 right-32 text-6xl opacity-15">🎉</span>
+          <h1 className="relative mb-1 text-3xl font-bold drop-shadow-sm">จัดการกิจกรรมทั้งหมด</h1>
+          <p className="relative text-white/90">
+            เพิ่ม แก้ไข และจัดการกิจกรรมของโรงเรียน
+          </p>
+        </div>
         <ActivityAllForm userRole={userRole} />
       </main>
       <Footer />
