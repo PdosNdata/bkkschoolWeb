@@ -41,7 +41,7 @@ import CardStylesPage from "./pages/CardStylesPage";
 import NotFound from "./pages/NotFound";
 import ScrollManager from "./components/ScrollManager";
 import AfterLoginRedirect from "./components/AfterLoginRedirect";
-import { rememberAfterLogin } from "@/lib/afterLogin";
+import { hasAfterLogin, rememberAfterLogin, takeAfterLogin } from "@/lib/afterLogin";
 
 
 const queryClient = new QueryClient();
@@ -63,7 +63,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (event === "SIGNED_IN") {
         const uid = session?.user?.id ?? null;
-        const isNewLogin = uid !== knownUserId.current;
+        // นับเป็น "ล็อกอินใหม่" เฉพาะเมื่อแท็บนี้รู้แล้วว่าก่อนหน้าไม่มีผู้ใช้ (null) หรือเป็นคนอื่น
+        // ตอนเปิดหน้าขณะล็อกอินค้างไว้ Supabase ส่ง SIGNED_IN มาก่อน INITIAL_SESSION (ค่ายังเป็น undefined)
+        // ถ้านับเป็นล็อกอินใหม่ด้วย ทุกลิงก์ เช่น /#agri-lunch หรือ /project-ledger จะถูกพาไปแดชบอร์ด
+        const isNewLogin = knownUserId.current !== undefined && uid !== knownUserId.current;
         knownUserId.current = uid;
 
         // Clean token fragment after Supabase sets the session
@@ -105,6 +108,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // later getSession()/request in the tab hangs until a reload.
           // Defer it (same as the role check above).
           setTimeout(async () => {
+            // มีหน้าที่ผู้ใช้ตั้งใจจะเปิดค้างไว้ (เช่น /project-ledger) → AfterLoginRedirect พาไปหน้านั้นแทน
+            if (hasAfterLogin()) return;
             const { data: canAccess } = await supabase.rpc("can_access_dashboard");
             if (canAccess === true) {
               navigate("/dashboard", { replace: true });
@@ -133,6 +138,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Route based on whether the user may access the dashboard
           if (session) {
+            // กลับมาจาก Google และมีหน้าที่จำไว้ → ไปหน้านั้น (สิทธิ์ตรวจที่ ProtectedRoute ของหน้านั้นเอง)
+            const target = takeAfterLogin();
+            if (target) {
+              navigate(target, { replace: true });
+              return;
+            }
             supabase.rpc("can_access_dashboard").then(({ data: canAccess }) => {
               if (canAccess === true) {
                 if (!location.pathname.startsWith("/dashboard")) {
