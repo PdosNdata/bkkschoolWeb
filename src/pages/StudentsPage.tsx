@@ -651,18 +651,19 @@ const StudentsPage = () => {
 
       {/* head-count by class */}
       <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[96vh] max-w-lg flex-col gap-3 p-4 sm:p-5">
+          <DialogHeader className="space-y-0.5 pr-6">
             <DialogTitle>สรุปจำนวนนักเรียน</DialogTitle>
             <DialogDescription>แยกตามชั้น ชาย หญิง รวม (นับเฉพาะนักเรียนที่กำลังศึกษา)</DialogDescription>
           </DialogHeader>
-          <Table className="text-sm sm:text-base">
-            <TableHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border">
+          <Table className="text-sm">
+            <TableHeader className="sticky top-0 z-10 bg-background shadow-[0_1px_0_hsl(var(--border))]">
               <TableRow>
-                <TableHead className="px-2 sm:px-4">ชั้น</TableHead>
-                <TableHead className="px-2 text-right sm:px-4">หญิง</TableHead>
-                <TableHead className="px-2 text-right sm:px-4">ชาย</TableHead>
-                <TableHead className="px-2 text-right sm:px-4">รวม</TableHead>
+                <TableHead className="h-8 px-2 sm:px-4">ชั้น</TableHead>
+                <TableHead className="h-8 px-2 text-right sm:px-4">หญิง</TableHead>
+                <TableHead className="h-8 px-2 text-right sm:px-4">ชาย</TableHead>
+                <TableHead className="h-8 px-2 text-right sm:px-4">รวม</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -671,21 +672,22 @@ const StudentsPage = () => {
                   key={r.label}
                   className={r.kind === "grand" ? "bg-muted font-bold" : r.kind === "subtotal" ? "bg-muted/50 font-semibold" : ""}
                 >
-                  <TableCell className="whitespace-nowrap px-2 py-1.5 sm:px-4">{r.label}</TableCell>
-                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.female}</TableCell>
-                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.male}</TableCell>
-                  <TableCell className="px-2 py-1.5 text-right sm:px-4">{r.total}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-1 sm:px-4">{r.label}</TableCell>
+                  <TableCell className="px-2 py-1 text-right sm:px-4">{r.female}</TableCell>
+                  <TableCell className="px-2 py-1 text-right sm:px-4">{r.male}</TableCell>
+                  <TableCell className="px-2 py-1 text-right sm:px-4">{r.total}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          </div>
           {(summary.noGender > 0 || summary.otherClass > 0) && (
             <div className="space-y-1 text-sm text-amber-700">
               {summary.noGender > 0 && <p>มี {summary.noGender} คนที่ไม่มีข้อมูลเพศ — นับในช่อง "รวม" เท่านั้น (แก้ไขเพศได้ในหน้ารายชื่อ)</p>}
               {summary.otherClass > 0 && <p>มี {summary.otherClass} คนที่ชั้นไม่อยู่ในตาราง (ป.1–ม.3) — ไม่ถูกนับ</p>}
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="shrink-0 gap-2 sm:gap-0">
             <Button variant="outline" onClick={copySummary}><Copy className="mr-2 h-4 w-4" />คัดลอกไป Excel</Button>
             <Button variant="outline" onClick={printSummary}><Printer className="mr-2 h-4 w-4" />พิมพ์</Button>
             <Button onClick={() => setSummaryOpen(false)}>ปิด</Button>
