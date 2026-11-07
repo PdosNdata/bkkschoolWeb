@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import VoiceInputButton from "@/components/VoiceInputButton";
 import { shrinkImage } from "@/lib/shrinkImage";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
+  const [titleInterim, setTitleInterim] = useState(""); // ข้อความระหว่างพูดหัวข้อ
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -357,15 +359,22 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="rounded-2xl border p-4 shadow-sm border-sky-100 bg-sky-50/60">
               <Label htmlFor="title" className="mb-2 flex items-center gap-2 text-base font-semibold text-sky-900">📌 ชื่อหัวข้อ *</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="ระบุชื่อหัวข้อกิจกรรม"
-                className="h-11 rounded-xl bg-white shadow-inner border-sky-200 focus-visible:ring-sky-400"
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="ระบุชื่อหัวข้อกิจกรรม หรือกดปุ่ม พูด"
+                  className="h-11 rounded-xl bg-white shadow-inner border-sky-200 focus-visible:ring-sky-400"
+                  required
+                />
+                <VoiceInputButton
+                  onText={(t) => setFormData((prev) => ({ ...prev, title: prev.title ? `${prev.title} ${t}` : t }))}
+                  onInterim={setTitleInterim}
+                />
+              </div>
+              {titleInterim && <p className="mt-2 rounded-lg bg-white/80 px-3 py-1.5 text-sm text-sky-800">🗣️ {titleInterim}</p>}
             </div>
 
             <div className="rounded-2xl border p-4 shadow-sm border-teal-100 bg-teal-50/60">
