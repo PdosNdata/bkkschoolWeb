@@ -19,9 +19,16 @@ interface Props {
   /** ข้อความระหว่างพูด (ยังไม่จบประโยค) — ใช้แสดงตัวอย่าง */
   onInterim?: (text: string) => void;
   className?: string;
+  /** สีปุ่มตอนยังไม่ฟัง */
+  tone?: "sky" | "violet";
 }
 
-const VoiceInputButton = ({ onText, onInterim, className = "" }: Props) => {
+const TONES = {
+  sky: "bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50",
+  violet: "bg-white text-violet-700 ring-1 ring-violet-200 hover:bg-violet-50",
+};
+
+const VoiceInputButton = ({ onText, onInterim, className = "", tone = "sky" }: Props) => {
   const { toast } = useToast();
   const [listening, setListening] = useState(false);
   const recRef = useRef<Recognition | null>(null);
@@ -89,7 +96,7 @@ const VoiceInputButton = ({ onText, onInterim, className = "" }: Props) => {
       title={listening ? "หยุดฟัง" : "กดแล้วพูด (ภาษาไทย)"}
       aria-pressed={listening}
       className={`inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold shadow-sm transition active:scale-95 ${
-        listening ? "animate-pulse bg-rose-500 text-white ring-4 ring-rose-200" : "bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50"
+        listening ? "animate-pulse bg-rose-500 text-white ring-4 ring-rose-200" : TONES[tone]
       } ${className}`}
     >
       {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}

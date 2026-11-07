@@ -412,7 +412,7 @@ const ActivityAllForm = ({ userRole }: ActivityAllFormProps) => {
                 <VoiceInputButton
                   onText={(t) => setFormData((prev) => ({ ...prev, content: prev.content ? `${prev.content} ${t}` : t }))}
                   onInterim={setContentInterim}
-                  className="text-violet-700 ring-violet-200 hover:bg-violet-50"
+                  tone="violet"
                 />
               </div>
               <Textarea
