@@ -20,12 +20,13 @@ interface Props {
   onInterim?: (text: string) => void;
   className?: string;
   /** สีปุ่มตอนยังไม่ฟัง */
-  tone?: "sky" | "violet";
+  tone?: "sky" | "violet" | "emerald";
 }
 
 const TONES = {
   sky: "bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50",
   violet: "bg-white text-violet-700 ring-1 ring-violet-200 hover:bg-violet-50",
+  emerald: "bg-white text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50",
 };
 
 const VoiceInputButton = ({ onText, onInterim, className = "", tone = "sky" }: Props) => {

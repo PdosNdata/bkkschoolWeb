@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import VoiceInputButton from "@/components/VoiceInputButton";
 import { shrinkImage } from "@/lib/shrinkImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,8 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState("");
+  const [titleInterim, setTitleInterim] = useState(""); // ข้อความระหว่างพูดหัวข้อ
+  const [contentInterim, setContentInterim] = useState(""); // ข้อความระหว่างพูดเนื้อหา
   const [formData, setFormData] = useState<ActivitiesFormData>({
     title: "",
     content: "",
@@ -485,16 +488,21 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2 col-span-1 md:col-span-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
-                <Label htmlFor="title" className="text-base font-bold text-emerald-900">📝 หัวข้อกิจกรรม</Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="title" className="text-base font-bold text-emerald-900">📝 หัวข้อกิจกรรม</Label>
+                  <VoiceInputButton tone="emerald" onInterim={setTitleInterim}
+                    onText={(t) => setFormData((prev) => ({ ...prev, title: prev.title ? `${prev.title} ${t}` : t }))} />
+                </div>
                 <Textarea
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  placeholder="กรอกหัวข้อกิจกรรม"
+                  placeholder="กรอกหัวข้อกิจกรรม หรือกดปุ่ม พูด"
                   className="rounded-xl border-emerald-200 bg-emerald-50/40 shadow-inner focus-visible:ring-emerald-500"
                   rows={3}
                   required
                 />
+                {titleInterim && <p className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm text-emerald-800">🗣️ {titleInterim}</p>}
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
                 <Label htmlFor="author" className="text-base font-bold text-emerald-900">🧑‍🌾 ผู้จัดกิจกรรม</Label>
@@ -572,16 +580,21 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
             </div>
 
             <div className="space-y-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
-              <Label htmlFor="content" className="text-base font-bold text-emerald-900">📖 เนื้อหากิจกรรม</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="content" className="text-base font-bold text-emerald-900">📖 เนื้อหากิจกรรม</Label>
+                <VoiceInputButton tone="emerald" onInterim={setContentInterim}
+                  onText={(t) => setFormData((prev) => ({ ...prev, content: prev.content ? `${prev.content} ${t}` : t }))} />
+              </div>
               <Textarea
                 id="content"
                 value={formData.content}
                 onChange={(e) => handleInputChange('content', e.target.value)}
-                placeholder="กรอกรายละเอียดกิจกรรม"
+                placeholder="กรอกรายละเอียดกิจกรรม หรือกดปุ่ม พูด แล้วเล่าได้เลย"
                 className="rounded-xl border-emerald-200 bg-emerald-50/40 shadow-inner focus-visible:ring-emerald-500"
                 rows={8}
                 required
               />
+              {contentInterim && <p className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm text-emerald-800">🗣️ {contentInterim}</p>}
             </div>
 
             <div className="flex justify-between gap-3 pt-1">
