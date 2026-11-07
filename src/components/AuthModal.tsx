@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { takeAfterLogin } from "@/lib/afterLogin";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -63,7 +64,8 @@ const AuthModal = ({
         // Permission is enforced on the dashboard page load (ProtectedRoute),
         // where the session token is fully settled. Users without access are
         // sent back to the home page from there.
-        window.location.assign('/dashboard');
+        // ถ้าถูกส่งมาให้ล็อกอินจากหน้าที่ต้องการเปิด (เช่น /project-ledger) → กลับไปหน้านั้นเลย
+        window.location.assign(takeAfterLogin() ?? '/dashboard');
       } else {
         if (formData.password !== formData.confirmPassword) {
           await Swal.fire({

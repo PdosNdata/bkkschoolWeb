@@ -40,6 +40,8 @@ import HomeLayoutPage from "./pages/HomeLayoutPage";
 import CardStylesPage from "./pages/CardStylesPage";
 import NotFound from "./pages/NotFound";
 import ScrollManager from "./components/ScrollManager";
+import AfterLoginRedirect from "./components/AfterLoginRedirect";
+import { rememberAfterLogin } from "@/lib/afterLogin";
 
 
 const queryClient = new QueryClient();
@@ -174,9 +176,16 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       }
     };
 
-    const deny = async (message?: string) => {
+    // askLogin: ยังไม่ได้ล็อกอิน → จำหน้านี้ไว้ แล้วไปหน้าแรกพร้อมเปิดกล่องเข้าสู่ระบบ
+    // ล็อกอินเสร็จจะกลับมาหน้านี้เอง (AfterLoginRedirect)
+    const deny = async (message?: string, askLogin = false) => {
       if (!mounted || settled) return;
       settled = true;
+      if (askLogin) {
+        rememberAfterLogin(window.location.pathname + window.location.search);
+        navigate("/?login=1", { replace: true });
+        return;
+      }
       if (message) {
         await Swal.fire({
           icon: "info",
@@ -213,7 +222,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
         if ((hasCode || hasAuthInHash) && attempt < 5) {
           setTimeout(() => { if (mounted) evaluate(attempt + 1); }, 800);
         } else {
-          deny();
+          deny(undefined, true);
         }
         return;
       }
@@ -247,7 +256,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       if (session) {
         evaluate();
       } else {
-        deny();
+        deny(undefined, true);
       }
     });
 
@@ -281,6 +290,7 @@ const App = () => {
         <SpeedInsights />
         <BrowserRouter>
           <ScrollManager />
+          <AfterLoginRedirect />
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />

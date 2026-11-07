@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import popupImage from "@/assets/popup-image-optimized.webp";
+import { hasAfterLogin } from "@/lib/afterLogin";
 
 const POPUP_SEEN_KEY = "bkk-popup-seen";
 const ImagePopup = () => {
@@ -9,7 +10,8 @@ const ImagePopup = () => {
   useEffect(() => {
     // แสดงครั้งเดียวต่อการเข้าเว็บ (ไม่เด้งซ้ำทุกครั้งที่กลับมาหน้าแรก ซึ่งล็อกการเลื่อนหน้า)
     // และไม่แสดงเมื่อเปิดลิงก์ตรงไปที่หัวข้อ เช่น /#agri-lunch จาก LINE จะได้เห็นเนื้อหาทันที
-    if (window.location.hash) return;
+    // และไม่แสดงเมื่อถูกส่งมาให้ล็อกอินก่อนเข้าหน้าที่จำไว้ (กล่องเข้าสู่ระบบจะเปิดแทน)
+    if (window.location.hash || window.location.search.includes("login=1") || hasAfterLogin()) return;
     try {
       if (sessionStorage.getItem(POPUP_SEEN_KEY)) return;
     } catch {

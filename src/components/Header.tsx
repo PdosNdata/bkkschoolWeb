@@ -81,6 +81,16 @@ const fetchProfile = async (uid: string, emailFallback?: string | null) => {
   }
 };
 
+  // /?login=1 (ส่งมาจากหน้าที่ต้องล็อกอิน) → เปิดกล่องเข้าสู่ระบบทันที แล้วลบพารามิเตอร์ออกจาก URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("login") !== "1") return;
+    setIsAuthModalOpen(true);
+    params.delete("login");
+    const rest = params.toString();
+    navigate({ pathname: location.pathname, search: rest ? `?${rest}` : "", hash: location.hash }, { replace: true });
+  }, [location.search, location.pathname, location.hash, navigate]);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const uid = session?.user?.id || null;
