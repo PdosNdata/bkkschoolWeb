@@ -13,6 +13,32 @@ import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
 
 const MAX_IMAGE_MB = 12;
+const MAX_IMAGES = 50; // รูปต่อกิจกรรม
+const MAX_SIDE = 1920; // ย่อรูปให้ด้านยาวไม่เกินนี้ก่อนอัพโหลด (ไฟล์เล็กลง อัพโหลด 50 รูปได้เร็ว)
+
+/** ย่อรูปใหญ่เป็น JPEG ก่อนอัพโหลด — ถ้าย่อไม่ได้ (เช่น GIF, HEIC ที่เบราว์เซอร์ไม่รองรับ) ใช้ไฟล์เดิม */
+async function shrinkImage(file: File): Promise<File> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    if (scale === 1 && file.size < 1.5 * 1024 * 1024) { bmp.close(); return file; }
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bmp.width * scale);
+    canvas.height = Math.round(bmp.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) { bmp.close(); return file; }
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    bmp.close();
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
 const ACTIVITY_CATEGORY = "กิจกรรมด้วยรักและห่วงใย";
 
 interface ActivitiesFormData {
@@ -51,6 +77,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState("");
   const [formData, setFormData] = useState<ActivitiesFormData>({
     title: "",
     content: "",
@@ -117,11 +144,11 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files || []);
 
-    // Check if total images exceed 10
-    if (selectedFiles.length + picked.length > 10) {
+    // นับรวมรูปเดิมของกิจกรรม (ตอนแก้ไข) + รูปที่เลือกใหม่
+    if (imagePreviews.length + picked.length > MAX_IMAGES) {
       toast({
         title: "เกินจำนวนที่กำหนด",
-        description: "สามารถอัพโหลดรูปภาพได้สูงสุด 10 รูปเท่านั้น",
+        description: `ใส่รูปได้สูงสุด ${MAX_IMAGES} รูปต่อกิจกรรม (ตอนนี้มี ${imagePreviews.length} รูป เพิ่มได้อีก ${Math.max(0, MAX_IMAGES - imagePreviews.length)} รูป)`,
         variant: "destructive",
       });
       return;
@@ -162,41 +189,37 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
   };
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
-    
-    for (const file of files) {
+    const urls: (string | null)[] = new Array(files.length).fill(null);
+    let done = 0;
+    setUploadProgress(`กำลังอัพโหลดรูป 0/${files.length}`);
+    const one = async (file: File, i: number) => {
       try {
-        const fileExt = file.name.split('.').pop();
+        const small = await shrinkImage(file);
+        const fileExt = small.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `activities/${fileName}`;
-
         const { error: uploadError } = await withTimeout(
-          supabase.storage.from('news-images').upload(filePath, file),
-          30000,
+          supabase.storage.from('news-images').upload(filePath, small),
+          60000,
           `อัพโหลดรูปภาพ ${file.name}`,
         );
-
-        if (uploadError) {
-          throw uploadError;
-        }
-
-        const { data } = supabase.storage
-          .from('news-images')
-          .getPublicUrl(filePath);
-
-        uploadedUrls.push(data.publicUrl);
+        if (uploadError) throw uploadError;
+        urls[i] = supabase.storage.from('news-images').getPublicUrl(filePath).data.publicUrl;
       } catch (error) {
         console.error('Error uploading image:', error);
         const message = error instanceof Error ? error.message : `ไม่สามารถอัพโหลดรูปภาพ ${file.name} ได้`;
-        toast({
-          title: "อัพโหลดรูปภาพไม่สำเร็จ",
-          description: message,
-          variant: "destructive",
-        });
+        toast({ title: "อัพโหลดรูปภาพไม่สำเร็จ", description: message, variant: "destructive" });
+      } finally {
+        done++;
+        setUploadProgress(`กำลังอัพโหลดรูป ${done}/${files.length}`);
       }
-    }
-
-    return uploadedUrls;
+    };
+    // อัพโหลดพร้อมกันทีละ 4 รูป (คงลำดับรูปตามที่เลือก)
+    let next = 0;
+    const worker = async () => { while (next < files.length) { const i = next++; await one(files[i], i); } };
+    await Promise.all(Array.from({ length: Math.min(4, files.length) }, worker));
+    setUploadProgress("");
+    return urls.filter((u): u is string => !!u);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -502,7 +525,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="activity-images">รูปภาพกิจกรรม (สูงสุด 10 รูป)</Label>
+              <Label htmlFor="activity-images">รูปภาพกิจกรรม (สูงสุด {MAX_IMAGES} รูป)</Label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                 <input
                   type="file"
@@ -518,7 +541,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                 >
                   <Upload className="h-8 w-8 text-gray-400" />
                   <p className="text-sm text-gray-500">คลิกเพื่ออัพโหลดรูปภาพกิจกรรม</p>
-                  <p className="text-xs text-gray-400">({imagePreviews.length}/10 รูป)</p>
+                  <p className="text-xs text-gray-400">({imagePreviews.length}/{MAX_IMAGES} รูป · เลือกหลายรูปพร้อมกันได้ ระบบย่อขนาดให้อัตโนมัติ)</p>
                 </label>
               </div>
 
@@ -586,7 +609,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                 กลับ
               </Button>
               <Button type="submit" disabled={uploading}>
-                {uploading ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "บันทึกกิจกรรม"}
+                {uploading ? (uploadProgress || "กำลังบันทึก...") : editingId ? "บันทึกการแก้ไข" : "บันทึกกิจกรรม"}
               </Button>
             </div>
           </form>

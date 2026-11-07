@@ -62,8 +62,8 @@ const ActivitiesFormPage = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-4">กิจกรรมภายในโรงเรียน</h1>
-          <p className="text-lg text-muted-foreground">จัดการกิจกรรมและข้อมูลกิจกรรมของโรงเรียน</p>
+          <h1 className="text-4xl font-bold text-primary mb-4">กิจกรรมเกษตรเพื่ออาหารกลางวัน</h1>
+          <p className="text-lg text-muted-foreground">บันทึกกิจกรรมเกษตรเพื่ออาหารกลางวันของโรงเรียน</p>
         </div>
         <ActivitiesForm />
       </main>
