@@ -62,13 +62,20 @@ const ScrollManager = () => {
     } else if (location.hash) {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       const id = decodeURIComponent(location.hash.slice(1));
+      // กระโดดไปที่หัวข้อทันที (ไม่ใช้ smooth) แล้วคอยจัดให้ตรงซ้ำจนเนื้อหาด้านบนโหลดเสร็จ
+      // ไม่อย่างนั้นรูป/การ์ดที่โหลดทีหลังจะดันหัวข้อลงไป ผู้ใช้ไม่ได้อยู่ตรงหัวข้อจริง
       const seek = () => {
         if (cancelled) return;
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        else if (Date.now() - started < MAX_WAIT_MS) timer = setTimeout(seek, 100);
+        if (el) {
+          const offset = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+          if (Math.abs(el.getBoundingClientRect().top - offset) > 4) {
+            el.scrollIntoView({ behavior: "auto", block: "start" });
+          }
+        }
+        if (Date.now() - started < MAX_WAIT_MS + 2000) timer = setTimeout(seek, 150);
       };
-      timer = setTimeout(seek, 120);
+      timer = setTimeout(seek, 60);
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }

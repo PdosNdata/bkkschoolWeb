@@ -78,13 +78,7 @@ const HeroSection = () => {
     },
   });
 
-  // เปิดลิงก์ /#agri-lunch → เลื่อนมาที่หัวข้อ (รอให้การ์ดโหลดก่อน ตำแหน่งจะได้ไม่เลื่อน)
-  const loaded = activities.length > 0;
-  useEffect(() => {
-    if (window.location.hash !== `#${AGRI_LUNCH_ANCHOR}`) return;
-    const t = setTimeout(() => document.getElementById(AGRI_LUNCH_ANCHOR)?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
-    return () => clearTimeout(t);
-  }, [loaded]);
+  // การเลื่อนมาที่หัวข้อเมื่อเปิดลิงก์ /#agri-lunch ทำใน components/ScrollManager.tsx (ใช้กับทุก #หัวข้อ)
 
   const copyLink = async () => {
     const url = `${window.location.origin}/#${AGRI_LUNCH_ANCHOR}`;
