@@ -482,51 +482,59 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
 
   return (
     <div className="space-y-8">
-      <Card className="mb-8 bg-gradient-to-br from-green-100 to-white dark:from-green-900/20 dark:to-background">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>{editingId ? "แก้ไขกิจกรรม" : "เพิ่มกิจกรรมใหม่"}</CardTitle>
+      <div className="mb-8 rounded-[28px] bg-gradient-to-br from-emerald-400 via-teal-400 to-lime-300 p-[3px] shadow-[0_18px_40px_-12px_rgba(5,150,105,0.45),0_6px_14px_-6px_rgba(13,148,136,0.35)]">
+      <Card className="overflow-hidden rounded-[25px] border-0 bg-gradient-to-br from-emerald-50 via-white to-lime-50 dark:from-green-900/20 dark:to-background">
+        <CardHeader className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 text-white shadow-[inset_0_-4px_0_rgba(0,0,0,0.12)]">
+          <span aria-hidden className="pointer-events-none absolute -right-6 -top-8 text-8xl opacity-20">🌱</span>
+          <span aria-hidden className="pointer-events-none absolute -bottom-5 right-28 text-6xl opacity-15">🥬</span>
+          <div className="relative flex items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-3 text-2xl font-extrabold drop-shadow">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/90 text-2xl shadow-[inset_0_-3px_0_rgba(0,0,0,0.12),0_4px_10px_rgba(0,0,0,0.18)]">{editingId ? "✏️" : "🌾"}</span>
+              {editingId ? "แก้ไขกิจกรรม" : "เพิ่มกิจกรรมใหม่"}
+            </CardTitle>
             {editingId && (
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={resetForm}
-                className="text-sm"
+                className="rounded-full border-white/60 bg-white/90 text-sm font-bold text-emerald-800 shadow hover:bg-white"
               >
                 ยกเลิกการแก้ไข
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label htmlFor="title">หัวข้อกิจกรรม</Label>
+              <div className="space-y-2 col-span-1 md:col-span-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
+                <Label htmlFor="title" className="text-base font-bold text-emerald-900">📝 หัวข้อกิจกรรม</Label>
                 <Textarea
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder="กรอกหัวข้อกิจกรรม"
+                  className="rounded-xl border-emerald-200 bg-emerald-50/40 shadow-inner focus-visible:ring-emerald-500"
                   rows={3}
                   required
                 />
               </div>
-              <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label htmlFor="author">ผู้จัดกิจกรรม</Label>
+              <div className="space-y-2 col-span-1 md:col-span-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
+                <Label htmlFor="author" className="text-base font-bold text-emerald-900">🧑‍🌾 ผู้จัดกิจกรรม</Label>
                 <Input
                   id="author"
                   value={formData.author_name}
                   onChange={(e) => handleInputChange('author_name', e.target.value)}
                   placeholder="ชื่อผู้จัดกิจกรรม"
+                  className="h-11 rounded-xl border-emerald-200 bg-emerald-50/40 shadow-inner focus-visible:ring-emerald-500"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="activity-images">รูปภาพกิจกรรม (สูงสุด {MAX_IMAGES} รูป)</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="space-y-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
+              <Label htmlFor="activity-images" className="text-base font-bold text-emerald-900">📷 รูปภาพกิจกรรม (สูงสุด {MAX_IMAGES} รูป)</Label>
+              <div className="rounded-2xl border-2 border-dashed border-emerald-300 bg-gradient-to-b from-emerald-50 to-white p-5 shadow-inner transition hover:border-emerald-500 hover:from-emerald-100">
                 <input
                   type="file"
                   id="activity-images"
@@ -539,9 +547,9 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                   htmlFor="activity-images"
                   className="cursor-pointer flex flex-col items-center justify-center space-y-2"
                 >
-                  <Upload className="h-8 w-8 text-gray-400" />
-                  <p className="text-sm text-gray-500">คลิกเพื่ออัพโหลดรูปภาพกิจกรรม</p>
-                  <p className="text-xs text-gray-400">({imagePreviews.length}/{MAX_IMAGES} รูป · เลือกหลายรูปพร้อมกันได้ ระบบย่อขนาดให้อัตโนมัติ)</p>
+                  <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-emerald-400 to-teal-600 text-white shadow-[inset_0_-3px_0_rgba(0,0,0,0.15),0_6px_14px_-4px_rgba(5,150,105,0.6)]"><Upload className="h-7 w-7" /></span>
+                  <p className="text-base font-bold text-emerald-800">คลิกเพื่ออัพโหลดรูปภาพกิจกรรม</p>
+                  <p className="text-center text-xs text-emerald-700/70">({imagePreviews.length}/{MAX_IMAGES} รูป · เลือกหลายรูปพร้อมกันได้ ระบบย่อขนาดให้อัตโนมัติ)</p>
                 </label>
               </div>
 
@@ -550,7 +558,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative group">
+                      <div key={index} className="group relative rounded-xl bg-white p-1 shadow-[0_6px_14px_-6px_rgba(0,0,0,0.35)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_-8px_rgba(0,0,0,0.4)]">
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
@@ -586,40 +594,42 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="content">เนื้อหากิจกรรม</Label>
+            <div className="space-y-2 rounded-2xl border border-emerald-100 border-b-4 border-b-emerald-200 bg-white/90 p-4 shadow-[0_6px_18px_-8px_rgba(5,150,105,0.35)]">
+              <Label htmlFor="content" className="text-base font-bold text-emerald-900">📖 เนื้อหากิจกรรม</Label>
               <Textarea
                 id="content"
                 value={formData.content}
                 onChange={(e) => handleInputChange('content', e.target.value)}
                 placeholder="กรอกรายละเอียดกิจกรรม"
+                className="rounded-xl border-emerald-200 bg-emerald-50/40 shadow-inner focus-visible:ring-emerald-500"
                 rows={8}
                 required
               />
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-3 pt-1">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2"
+                className="flex h-12 items-center gap-2 rounded-2xl border-2 border-b-4 border-slate-200 bg-white px-5 font-bold shadow-md transition active:translate-y-[2px] active:border-b-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 กลับ
               </Button>
-              <Button type="submit" disabled={uploading}>
+              <Button type="submit" disabled={uploading} className="h-12 rounded-2xl border-b-4 border-emerald-800 bg-gradient-to-b from-emerald-500 to-teal-600 px-6 text-base font-extrabold text-white shadow-[0_10px_20px_-8px_rgba(5,150,105,0.7)] transition hover:from-emerald-500 hover:to-emerald-700 active:translate-y-[2px] active:border-b-2">
                 {uploading ? (uploadProgress || "กำลังบันทึก...") : editingId ? "บันทึกการแก้ไข" : "บันทึกกิจกรรม"}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+      </div>
 
       {/* Activities List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>รายการกิจกรรมทั้งหมด</CardTitle>
+      <Card className="overflow-hidden rounded-[26px] border border-emerald-100 border-b-4 border-b-emerald-200 shadow-[0_14px_32px_-14px_rgba(5,150,105,0.4)]">
+        <CardHeader className="bg-gradient-to-r from-emerald-50 to-lime-50 shadow-[inset_0_-1px_0_rgba(5,150,105,0.15)]">
+          <CardTitle className="flex items-center gap-2 text-xl font-extrabold text-emerald-900">📚 รายการกิจกรรมทั้งหมด</CardTitle>
         </CardHeader>
         <CardContent>
           {loadingActivities ? (
@@ -654,7 +664,7 @@ const ActivitiesForm = ({ onActivityAdded }: ActivitiesFormProps) => {
                               <img 
                                 src={activity.images[activity.cover_image_index || 0]} 
                                 alt="Activity cover" 
-                                className="w-16 h-16 object-cover rounded ring-2 ring-primary"
+                                className="h-16 w-16 rounded-xl object-cover shadow-md ring-2 ring-emerald-400"
                               />
                               {activity.images.length > 1 && (
                                 <div className="text-xs text-gray-500 flex items-center">
