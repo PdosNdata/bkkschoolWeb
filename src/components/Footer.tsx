@@ -68,7 +68,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-lg mb-4">ติดตามเรา</h4>
             <div className="flex space-x-3">
-              <a href="#" className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
+              <a href="https://www.facebook.com/bankhodonkhan" target="_blank" rel="noopener noreferrer" aria-label="Facebook โรงเรียนบ้านค้อดอนแคน" className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
                 <Facebook className="w-5 h-5" />
               </a>
               <a href="#" className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
