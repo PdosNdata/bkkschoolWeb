@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { withTimeout } from "@/lib/utils";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 const MAX_IMAGE_MB = 12;
 
@@ -136,7 +137,8 @@ const PersonnelFormPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const uploadPhoto = async (file: File): Promise<string | null> => {
+  const uploadPhoto = async (original: File): Promise<string | null> => {
+    const file = await shrinkImage(original, 600);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;

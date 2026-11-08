@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
 import { HomeSlide, homeSlidesTable, HOME_SLIDES_BUCKET, HOME_SLIDES_PREFIX } from "@/lib/homeSlides";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 const MAX_IMAGE_MB = 12;
 
@@ -108,7 +109,8 @@ const HomeSliderForm = () => {
     setImagePreview("");
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadImage = async (original: File): Promise<string> => {
+    const file = await shrinkImage(original);
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `${HOME_SLIDES_PREFIX}/${fileName}`;

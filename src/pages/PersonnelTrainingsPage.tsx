@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { withTimeout } from "@/lib/utils";
 import { downloadDocument, withShareVersion } from "@/lib/documents";
+import { shrinkImage } from "@/lib/shrinkImage";
 import {
   TRAININGS_BUCKET,
   TRAININGS_PREFIX,
@@ -221,10 +222,11 @@ const PersonnelTrainingsPage = () => {
       };
 
       if (file) {
-        const ext = file.name.split(".").pop() ?? "bin";
+        const cert = await shrinkImage(file); // ไฟล์ PDF ใช้ไฟล์เดิม
+        const ext = cert.name.split(".").pop() ?? "bin";
         const path = `${TRAININGS_PREFIX}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: upErr } = await withTimeout(
-          supabase.storage.from(TRAININGS_BUCKET).upload(path, file),
+          supabase.storage.from(TRAININGS_BUCKET).upload(path, cert),
           90000,
           "อัพโหลดเกียรติบัตร",
         );
@@ -240,10 +242,11 @@ const PersonnelTrainingsPage = () => {
       for (const img of newImages) {
         let url = uploadedImages.current.get(img);
         if (!url) {
-          const ext = img.name.split(".").pop() ?? "jpg";
+          const small = await shrinkImage(img);
+          const ext = small.name.split(".").pop() ?? "jpg";
           const imgPath = `${TRAININGS_PREFIX}/images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
           const { error: imgErr } = await withTimeout(
-            supabase.storage.from(TRAININGS_BUCKET).upload(imgPath, img),
+            supabase.storage.from(TRAININGS_BUCKET).upload(imgPath, small),
             60000,
             `อัพโหลดรูป ${img.name}`,
           );

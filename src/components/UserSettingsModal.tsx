@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 const MAX_AVATAR_MB = 8;
 
@@ -94,10 +95,11 @@ const UserSettingsModal = ({ isOpen, onClose }: UserSettingsModalProps) => {
       let uploadedUrl: string | null = avatarUrl;
       if (file) {
         // Safe storage key: keep only the extension (Thai/long names not needed)
-        const ext = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+        const small = await shrinkImage(file, 600);
+        const ext = small.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
         const path = `${user.id}/${Date.now()}.${ext}`;
         const { error: uploadError } = await withTimeout(
-          supabase.storage.from('avatars').upload(path, file, { upsert: true }),
+          supabase.storage.from('avatars').upload(path, small, { upsert: true }),
           60000,
           "อัพโหลดรูปโปรไฟล์",
         );

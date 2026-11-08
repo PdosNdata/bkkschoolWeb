@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Edit, Upload } from "lucide-react";
 import { cn, withTimeout } from "@/lib/utils";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 const MAX_IMAGE_MB = 12;
 import { supabase } from "@/integrations/supabase/client";
@@ -109,7 +110,8 @@ const MediaForm = ({ editingMedia, onSuccess }: MediaFormProps) => {
     reader.readAsDataURL(file);
   };
 
-  const uploadThumbnail = async (file: File): Promise<string | null> => {
+  const uploadThumbnail = async (original: File): Promise<string | null> => {
+    const file = await shrinkImage(original, 1000);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;

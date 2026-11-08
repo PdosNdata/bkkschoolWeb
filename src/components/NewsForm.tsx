@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Edit, Trash2, Share2, Copy, Link, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { withTimeout } from "@/lib/utils";
+import { shrinkImage } from "@/lib/shrinkImage";
 
 const MAX_IMAGE_MB = 12;
 
@@ -145,7 +146,8 @@ const NewsForm = ({ onNewsAdded }: NewsFormProps) => {
     setFormData(prev => ({ ...prev, cover_image: "" }));
   };
 
-  const uploadImage = async (file: File): Promise<string | null> => {
+  const uploadImage = async (original: File): Promise<string | null> => {
+    const file = await shrinkImage(original);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
