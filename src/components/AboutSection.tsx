@@ -1,3 +1,4 @@
+import SectionLinkButton from "@/components/home/SectionLinkButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
@@ -15,15 +16,16 @@ const STATS = [
 
 const AboutSection = () => {
   const [isImageOpen, setIsImageOpen] = useState(false);
-  return <section id="history" className="py-20 bg-background">
+  return <section id="history" className="scroll-mt-20 py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">
             <GraduationCap className="w-4 h-4 mr-2" />
             ประวัติโรงเรียน
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            โรงเรียนบ้านค้อดอนแคน
+          <h2 className="mb-4 flex flex-wrap items-center justify-center gap-3 text-3xl font-bold text-foreground md:text-4xl">
+            <a href="#history" className="decoration-primary/40 underline-offset-4 hover:underline">โรงเรียนบ้านค้อดอนแคน</a>
+            <SectionLinkButton anchor="history" label="ประวัติโรงเรียน" />
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             ก่อตั้งขึ้นเพื่อเป็นแหล่งเรียนรู้และพัฒนาการศึกษาในท้องถิ่น 
