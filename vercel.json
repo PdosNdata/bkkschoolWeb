@@ -1,7 +1,8 @@
 {
   "redirects": [
     { "source": "/krtom-classroom", "destination": "https://krtomcai.bankhodonkhan.ac.th/", "permanent": false },
-    { "source": "/krtom-classroom/:path*", "destination": "https://krtomcai.bankhodonkhan.ac.th/:path*", "permanent": false },
+    { "source": "/krtom-classroom/", "destination": "https://krtomcai.bankhodonkhan.ac.th/", "permanent": false },
+    { "source": "/krtom-classroom/:path+", "destination": "https://krtomcai.bankhodonkhan.ac.th/:path", "permanent": false },
     { "source": "/omr", "destination": "/omr/", "permanent": false },
     { "source": "/pp5", "destination": "/pp5/", "permanent": false }
   ],
