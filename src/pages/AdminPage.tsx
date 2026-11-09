@@ -14,6 +14,16 @@ import Footer from "@/components/Footer";
 import { Trash2, Plus, Search, Upload, CheckCircle } from "lucide-react";
 import { DASHBOARD_MENU_PERMISSIONS } from "@/lib/dashboardMenus";
 
+/** เวลาล็อกอินล่าสุดแบบไทย เช่น "9 พ.ย. 2569 14:30 น." */
+const formatLastLogin = (iso: string | null | undefined) => {
+  if (!iso) return "ยังไม่เคย";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "ยังไม่เคย";
+  const day = d.toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", year: "numeric" });
+  const time = d.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${day} ${time} น.`;
+};
+
 interface UserRole {
   id: string;
   user_id: string;
@@ -60,6 +70,8 @@ const AdminPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  // เวลาล็อกอินล่าสุด: null = ยังโหลดไม่ได้ (เช่น ยังไม่ได้รัน SQL) จึงไม่แสดงบรรทัดนี้
+  const [lastLogins, setLastLogins] = useState<Record<string, string | null> | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isImporting, setIsImporting] = useState(false);
@@ -80,6 +92,7 @@ const AdminPage = () => {
   useEffect(() => {
     fetchUserRoles();
     fetchUserPermissions();
+    fetchLastLogins();
   }, []);
 
   const fetchUserRoles = async () => {
@@ -139,6 +152,18 @@ const AdminPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchLastLogins = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc("admin_user_last_logins");
+    if (error) {
+      console.warn("Last login times unavailable:", error.message);
+      return;
+    }
+    const map: Record<string, string | null> = {};
+    for (const row of (data ?? []) as { user_id: string; last_sign_in_at: string | null }[]) map[row.user_id] = row.last_sign_in_at;
+    setLastLogins(map);
   };
 
   const fetchUserPermissions = async () => {
@@ -728,6 +753,11 @@ const AdminPage = () => {
                                   <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0">
                                       <p className="max-w-[11.5rem] truncate text-sm font-medium" title={user.email}>{user.email}</p>
+                                      {lastLogins && (
+                                        <p className="mt-0.5 whitespace-nowrap text-[11px] text-slate-500">
+                                          ล็อกอินล่าสุด: {formatLastLogin(lastLogins[user.user_id])}
+                                        </p>
+                                      )}
                                       <div className="mt-0.5 flex flex-wrap gap-1">
                                         {user.roles.map((role, index) => (
                                           <Badge key={index} variant="outline" className="px-1.5 py-0 text-[10px]">
