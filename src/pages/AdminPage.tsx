@@ -635,6 +635,14 @@ const AdminPage = () => {
     
     return matchesSearch && matchesRole && matchesStatus;
   });
+  // เรียงคนที่ล็อกอินล่าสุดขึ้นก่อน คนที่ยังไม่เคยล็อกอินอยู่ท้าย (เท่ากันเรียงตามอีเมล)
+  if (lastLogins) {
+    const loginTime = (id: string) => {
+      const t = Date.parse(lastLogins[id] ?? "");
+      return Number.isNaN(t) ? 0 : t;
+    };
+    filteredUsers.sort((a, b) => loginTime(b.user_id) - loginTime(a.user_id) || a.email.localeCompare(b.email));
+  }
 
   if (isLoading) {
     return (
